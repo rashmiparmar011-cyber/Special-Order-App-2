@@ -33,7 +33,7 @@ const MEDICINES = [
     code: 'SPX-LIO-020',
     category: 'non-tariff',
     categoryLabel: 'Non-Tariff',
-    packSize: '28 tablets',
+    packSize: '28 Tablets',
     rxRequired: true,
     inStock: true,
     storage: 'Store below 25°C. Protect from light.',
@@ -46,7 +46,7 @@ const MEDICINES = [
     code: 'SPX-HYD-025',
     category: 'non-tariff',
     categoryLabel: 'Non-Tariff',
-    packSize: '30 capsules',
+    packSize: '30 Capsules',
     rxRequired: true,
     inStock: true,
     storage: 'Store in a dry place below 25°C.',
@@ -59,7 +59,7 @@ const MEDICINES = [
     code: 'IMP-CHE-250',
     category: 'non-tariff',
     categoryLabel: 'Non-Tariff',
-    packSize: '100 capsules',
+    packSize: '100 Capsules',
     rxRequired: true,
     inStock: true,
     storage: 'Store below 30°C.',
@@ -85,7 +85,7 @@ const MEDICINES = [
     code: 'TAR-ACE-250',
     category: 'tariff',
     categoryLabel: 'Tariff',
-    packSize: '112 tablets',
+    packSize: '112 Tablets',
     rxRequired: true,
     inStock: true,
     storage: 'Store below 25°C in original packaging.',
@@ -137,7 +137,7 @@ const MEDICINES = [
     code: 'IMP-MID-025',
     category: 'non-tariff',
     categoryLabel: 'Non-Tariff',
-    packSize: '100 tablets',
+    packSize: '100 Tablets',
     rxRequired: true,
     inStock: true,
     storage: 'Store below 25°C.',
@@ -202,7 +202,7 @@ const MEDICINES = [
     code: 'OBT-FLU-100',
     category: 'obtain',
     categoryLabel: 'Obtain',
-    packSize: '30 tablets',
+    packSize: '30 Tablets',
     rxRequired: true,
     inStock: false,
     storage: 'Store below 25°C. Protect from moisture.',
@@ -215,7 +215,7 @@ const MEDICINES = [
     code: 'IMP-VIG-500',
     category: 'non-tariff',
     categoryLabel: 'Non-Tariff',
-    packSize: '50 sachets',
+    packSize: '50 Sachets',
     rxRequired: true,
     inStock: true,
     storage: 'Store below 25°C.',
@@ -231,7 +231,7 @@ const ORDERS = [
     dateShort: '22/05/2026',
     pharmacy: 'Green Cross Pharmacy',
     items: [
-      { name: 'Liothyronine Sodium 20mcg Tablets', qty: 2, packSize: '28 tablets' },
+      { name: 'Liothyronine Sodium 20mcg Tablets', qty: 2, packSize: '28 Tablets' },
       { name: 'Melatonin 2mg/5ml Oral Solution', qty: 1, packSize: '150ml' }
     ],
     status: 'transit',
@@ -246,7 +246,7 @@ const ORDERS = [
     dateShort: '21/05/2026',
     pharmacy: 'Green Cross Pharmacy',
     items: [
-      { name: 'Acetazolamide 250mg Tablets', qty: 3, packSize: '112 tablets' }
+      { name: 'Acetazolamide 250mg Tablets', qty: 3, packSize: '112 Tablets' }
     ],
     status: 'delivered',
     statusLabel: 'Delivered',
@@ -260,7 +260,7 @@ const ORDERS = [
     dateShort: '21/05/2026',
     pharmacy: 'Green Cross Pharmacy',
     items: [
-      { name: 'Hydrocortisone 2.5mg MR Capsules', qty: 2, packSize: '30 capsules' },
+      { name: 'Hydrocortisone 2.5mg MR Capsules', qty: 2, packSize: '30 Capsules' },
       { name: 'Glycopyrronium Bromide 1mg/5ml', qty: 1, packSize: '150ml' }
     ],
     status: 'processing',
@@ -275,7 +275,7 @@ const ORDERS = [
     dateShort: '20/05/2026',
     pharmacy: 'Green Cross Pharmacy',
     items: [
-      { name: 'Chenodeoxycholic Acid 250mg Capsules', qty: 1, packSize: '100 capsules' }
+      { name: 'Chenodeoxycholic Acid 250mg Capsules', qty: 1, packSize: '100 Capsules' }
     ],
     status: 'pending',
     statusLabel: 'Under Review',
@@ -289,7 +289,7 @@ const ORDERS = [
     dateShort: '19/05/2026',
     pharmacy: 'Green Cross Pharmacy',
     items: [
-      { name: 'Midodrine 2.5mg Tablets', qty: 2, packSize: '100 tablets' }
+      { name: 'Midodrine 2.5mg Tablets', qty: 2, packSize: '100 Tablets' }
     ],
     status: 'hold',
     statusLabel: 'On Hold',
@@ -334,9 +334,9 @@ const ORDERS = [
     dateShort: '15/05/2026',
     pharmacy: 'Green Cross Pharmacy',
     items: [
-      { name: 'Liothyronine Sodium 20mcg Tablets', qty: 1, packSize: '28 tablets' },
+      { name: 'Liothyronine Sodium 20mcg Tablets', qty: 1, packSize: '28 Tablets' },
       { name: 'Melatonin 2mg/5ml Oral Solution', qty: 2, packSize: '150ml' },
-      { name: 'Acetazolamide 250mg Tablets', qty: 1, packSize: '112 tablets' }
+      { name: 'Acetazolamide 250mg Tablets', qty: 1, packSize: '112 Tablets' }
     ],
     status: 'delivered',
     statusLabel: 'Delivered',
@@ -374,56 +374,74 @@ const TRACKING_STEPS = [
 const NOTIFICATIONS = [
   {
     id: 'n-001',
-    type: 'order',
+    type: 'rx-reminder',
     icon: 'blue',
-    title: 'Order Dispatched',
-    text: 'Your order SRX-20260522-0042 has been dispatched and is on its way.',
-    time: '2 hours ago',
+    title: 'Upcoming Prescription Reminder',
+    text: 'You have an upcoming order scheduled for 1 Jun 2026. Please ensure your prescription is uploaded at least 4 days before the order date for timely processing.',
+    orderId: '',
+    orderDate: '1 Jun 2026',
+    reminderDate: '28 May 2026',
+    time: 'Just now',
     unread: true
   },
   {
     id: 'n-002',
-    type: 'delivery',
-    icon: 'green',
-    title: 'Delivery Confirmed',
-    text: 'Order SRX-20260518-0030 was delivered to Green Cross Pharmacy.',
-    time: '2 days ago',
-    unread: true
+    type: 'rx-reminder',
+    icon: 'orange',
+    title: 'Prescription Reminder',
+    text: 'Your order for Liothyronine Sodium 20mcg Tablets & Melatonin 2mg/5ml is scheduled for 22 May 2026. Please upload a valid prescription to ensure smooth processing.',
+    orderId: 'SRX-20260522-0042',
+    orderDate: '22 May 2026',
+    reminderDate: '18 May 2026',
+    time: '10 days ago',
+    unread: false
   },
   {
     id: 'n-003',
-    type: 'hold',
+    type: 'rx-reminder',
     icon: 'orange',
-    title: 'Order On Hold',
-    text: 'Order SRX-20260519-0033 is on hold. Additional documentation required.',
-    time: '3 days ago',
-    unread: true
+    title: 'Prescription Reminder',
+    text: 'Your order for Acetazolamide 250mg Tablets is scheduled for 21 May 2026. Please upload a valid prescription to ensure smooth processing.',
+    orderId: 'SRX-20260521-0039',
+    orderDate: '21 May 2026',
+    reminderDate: '17 May 2026',
+    time: '11 days ago',
+    unread: false
   },
   {
     id: 'n-004',
-    type: 'rx',
-    icon: 'purple',
+    type: 'rx-reminder',
+    icon: 'orange',
     title: 'Prescription Reminder',
-    text: 'Please upload the prescription for your pending Liothyronine order.',
-    time: '4 days ago',
+    text: 'Your order for Hydrocortisone 2.5mg MR Capsules & Glycopyrronium Bromide 1mg/5ml is scheduled for 21 May 2026. Please upload a valid prescription to ensure smooth processing.',
+    orderId: 'SRX-20260521-0038',
+    orderDate: '21 May 2026',
+    reminderDate: '17 May 2026',
+    time: '11 days ago',
     unread: false
   },
   {
     id: 'n-005',
-    type: 'support',
-    icon: 'blue',
-    title: 'Support Response',
-    text: 'Your service request SR-2026-0012 has been updated with a response.',
-    time: '5 days ago',
+    type: 'rx-reminder',
+    icon: 'orange',
+    title: 'Prescription Reminder',
+    text: 'Your order for Chenodeoxycholic Acid 250mg Capsules is scheduled for 20 May 2026. Please upload a valid prescription to ensure smooth processing.',
+    orderId: 'SRX-20260520-0035',
+    orderDate: '20 May 2026',
+    reminderDate: '16 May 2026',
+    time: '12 days ago',
     unread: false
   },
   {
     id: 'n-006',
-    type: 'order',
-    icon: 'green',
-    title: 'Order Placed',
-    text: 'Your order SRX-20260521-0039 has been placed successfully.',
-    time: '1 day ago',
+    type: 'rx-reminder',
+    icon: 'orange',
+    title: 'Prescription Reminder',
+    text: 'Your order for Midodrine 2.5mg Tablets is scheduled for 19 May 2026. Please upload a valid prescription to ensure smooth processing.',
+    orderId: 'SRX-20260519-0033',
+    orderDate: '19 May 2026',
+    reminderDate: '15 May 2026',
+    time: '13 days ago',
     unread: false
   }
 ];

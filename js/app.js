@@ -565,42 +565,49 @@ function toggleChip(btn) {
   btn.classList.add('active');
 }
 
-// ============ PRODUCT DETAIL ============
 function showProductDetail(medId) {
   const med = MEDICINES.find(m => m.id === medId);
   if (!med) return;
 
+  // Clean up duplicate unit in product name if it's already in the pack size
+  let displayName = med.name;
+  const packSizeLower = med.packSize.toLowerCase();
+  if (packSizeLower.includes('tablets') && displayName.endsWith('Tablets')) {
+    displayName = displayName.slice(0, -8).trim();
+  } else if (packSizeLower.includes('capsules') && displayName.endsWith('Capsules')) {
+    displayName = displayName.slice(0, -9).trim();
+  }
+
   const container = document.getElementById('product-detail-content');
   container.innerHTML = `
-    <div class="product-detail fade-in">
-      <h2 class="pd-name" style="margin-bottom: 16px;">${med.name}</h2>
-      <p class="pd-description">${med.description}</p>
-      <div class="pd-info-grid">
-        <div class="pd-info-item">
-          <span>Category</span>
-          <strong>${med.categoryLabel}</strong>
-        </div>
-        <div class="pd-info-item">
-          <span>Pack Size</span>
-          <strong>${med.packSize}</strong>
-        </div>
-        <div class="pd-info-item">
-          <span>Storage</span>
-          <strong style="font-size:12px;">${med.storage}</strong>
-        </div>
-        <div class="pd-info-item">
-          <span>Status</span>
-          <strong style="color:${med.rxRequired ? 'var(--info)' : 'var(--text-secondary)'};">${med.rxRequired ? 'Prescription Required' : 'Non-Prescription'}</strong>
+    <div class="product-detail fade-in" style="padding: 16px;">
+      <!-- Product Name with Pack Size -->
+      <h2 class="pd-name" style="margin-bottom:8px; font-size:20px;">${displayName} (${med.packSize})</h2>
+
+      <!-- Category Badges (Below Product Name) -->
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
+        <span style="font-size:11px; font-weight:700; color:white; background:var(--primary); padding:4px 10px; border-radius:100px;">${med.categoryLabel}</span>
+      </div>
+
+      <!-- Description -->
+      <p class="pd-description" style="margin-bottom:14px; font-size:13px; line-height:1.55;">${med.description}</p>
+
+      <!-- Info Card -->
+      <div style="background:var(--bg); border:1px solid var(--border-light); border-radius:var(--radius-md); padding:14px; margin-bottom:14px;">
+        <div>
+          <span style="display:block; font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; font-weight:700; margin-bottom:3px;">Storage</span>
+          <strong style="font-size:13px; color:var(--text-primary); font-weight:500; line-height:1.4;">${med.storage}</strong>
         </div>
       </div>
-      <div class="pd-actions">
-        <button class="btn btn-primary" onclick="addToCart('${med.id}')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-          Add to Cart
+
+      <!-- Actions -->
+      <div class="pd-actions" style="gap:10px; display:flex;">
+        <button class="btn btn-outline" onclick="showPage('page-search')" style="flex:1; padding:12px;">
+          Cancel
         </button>
-        <button class="btn btn-outline" onclick="showQueryModal('${med.id}')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          Query
+        <button class="btn btn-primary" onclick="addToCart('${med.id}')" style="flex:1; padding:12px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          Add to Cart
         </button>
       </div>
     </div>
@@ -969,7 +976,7 @@ function renderOrders() {
           <!-- Actions -->
           <div style="display:flex; gap:10px; margin-top:8px;">
             <button class="btn btn-outline" onclick="clearPreviousOrdersFilter()" style="flex:1; font-size:14px; padding:10px 12px; border-color:var(--border); color:var(--text-secondary);">Clear</button>
-            <button class="btn btn-primary" onclick="applyPreviousOrdersFilter()" style="flex:2; font-size:14px; padding:10px 12px;">Apply </button>
+            <button class="btn btn-primary" onclick="applyPreviousOrdersFilter()" style="flex:1; font-size:14px; padding:10px 12px;">Apply</button>
           </div>
         </div>
       </div>
@@ -1214,23 +1221,40 @@ function renderNotifications() {
   const container = document.getElementById('notifications-content');
   if (!container) return;
 
-  const iconMap = {
-    blue: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
-    green: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
-    orange: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
-    purple: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
-    red: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'
-  };
+  // Update badge count
+  const unreadCount = NOTIFICATIONS.filter(n => n.unread).length;
+  const badge = document.getElementById('notif-badge');
+  if (badge) {
+    badge.textContent = unreadCount;
+    badge.style.display = unreadCount > 0 ? 'inline-flex' : 'none';
+  }
+
+  const rxIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>';
+  const bellIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>';
+
+  if (NOTIFICATIONS.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state" style="padding: 48px 24px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48" style="color:var(--text-muted); opacity:0.4; margin-bottom:12px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <h3 style="font-size:15px;">No notifications</h3>
+        <p style="font-size:13px; color:var(--text-muted);">You're all caught up!</p>
+      </div>`;
+    return;
+  }
 
   container.innerHTML = `
     <div class="notifications-list">
       ${NOTIFICATIONS.map(n => `
-        <div class="notif-item ${n.unread ? 'unread' : ''} fade-in">
-          <div class="notif-icon ${n.icon}">${iconMap[n.icon] || iconMap.blue}</div>
+        <div class="notif-item ${n.unread ? 'unread' : ''} fade-in" style="border-left: 3px solid ${n.unread ? 'var(--primary)' : 'transparent'};">
+          <div class="notif-icon ${n.icon}">${n.icon === 'blue' ? bellIcon : rxIcon}</div>
           <div class="notif-body">
             <div class="nb-title">${n.title}</div>
             <div class="nb-text">${n.text}</div>
-            <div class="nb-time">${n.time}</div>
+            ${n.orderId ? `<div style="margin-top:6px;"><span style="font-size:11px; background:var(--primary-bg); color:var(--primary); padding:3px 8px; border-radius:6px; font-weight:600;">Order: ${n.orderId}</span></div>` : ''}
+            <div class="nb-time" style="display:flex; align-items:center; gap:6px; margin-top:6px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              ${n.time}
+            </div>
           </div>
         </div>
       `).join('')}
