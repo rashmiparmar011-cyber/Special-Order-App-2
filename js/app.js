@@ -1070,9 +1070,17 @@ function viewOrderTracking(orderId) {
   // Header
   html += `
     <div class="tracking-header">
-      <div class="th-order-id">${order.id}</div>
-      <div class="th-date">Ordered on ${order.date}</div>
-      <div class="th-estimated">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div>
+          <div class="th-order-id">${order.id}</div>
+          <div class="th-date">Ordered on ${order.date}</div>
+        </div>
+        <button class="btn btn-outline" onclick="downloadInvoice('${order.id}')" style="padding: 6px 12px; font-size: 11px; font-weight: 700; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; margin-top: 2px; height: auto; border: 1px solid var(--border);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Invoice
+        </button>
+      </div>
+      <div class="th-estimated" style="margin-top:12px;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         Estimated Delivery: ${order.estimatedDelivery}
       </div>
