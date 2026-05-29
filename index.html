@@ -415,8 +415,7 @@
           <div style="width:40px"></div>
         </div>
         <div class="page-body scrollable">
-          <p class="form-section-desc" style="text-align:center;margin-bottom:20px;">Choose the pharmacy you're ordering
-            for today</p>
+          <p class="form-section-desc" style="text-align:center; margin-top:0; margin-bottom:12px;">Choose the pharmacy you're ordering for today</p>
           <div class="search-bar-mini">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="11" cy="11" r="8" />
@@ -562,8 +561,7 @@
               <!-- Recent Orders Section -->
               <div class="section-header">
                 <h3>Recent Orders</h3>
-                <a href="#" class="see-all" onclick="showPage('page-orders');switchTab('orders');return false;">See
-                  All</a>
+                <a href="#" class="see-all" onclick="showAllOrdersModal(); return false;">See All</a>
               </div>
               <div id="recent-orders-list" class="orders-list">
                 <!-- Dynamic cards populated by JS -->
@@ -771,7 +769,6 @@
                 <div class="credit-card-inner">
                   <div class="cc-top">
                     <span class="cc-label">Credit Account</span>
-                    <span class="cc-account" id="cc-account-num">ACC-2024-00147</span>
                   </div>
                   <div class="cc-details">
                     <div class="cc-detail"><span>Credit Limit</span><strong>£25,000</strong></div>

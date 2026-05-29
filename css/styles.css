@@ -752,6 +752,7 @@ img {
 }
 
 /* === Select Pharmacy === */
+
 .search-bar-mini {
   display: flex;
   align-items: center;
@@ -760,7 +761,7 @@ img {
   border: 2px solid var(--border);
   border-radius: var(--radius-full);
   padding: 10px 16px;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
 .search-bar-mini svg {
@@ -782,13 +783,13 @@ img {
 .pharmacy-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .pharmacy-card {
   background: var(--white);
   border-radius: var(--radius-lg);
-  padding: 20px;
+  padding: 14px 16px;
   box-shadow: var(--shadow-sm);
   border: 2px solid transparent;
   transition: var(--transition);
@@ -806,7 +807,7 @@ img {
   font-size: 16px;
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .pharmacy-card .pc-gphc {
@@ -1452,6 +1453,54 @@ img {
 }
 
 /* Status Pills */
+.order-quick-btn {
+  padding: 5px 12px;
+  font-size: 11.5px;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: var(--shadow-sm);
+}
+
+.order-quick-btn.view {
+  background: var(--primary-bg);
+  color: var(--primary);
+}
+
+.order-quick-btn.view:hover {
+  background: var(--primary);
+  color: var(--white);
+}
+
+.order-quick-btn.invoice {
+  background: var(--white);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.order-quick-btn.invoice:hover {
+  background: var(--bg);
+  color: var(--text-primary);
+  border-color: var(--text-muted);
+}
+
+.order-quick-btn.reorder {
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary-bg);
+}
+
+.order-quick-btn.reorder:hover {
+  background: var(--primary-bg);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
 .status-pill {
   font-size: 11px;
   font-weight: 600;
@@ -2340,51 +2389,51 @@ img {
 
 /* === Order Tracking === */
 .tracking-content {
-  padding: 20px;
+  padding: 12px;
 }
 
 .tracking-header {
   background: var(--white);
   border-radius: var(--radius-md);
-  padding: 18px;
+  padding: 14px;
   box-shadow: var(--shadow-sm);
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .tracking-header .th-order-id {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 4px;
 }
 
 .tracking-header .th-date {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-muted);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .tracking-header .th-estimated {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 14px;
+  padding: 8px 12px;
   background: var(--accent-bg);
   border-radius: var(--radius-sm);
-  font-size: 13px;
+  font-size: 12px;
   color: var(--accent);
   font-weight: 600;
 }
 
 .tracking-header .th-estimated svg {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
 }
 
 .tracking-timeline {
   background: var(--white);
   border-radius: var(--radius-md);
-  padding: 20px;
+  padding: 16px;
   box-shadow: var(--shadow-sm);
 }
 
@@ -2392,7 +2441,7 @@ img {
   display: flex;
   gap: 14px;
   position: relative;
-  padding-bottom: 24px;
+  padding-bottom: 16px;
 }
 
 .timeline-item:last-child {

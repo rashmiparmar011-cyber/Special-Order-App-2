@@ -1038,29 +1038,40 @@ function applyPreviousOrdersFilter() {
 
 function createOrderCard(order, isRecent) {
   const itemCount = order.items.reduce((sum, i) => sum + i.qty, 0);
-  const showActions = !isRecent;
 
   return `
-    <div class="order-card fade-in" onclick="viewOrderTracking('${order.id}')">
-      <div class="order-card-top">
+    <div class="order-card fade-in" onclick="viewOrderTracking('${order.id}')" style="margin-bottom: 12px; padding: 14px 16px;">
+      <div class="order-card-top" style="display: flex; justify-content: space-between; align-items: flex-start;">
         <div>
           <div class="order-id">${order.id}</div>
-          <div class="order-date">${order.date}</div>
+          <div class="order-date" style="margin-bottom: 8px;">${order.date}</div>
+          
+          <!-- Reorder and Invoice buttons placed side-by-side directly under the date -->
+          <div class="order-card-quick-actions" style="display: flex; gap: 8px; margin-top: 8px;">
+            ${!isRecent ? `
+              <button class="order-quick-btn view" onclick="event.stopPropagation();reorderFlow('${order.id}')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                Reorder
+              </button>
+            ` : ''}
+            <button class="order-quick-btn invoice" onclick="event.stopPropagation();downloadInvoice('${order.id}')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Invoice
+            </button>
+          </div>
         </div>
         <span class="status-pill status-delivered">Delivered</span>
       </div>
-
-      ${showActions ? `
-      <div class="order-card-actions">
-        <button class="order-action-btn primary" onclick="event.stopPropagation();reorderFlow('${order.id}')">Re-order</button>
-        <button class="order-action-btn secondary" onclick="event.stopPropagation();downloadInvoice('${order.id}')">Invoice</button>
-      </div>` : ''}
     </div>
   `;
 }
 
+
+
+
 // ============ ORDER TRACKING ============
 function viewOrderTracking(orderId) {
+  closeModal(); // Dismiss any open modal overlay
   const order = ORDERS.find(o => o.id === orderId);
   if (!order) return;
 
@@ -1088,16 +1099,36 @@ function viewOrderTracking(orderId) {
   `;
 
   // Items
-  html += '<div class="tracking-header" style="margin-bottom:20px;"><h4 style="font-size:14px;font-weight:700;margin-bottom:12px;">Order Items</h4>';
-  order.items.forEach(item => {
-    html += `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-light);font-size:13px;"><span style="color:var(--text-secondary);">${item.name}</span><span style="font-weight:600;">x${item.qty}</span></div>`;
-  });
+  html += '<div class="tracking-header" style="margin-bottom:10px;"><h4 style="font-size:14px;font-weight:700;margin-bottom:12px;">Order Items</h4>';
+  if (order.items.length > 1) {
+    const firstItem = order.items[0];
+    html += `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-light);font-size:13px;"><span style="color:var(--text-secondary);">${firstItem.name}</span><span style="font-weight:600;">x${firstItem.qty}</span></div>`;
+
+    html += `<div id="extra-items" style="display:none;">`;
+    order.items.slice(1).forEach(item => {
+      html += `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-light);font-size:13px;"><span style="color:var(--text-secondary);">${item.name}</span><span style="font-weight:600;">x${item.qty}</span></div>`;
+    });
+    html += `</div>`;
+
+    html += `
+      <div style="text-align:right; margin-top:8px;">
+        <button id="toggle-items-btn" onclick="toggleTrackingItems()" style="background:none; border:none; color:var(--primary); font-size:12px; font-weight:700; cursor:pointer; padding:4px 0; display:inline-flex; align-items:center; gap:4px;">
+          View all
+          <svg id="toggle-items-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12" style="transition: transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </div>
+    `;
+  } else {
+    order.items.forEach(item => {
+      html += `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-light);font-size:13px;"><span style="color:var(--text-secondary);">${item.name}</span><span style="font-weight:600;">x${item.qty}</span></div>`;
+    });
+  }
   html += '</div>';
 
   // Delivery Address Card
   const pharmacyObj = PHARMACIES.find(p => p.name === order.pharmacy) || selectedPharmacy;
   html += `
-    <div class="tracking-header" style="margin-bottom:20px;">
+    <div class="tracking-header" style="margin-bottom:10px;">
       <h4 style="font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="color:var(--primary);"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
         Delivery Address
@@ -1171,6 +1202,27 @@ function viewOrderTracking(orderId) {
   showPage('page-order-tracking');
 }
 
+function toggleTrackingItems() {
+  const extraDiv = document.getElementById('extra-items');
+  const btn = document.getElementById('toggle-items-btn');
+  if (!extraDiv || !btn) return;
+
+  const isHidden = extraDiv.style.display === 'none';
+  if (isHidden) {
+    extraDiv.style.display = 'block';
+    btn.innerHTML = `
+      View less
+      <svg id="toggle-items-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12" style="transition: transform 0.2s; transform: rotate(180deg);"><polyline points="6 9 12 15 18 9"/></svg>
+    `;
+  } else {
+    extraDiv.style.display = 'none';
+    btn.innerHTML = `
+      View all
+      <svg id="toggle-items-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12" style="transition: transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
+    `;
+  }
+}
+
 // ============ RE-ORDER ============
 function reorderFlow(orderId) {
   const order = ORDERS.find(o => o.id === orderId);
@@ -1221,7 +1273,7 @@ function executeReorder(orderId) {
 }
 
 function downloadInvoice(orderId) {
-  showToast(`Invoice for ${orderId} downloaded`, 'success');
+  showToast('Invoice downloaded successfully', 'success');
 }
 
 // ============ NOTIFICATIONS ============
@@ -1398,7 +1450,7 @@ function renderSupportContent(tab) {
               </select>
             </div>
           </div>
-          
+            
           <div class="form-group">
             <label>Notes (Optional)</label>
             <div class="input-wrapper textarea-wrapper">
@@ -1851,6 +1903,23 @@ function openModal(content) {
 
 function closeModal() {
   document.getElementById('modal-overlay').classList.add('hidden');
+}
+
+function showAllOrdersModal() {
+  const ordersHtml = ORDERS.map(order => createOrderCard(order, true)).join('');
+  const content = `
+    <div class="modal-header-section" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid var(--border-light); padding-bottom:12px;">
+      <h3 style="font-size:16px; font-weight:700; color:var(--primary); margin:0;">All Orders</h3>
+      <button onclick="closeModal()" style="font-size:13px; font-weight:700; color:var(--text-muted); cursor:pointer; background:none; border:none; outline:none; display:flex; align-items:center; gap:4px; padding: 4px 8px; border-radius:6px; transition:var(--transition); hover:background:var(--border-light);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Close
+      </button>
+    </div>
+    <div class="orders-modal-list scrollable" style="max-height: 480px; overflow-y: auto; padding-right: 4px; display:flex; flex-direction:column; gap:12px;">
+      ${ordersHtml}
+    </div>
+  `;
+  openModal(content);
 }
 
 // ============ UTILITY ============

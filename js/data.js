@@ -501,7 +501,7 @@ const SUPPORT_TICKETS = [
     productName: 'Liothyronine Sodium 20mcg Tablets',
     productCategory: 'Non-Tariff',
     issueType: 'Product Quality',
-    description: 'Tablets are slightly crumbly in this batch.',
+    description: 'Required for Liothyronine Sodium 20mcg Tablets.',
     contactNo: '020 7946 0148',
     priority: 'Email',
     notes: 'Batch LN-90214.',
