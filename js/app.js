@@ -239,11 +239,26 @@ function setupRegisterForm() {
     }
 
     if (valid) {
-      showLoading('Creating your account...');
+      showLoading('Submitting your request...');
       setTimeout(() => {
         hideLoading();
-        navigateTo('screen-otp');
-        startOTPTimer();
+        
+        // Reset the form fields
+        form.reset();
+        document.querySelectorAll('.input-wrapper').forEach(w => w.classList.remove('error'));
+        document.querySelectorAll('.field-error').forEach(e => e.textContent = '');
+        
+        const modalContent = `
+          <div class="registration-success-modal" style="text-align: center; padding: 24px 16px;">
+            <div style="width: 56px; height: 56px; background: var(--success-bg); color: var(--success); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="28" height="28"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; color: var(--primary); margin-bottom: 8px;">Request Sent Successfully</h3>
+            <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 24px;">Your request has been submitted successfully and sent for review. We will get back to you shortly.</p>
+            <button class="btn btn-primary btn-full" onclick="closeModal(); navigateTo('screen-login');" style="margin-top: 10px;">Back to Login</button>
+          </div>
+        `;
+        openModal(modalContent);
       }, 1800);
     }
   });
