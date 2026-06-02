@@ -8,11 +8,17 @@ let currentPage = 'page-home';
 let selectedPharmacy = PHARMACIES[0];
 let cart = [];
 let rxUploaded = false;
-let latestOrderId = '';
 let currentOrderTab = 'active';
 let prevTimeframeFilter = 'all';
+let customStartDate = '';
+let customEndDate = '';
+let pendingTimeframeFilter = 'all';
+let pendingStartDate = '';
+let pendingEndDate = '';
+let isReorderFlow = false;
 let prevYearFilter = '2026';
 let otpTimerInterval = null;
+let isFilterPanelExpanded = false;
 
 // ============ INITIALIZATION ============
 document.addEventListener('DOMContentLoaded', () => {
@@ -76,9 +82,16 @@ function showPage(pageId) {
     currentPage = pageId;
   }
 
-  // Initialize page content
   if (pageId === 'page-cart') renderCart();
-  if (pageId === 'page-orders') renderOrders();
+  if (pageId === 'page-orders') {
+    const tabContainer = document.getElementById('order-tabs');
+    if (tabContainer && tabContainer.style.display === 'none') {
+      tabContainer.style.display = 'flex';
+    }
+    isReorderFlow = false;
+    pendingTimeframeFilter = prevTimeframeFilter;
+    renderOrders();
+  }
   if (pageId === 'page-help') setSupportTab('product-support');
   if (pageId === 'page-notifications') renderNotifications();
   if (pageId === 'page-search') renderProductsGrid();
@@ -242,12 +255,12 @@ function setupRegisterForm() {
       showLoading('Submitting your request...');
       setTimeout(() => {
         hideLoading();
-        
+
         // Reset the form fields
         form.reset();
         document.querySelectorAll('.input-wrapper').forEach(w => w.classList.remove('error'));
         document.querySelectorAll('.field-error').forEach(e => e.textContent = '');
-        
+
         const modalContent = `
           <div class="registration-success-modal" style="text-align: center; padding: 24px 16px;">
             <div style="width: 56px; height: 56px; background: var(--success-bg); color: var(--success); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
@@ -429,7 +442,7 @@ function renderRecentOrders() {
   const container = document.getElementById('recent-orders-list');
   if (!container) return;
   const recentOrders = ORDERS.slice(0, 3);
-  container.innerHTML = recentOrders.map(order => createOrderCard(order, true)).join('');
+  container.innerHTML = recentOrders.map(order => createOrderCard(order, true, false)).join('');
 }
 
 // ============ PRODUCT SEARCH & LISTING ============
@@ -935,16 +948,27 @@ function renderOrders() {
 
     // Apply Timeframe Filter
     const currentDate = new Date('2026-05-28T10:05:57'); // current time in 2026
-    if (prevTimeframeFilter === '30') {
+    if (prevTimeframeFilter === '7') {
+      const sevenDaysAgo = new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+      filtered = filtered.filter(o => new Date(o.date) >= sevenDaysAgo);
+    } else if (prevTimeframeFilter === '15') {
+      const fifteenDaysAgo = new Date(currentDate.getTime() - 15 * 24 * 60 * 60 * 1000);
+      filtered = filtered.filter(o => new Date(o.date) >= fifteenDaysAgo);
+    } else if (prevTimeframeFilter === '30') {
       const thirtyDaysAgo = new Date(currentDate.getTime() - 30 * 24 * 60 * 60 * 1000);
       filtered = filtered.filter(o => new Date(o.date) >= thirtyDaysAgo);
     } else if (prevTimeframeFilter === '90') {
       const ninetyDaysAgo = new Date(currentDate.getTime() - 90 * 24 * 60 * 60 * 1000);
       filtered = filtered.filter(o => new Date(o.date) >= ninetyDaysAgo);
+    } else if (['2025', '2024', '2023', '2022'].includes(prevTimeframeFilter)) {
+      filtered = filtered.filter(o => {
+        const year = new Date(o.date).getFullYear().toString();
+        return year === prevTimeframeFilter;
+      });
     }
 
-    // Apply Year Filter
-    if (prevYearFilter !== 'all') {
+    // Apply Year Filter (defaults to 2026 if no explicit timeframe or year chip is active)
+    if (prevYearFilter !== 'all' && !['7', '15', '30', '90', '2025', '2024', '2023', '2022'].includes(prevTimeframeFilter)) {
       filtered = filtered.filter(o => {
         const year = new Date(o.date).getFullYear().toString();
         return year === prevYearFilter;
@@ -952,46 +976,55 @@ function renderOrders() {
     }
   }
 
-  // Prepend the filter panel if we are in Previous Orders tab
+  // Prepend the filter panel if we are in Previous Orders tab and NOT in reorder flow
   let filterPanelHtml = '';
-  if (currentOrderTab === 'previous') {
+  if (currentOrderTab === 'previous' && !isReorderFlow) {
+    const activeLabel = getActiveFilterLabel();
+    const activeBadgeHtml = activeLabel ? `<span class="hist-filter-badge">${activeLabel}</span>` : '';
+
     filterPanelHtml = `
-      <div class="previous-orders-filter-panel" style="background: white; border-radius: var(--radius-lg); padding: 16px; margin-bottom: 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); text-align:left;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
-          <h4 style="font-size: 14px; font-weight: 700; color: var(--primary); margin: 0; display:flex; align-items:center; gap:6px;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+      <div class="hist-filter-panel ${isFilterPanelExpanded ? 'expanded' : ''}">
+        <div class="hist-filter-header" onclick="toggleHistFilterPanel()">
+          <h4 class="hist-filter-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
             Filter Historical Orders
           </h4>
+          <div style="display:flex; align-items:center; gap:6px;">
+            ${activeBadgeHtml}
+            <svg class="chevron-icon" style="transition: transform 0.3s ease; transform: rotate(${isFilterPanelExpanded ? '180deg' : '0deg'}); color: var(--text-muted);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
         </div>
         
-        <div class="filter-section" style="display:flex; flex-direction:column; gap:16px;">
-          <!-- Timeframe Filter -->
-          <div style="display:flex; flex-wrap:wrap; gap:8px;">
-            <button class="filter-chip ${prevTimeframeFilter === '30' ? 'active' : ''}" id="filter-btn-30" onclick="setPreviousTimeframe('30')" style="font-size:12px; font-weight:600; padding:8px 14px; border-radius:100px; border:1px solid ${prevTimeframeFilter === '30' ? 'var(--primary)' : 'var(--border)'}; background:${prevTimeframeFilter === '30' ? 'var(--primary)' : 'white'}; color:${prevTimeframeFilter === '30' ? 'white' : 'var(--text-secondary)'}; cursor:pointer; transition:var(--transition);">Last 30 Days</button>
-            <button class="filter-chip ${prevTimeframeFilter === '90' ? 'active' : ''}" id="filter-btn-90" onclick="setPreviousTimeframe('90')" style="font-size:12px; font-weight:600; padding:8px 14px; border-radius:100px; border:1px solid ${prevTimeframeFilter === '90' ? 'var(--primary)' : 'var(--border)'}; background:${prevTimeframeFilter === '90' ? 'var(--primary)' : 'white'}; color:${prevTimeframeFilter === '90' ? 'white' : 'var(--text-secondary)'}; cursor:pointer; transition:var(--transition);">Last 3 Months</button>
-            <button class="filter-chip ${prevTimeframeFilter === 'all' ? 'active' : ''}" id="filter-btn-all" onclick="setPreviousTimeframe('all')" style="font-size:12px; font-weight:600; padding:8px 14px; border-radius:100px; border:1px solid ${prevTimeframeFilter === 'all' ? 'var(--primary)' : 'var(--border)'}; background:${prevTimeframeFilter === 'all' ? 'var(--primary)' : 'white'}; color:${prevTimeframeFilter === 'all' ? 'white' : 'var(--text-secondary)'}; cursor:pointer; transition:var(--transition);">All Time</button>
+        <div class="hist-filter-content">
+          <!-- Chips Container -->
+          <div class="hist-filter-chips">
+            ${[
+        { key: '7', label: 'Last 7 Days' },
+        { key: '15', label: 'Last 15 Days' },
+        { key: '30', label: 'Last 30 Days' },
+        { key: '90', label: 'Last 3 Months' },
+        { key: '2025', label: '2025' },
+        { key: '2024', label: '2024' },
+        { key: '2023', label: '2023' },
+        { key: '2022', label: '2022' }
+      ].map(f => {
+        const isActive = pendingTimeframeFilter === f.key;
+        return `
+                <button class="hist-chip ${isActive ? 'active' : ''}" data-filter-key="${f.key}" onclick="selectPendingTimeframe('${f.key}')">
+                  ${f.label}
+                </button>
+              `;
+      }).join('')}
           </div>
           
-          <!-- Year-wise filter with radio buttons -->
-          <div style="border-top:1px dashed var(--border); padding-top:14px;">
-            <span style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 10px;">Select Year</span>
-            <div style="display:flex; gap:16px; align-items:center;">
-              <label style="display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--text-primary); font-weight:500; cursor:pointer;">
-                <input type="radio" name="prev-year" value="2026" ${prevYearFilter === '2026' ? 'checked' : ''} style="accent-color:var(--primary); width:16px; height:16px;" /> 2026
-              </label>
-              <label style="display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--text-primary); font-weight:500; cursor:pointer;">
-                <input type="radio" name="prev-year" value="2025" ${prevYearFilter === '2025' ? 'checked' : ''} style="accent-color:var(--primary); width:16px; height:16px;" /> 2025
-              </label>
-              <label style="display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--text-primary); font-weight:500; cursor:pointer;">
-                <input type="radio" name="prev-year" value="all" ${prevYearFilter === 'all' ? 'checked' : ''} style="accent-color:var(--primary); width:16px; height:16px;" /> All Years
-              </label>
-            </div>
-          </div>
-          
-          <!-- Actions -->
-          <div style="display:flex; gap:10px; margin-top:8px;">
-            <button class="btn btn-outline" onclick="clearPreviousOrdersFilter()" style="flex:1; font-size:14px; padding:10px 12px; border-color:var(--border); color:var(--text-secondary);">Clear</button>
-            <button class="btn btn-primary" onclick="applyPreviousOrdersFilter()" style="flex:1; font-size:14px; padding:10px 12px;">Apply</button>
+          <!-- Action Buttons -->
+          <div class="hist-filter-actions">
+            <button onclick="clearHistoricalFilter()" class="btn btn-outline" style="flex:1; font-size:13px; padding:10px 12px; height:auto; border: 1px solid var(--border); color: var(--text-secondary);">
+              Clear
+            </button>
+            <button onclick="applyHistoricalFilter()" class="btn btn-primary" style="flex:1; font-size:13px; padding:10px 12px; height:auto;">
+              Apply
+            </button>
           </div>
         </div>
       </div>
@@ -1008,62 +1041,115 @@ function renderOrders() {
     return;
   }
 
-  container.innerHTML = filterPanelHtml + filtered.map(order => createOrderCard(order, false)).join('');
+  container.innerHTML = filterPanelHtml + filtered.map(order => createOrderCard(order, currentOrderTab === 'active', true)).join('');
 }
 
-function setOrderTab(tab) {
+function selectPendingTimeframe(timeframe) {
+  pendingTimeframeFilter = timeframe;
+
+  // Update chips active state directly in DOM
+  const chips = document.querySelectorAll('.hist-chip');
+  chips.forEach(chip => {
+    const key = chip.getAttribute('data-filter-key');
+    if (key === timeframe) {
+      chip.classList.add('active');
+    } else {
+      chip.classList.remove('active');
+    }
+  });
+}
+
+function applyHistoricalFilter() {
+  prevTimeframeFilter = pendingTimeframeFilter;
+  isFilterPanelExpanded = false; // Collapse panel on Apply
+  renderOrders();
+}
+
+function clearHistoricalFilter() {
+  pendingTimeframeFilter = 'all';
+  prevTimeframeFilter = 'all';
+  isFilterPanelExpanded = false; // Collapse panel on Clear
+  renderOrders();
+}
+
+function toggleHistFilterPanel() {
+  isFilterPanelExpanded = !isFilterPanelExpanded;
+  const panel = document.querySelector('.hist-filter-panel');
+  const chevron = document.querySelector('.hist-filter-header .chevron-icon');
+  if (panel && chevron) {
+    panel.classList.toggle('expanded', isFilterPanelExpanded);
+    chevron.style.transform = `rotate(${isFilterPanelExpanded ? '180deg' : '0deg'})`;
+  }
+}
+
+function getActiveFilterLabel() {
+  if (prevTimeframeFilter === '7') return 'Last 7 Days';
+  if (prevTimeframeFilter === '15') return 'Last 15 Days';
+  if (prevTimeframeFilter === '30') return 'Last 30 Days';
+  if (prevTimeframeFilter === '90') return 'Last 3 Months';
+  if (['2025', '2024', '2023', '2022'].includes(prevTimeframeFilter)) return prevTimeframeFilter;
+  return '';
+}
+
+function formatShortDateStr(dateStr) {
+  if (!dateStr) return '';
+  const parts = dateStr.split('-');
+  if (parts.length === 3) {
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  }
+  return dateStr;
+}
+
+function setOrderTab(tab, hideTabs) {
   currentOrderTab = tab;
+  isReorderFlow = !!hideTabs;
+  isFilterPanelExpanded = false; // Reset to collapsed when switching tabs
+  const tabContainer = document.getElementById('order-tabs');
+  if (tabContainer) {
+    if (hideTabs) {
+      tabContainer.style.display = 'none';
+    } else {
+      tabContainer.style.display = 'flex';
+    }
+  }
   document.querySelectorAll('#order-tabs .order-tab').forEach(t => {
     t.classList.toggle('active', t.dataset.otab === tab);
   });
+  pendingTimeframeFilter = prevTimeframeFilter;
   renderOrders();
 }
 
-function setPreviousTimeframe(timeframe) {
-  prevTimeframeFilter = timeframe;
-  document.querySelectorAll('.filter-chip').forEach(btn => {
-    btn.classList.remove('active');
-    btn.style.background = 'white';
-    btn.style.borderColor = 'var(--border)';
-    btn.style.color = 'var(--text-secondary)';
-  });
-
-  const activeBtn = document.getElementById(`filter-btn-${timeframe}`);
-  if (activeBtn) {
-    activeBtn.classList.add('active');
-    activeBtn.style.background = 'var(--primary)';
-    activeBtn.style.borderColor = 'var(--primary)';
-    activeBtn.style.color = 'white';
-  }
-}
-
-function clearPreviousOrdersFilter() {
-  prevTimeframeFilter = 'all';
-  prevYearFilter = 'all';
-  renderOrders();
-}
-
-function applyPreviousOrdersFilter() {
-  const selectedYearEl = document.querySelector('input[name="prev-year"]:checked');
-  if (selectedYearEl) {
-    prevYearFilter = selectedYearEl.value;
-  }
-  renderOrders();
-}
-
-function createOrderCard(order, isRecent) {
+function createOrderCard(order, isRecent, showReorder) {
   const itemCount = order.items.reduce((sum, i) => sum + i.qty, 0);
 
+  let itemsHtml = '';
+  if (!isRecent && order.items.length > 0) {
+    const firstItem = order.items[0];
+    itemsHtml = `
+      <div class="order-card-items" style="margin-top: 10px; margin-bottom: 12px; border-top: 1px dashed var(--border); padding-top: 8px;">
+        <div class="order-card-item" style="display: flex; justify-content: space-between; font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; gap: 16px; align-items: center;">
+          <span style="text-align: left; font-weight: 500;">${firstItem.name}</span>
+          <span style="background: var(--primary-bg); color: var(--primary); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 100px; border: 1px solid rgba(10, 36, 99, 0.08); white-space: nowrap;">Qty: ${firstItem.qty}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  const cardClickHtml = isReorderFlow ? '' : `onclick="viewOrderTracking('${order.id}')"`;
+  const extraCardClass = isReorderFlow ? 'reorder-flow-card' : '';
+
   return `
-    <div class="order-card fade-in" onclick="viewOrderTracking('${order.id}')" style="margin-bottom: 12px; padding: 14px 16px;">
+    <div class="order-card fade-in ${extraCardClass}" ${cardClickHtml} style="margin-bottom: 12px; padding: 14px 16px;">
       <div class="order-card-top" style="display: flex; justify-content: space-between; align-items: flex-start;">
-        <div>
+        <div style="flex: 1; min-width: 0; padding-right: 12px;">
           <div class="order-id">${order.id}</div>
           <div class="order-date" style="margin-bottom: 8px;">${order.date}</div>
           
+          ${itemsHtml}
+          
           <!-- Reorder and Invoice buttons placed side-by-side directly under the date -->
           <div class="order-card-quick-actions" style="display: flex; gap: 8px; margin-top: 8px;">
-            ${!isRecent ? `
+            ${showReorder ? `
               <button class="order-quick-btn view" onclick="event.stopPropagation();reorderFlow('${order.id}')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
                 Reorder
@@ -1086,6 +1172,7 @@ function createOrderCard(order, isRecent) {
 
 // ============ ORDER TRACKING ============
 function viewOrderTracking(orderId) {
+  if (isReorderFlow) return; // Prevent viewing tracking page in reorder flow
   closeModal(); // Dismiss any open modal overlay
   const order = ORDERS.find(o => o.id === orderId);
   if (!order) return;
@@ -1117,11 +1204,11 @@ function viewOrderTracking(orderId) {
   html += '<div class="tracking-header" style="margin-bottom:10px;"><h4 style="font-size:14px;font-weight:700;margin-bottom:12px;">Order Items</h4>';
   if (order.items.length > 1) {
     const firstItem = order.items[0];
-    html += `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-light);font-size:13px;"><span style="color:var(--text-secondary);">${firstItem.name}</span><span style="font-weight:600;">x${firstItem.qty}</span></div>`;
+    html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-light);font-size:13px;"><span style="color:var(--text-secondary);">${firstItem.name}</span><span style="background: var(--primary-bg); color: var(--primary); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 100px; border: 1px solid rgba(10, 36, 99, 0.08); white-space: nowrap;">Qty: ${firstItem.qty}</span></div>`;
 
     html += `<div id="extra-items" style="display:none;">`;
     order.items.slice(1).forEach(item => {
-      html += `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-light);font-size:13px;"><span style="color:var(--text-secondary);">${item.name}</span><span style="font-weight:600;">x${item.qty}</span></div>`;
+      html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-light);font-size:13px;"><span style="color:var(--text-secondary);">${item.name}</span><span style="background: var(--primary-bg); color: var(--primary); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 100px; border: 1px solid rgba(10, 36, 99, 0.08); white-space: nowrap;">Qty: ${item.qty}</span></div>`;
     });
     html += `</div>`;
 
@@ -1135,7 +1222,7 @@ function viewOrderTracking(orderId) {
     `;
   } else {
     order.items.forEach(item => {
-      html += `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-light);font-size:13px;"><span style="color:var(--text-secondary);">${item.name}</span><span style="font-weight:600;">x${item.qty}</span></div>`;
+      html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-light);font-size:13px;"><span style="color:var(--text-secondary);">${item.name}</span><span style="background: var(--primary-bg); color: var(--primary); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 100px; border: 1px solid rgba(10, 36, 99, 0.08); white-space: nowrap;">Qty: ${item.qty}</span></div>`;
     });
   }
   html += '</div>';
@@ -1921,7 +2008,7 @@ function closeModal() {
 }
 
 function showAllOrdersModal() {
-  const ordersHtml = ORDERS.map(order => createOrderCard(order, true)).join('');
+  const ordersHtml = ORDERS.map(order => createOrderCard(order, true, false)).join('');
   const content = `
     <div class="modal-header-section" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid var(--border-light); padding-bottom:12px;">
       <h3 style="font-size:16px; font-weight:700; color:var(--primary); margin:0;">All Orders</h3>
