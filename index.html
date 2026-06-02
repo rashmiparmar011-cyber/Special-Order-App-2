@@ -22,12 +22,12 @@
       <div class="splash-content">
         <div class="splash-logo-container">
           <div class="splash-logo"
-            style="width: 130px; height: 130px; border-radius: 50%; box-shadow: var(--shadow-lg); background: white; border: none; display: flex; align-items: center; justify-content: center; padding: 4px;">
+            style="width: 130px; height: 130px; border-radius: 50%; box-shadow: var(--shadow-lg); background: white; border: none; display: flex; align-items: center; justify-content: center; padding: 3px;">
             <img src="images/bs-logo.png" alt="B&S Logo"
               style="width: 100%; height: 100%; object-fit: contain; border-radius: 50%;" />
           </div>
-          <h1 class="splash-title">B&S |&nbsp;<span>SPECIALS </span></h1>
-          <p class="splash-subtitle">LEADING SPECIAL SERVICE PROVIDER</p>
+          <h1 class="splash-title">B&S<span class="brand-divider" aria-hidden="true"></span><span>SPECIALS</span></h1>
+          <p class="splash-subtitle">LEADING SPECIAL'S SERVICE PROVIDER</p>
         </div>
         <div class="splash-loader">
           <div class="loader-bar">
@@ -47,12 +47,9 @@
       <div class="auth-screen">
         <div class="auth-header">
           <div class="auth-logo-row">
-            <!-- B&S Specials Logo & Text -->
-            <div class="auth-bs-group">
-              <div class="auth-logo-icon">
-                <img src="images/bs-logo.png" alt="B&S Logo" />
-              </div>
-              <span class="auth-bs-text">B&S | SPECIALS</span>
+            <!-- B&S Circular Logo Icon -->
+            <div class="auth-logo-icon">
+              <img src="images/bs-logo.png" alt="B&S Logo" />
             </div>
 
             <!-- Thame Horizontal White Monochrome Logo -->
@@ -60,7 +57,12 @@
               <img src="images/thame-logo-white.png" alt="Thame Logo" />
             </div>
           </div>
-          <p class="auth-welcome">Welcome</p>
+
+          <!-- Brand Text Centered in the middle -->
+          <div class="auth-brand-center">
+            <span class="auth-bs-text">B&S<span class="brand-divider" aria-hidden="true"></span>SPECIALS</span>
+          </div>
+          <!-- <p class="auth-welcome">Welcome</p> -->
           <p class="auth-desc">Sign in to manage your pharmacy orders</p>
         </div>
         <div class="auth-body">
@@ -520,7 +522,7 @@
                   </div>
                   <div class="doc-info">
                     <span class="doc-title">Re-Order</span>
-                    <span class="doc-subtitle">Repeat your previous Precriptions</span>
+                    <span class="doc-subtitle">Repeat your order Prescriptions</span>
                   </div>
                 </div>
 
@@ -671,7 +673,7 @@
           <!-- ===== ORDERS ===== -->
           <div id="page-orders" class="page">
             <div class="page-header-simple">
-              <h2>My Order History</h2>
+              <h2>Order History</h2>
             </div>
             <div class="page-scroll">
               <div class="order-tabs" id="order-tabs">

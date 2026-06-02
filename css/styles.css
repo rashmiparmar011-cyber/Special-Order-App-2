@@ -199,7 +199,7 @@ img {
 
 .splash-title {
   font-size: 36px;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: -0.5px;
   margin-bottom: 4px;
 }
@@ -286,7 +286,7 @@ img {
 
 .auth-header {
   background: linear-gradient(145deg, #0A2463 0%, #1E3A8A 40%, #1B9C85 100%);
-  padding: 50px 15px 50px;
+  padding: 30px 15px 30px;
   color: white;
   border-radius: 0 0 32px 32px;
   position: relative;
@@ -315,16 +315,24 @@ img {
   border-radius: 50%;
 }
 
-/* Auth Logo Row – Login Header Branding */
 .auth-logo-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
+  justify-content: space-between;
+  margin-bottom: 20px;
   width: 100%;
   position: relative;
   z-index: 1;
 }
+
+.auth-brand-center {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+  position: relative;
+  z-index: 1;
+}
+
 
 .auth-bs-group {
   display: flex;
@@ -355,12 +363,24 @@ img {
 }
 
 .auth-bs-text {
-  font-size: 22px;
-  font-weight: 800;
+  font-size: 28px;
+  font-weight: 700;
   color: white;
   letter-spacing: -0.3px;
   white-space: nowrap;
 }
+
+.brand-divider {
+  display: inline-block;
+  width: 0.09em;
+  height: 0.72em;
+  background-color: #ffffff;
+  margin: 0 0.35em;
+  vertical-align: middle;
+  position: relative;
+  top: -0.05em;
+}
+
 
 .auth-logo-divider {
   width: 1.5px;
@@ -464,6 +484,7 @@ img {
   opacity: 0.8;
   position: relative;
   z-index: 1;
+  text-align: center;
 }
 
 .auth-body {

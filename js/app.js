@@ -1123,7 +1123,7 @@ function createOrderCard(order, isRecent, showReorder) {
   const itemCount = order.items.reduce((sum, i) => sum + i.qty, 0);
 
   let itemsHtml = '';
-  if (!isRecent && order.items.length > 0) {
+  if (isReorderFlow && order.items.length > 0) {
     const firstItem = order.items[0];
     itemsHtml = `
       <div class="order-card-items" style="margin-top: 10px; margin-bottom: 12px; border-top: 1px dashed var(--border); padding-top: 8px;">
