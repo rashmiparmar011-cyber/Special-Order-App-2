@@ -2658,7 +2658,7 @@ img {
   padding: 16px 20px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .notif-item {
@@ -2741,6 +2741,171 @@ img {
   font-size: 11px;
   color: var(--text-muted);
   margin-top: 6px;
+}
+
+/* Prescription Reminder Card Styles */
+.notif-reminder-card {
+  background: var(--white);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(10, 36, 99, 0.05), 0 0 0 1px rgba(10, 36, 99, 0.04);
+  padding: 20px;
+  margin-bottom: 16px;
+  position: relative;
+  transition: all 0.3s ease;
+  border-left: 4px solid var(--primary);
+}
+
+.notif-reminder-card.unread {
+  background: linear-gradient(180deg, var(--white) 0%, rgba(59, 130, 246, 0.02) 100%);
+  border-left-color: var(--info);
+}
+
+.notif-reminder-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.notif-reminder-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.notif-reminder-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--info-bg);
+  color: var(--info);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.notif-reminder-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.notif-reminder-card.unread .notif-reminder-icon {
+  background: var(--primary-bg);
+  color: var(--primary);
+}
+
+.notif-reminder-title-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notif-reminder-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.1px;
+}
+
+.notif-reminder-badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--info);
+  display: inline-block;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  animation: unreadPulse 2.5s infinite;
+}
+
+@keyframes unreadPulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  }
+
+  50% {
+    box-shadow: 0 0 0 5px rgba(59, 130, 246, 0.08);
+  }
+}
+
+.notif-reminder-time {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.notif-reminder-body {
+  margin-top: 8px;
+}
+
+.notif-reminder-message {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin: 0 0 16px 0;
+}
+
+/* Rounded medicine display block */
+.notif-reminder-med-box {
+  background: var(--bg);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  transition: all 0.2s ease;
+}
+
+.notif-reminder-med-box:hover {
+  background: var(--white);
+  border-color: var(--border);
+  box-shadow: 0 2px 8px rgba(10, 36, 99, 0.03);
+}
+
+
+.notif-reminder-med-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.notif-reminder-med-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.4;
+  margin-bottom: 6px;
+  word-break: break-word;
+}
+
+.notif-reminder-med-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.notif-reminder-qty-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary);
+  background: var(--primary-bg);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.notif-reminder-meta-sep {
+  font-size: 10px;
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.notif-reminder-ordered-date {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
 }
 
 /* === Help & Support === */

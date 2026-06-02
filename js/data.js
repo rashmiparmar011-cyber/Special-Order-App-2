@@ -374,75 +374,21 @@ const TRACKING_STEPS = [
 const NOTIFICATIONS = [
   {
     id: 'n-001',
-    type: 'rx-reminder',
-    icon: 'blue',
-    title: 'Upcoming Prescription Reminder',
-    text: 'You have an upcoming order scheduled for 1 Jun 2026. Please ensure your prescription is uploaded at least 4 days before the order date for timely processing.',
-    orderId: '',
-    orderDate: '1 Jun 2026',
-    reminderDate: '28 May 2026',
+    type: 'repeat-reminder',
+    icon: 'green',
+    title: 'Prescription Reminder',
+    text: 'This is a gentle reminder to check if you have received the repeat prescription item you ordered with us last month.',
+    orderId: 'SRX-20250528-0018',
+    orderDate: '28 May 2025',
+    reminderDate: '2 Jun 2026',
     time: 'Just now',
-    unread: true
-  },
-  {
-    id: 'n-002',
-    type: 'rx-reminder',
-    icon: 'orange',
-    title: 'Prescription Reminder',
-    text: 'Your order for Liothyronine Sodium 20mcg Tablets & Melatonin 2mg/5ml is scheduled for 22 May 2026. Please upload a valid prescription to ensure smooth processing.',
-    orderId: 'SRX-20260522-0042',
-    orderDate: '22 May 2026',
-    reminderDate: '18 May 2026',
-    time: '10 days ago',
-    unread: false
-  },
-  {
-    id: 'n-003',
-    type: 'rx-reminder',
-    icon: 'orange',
-    title: 'Prescription Reminder',
-    text: 'Your order for Acetazolamide 250mg Tablets is scheduled for 21 May 2026. Please upload a valid prescription to ensure smooth processing.',
-    orderId: 'SRX-20260521-0039',
-    orderDate: '21 May 2026',
-    reminderDate: '17 May 2026',
-    time: '11 days ago',
-    unread: false
-  },
-  {
-    id: 'n-004',
-    type: 'rx-reminder',
-    icon: 'orange',
-    title: 'Prescription Reminder',
-    text: 'Your order for Hydrocortisone 2.5mg MR Capsules & Glycopyrronium Bromide 1mg/5ml is scheduled for 21 May 2026. Please upload a valid prescription to ensure smooth processing.',
-    orderId: 'SRX-20260521-0038',
-    orderDate: '21 May 2026',
-    reminderDate: '17 May 2026',
-    time: '11 days ago',
-    unread: false
-  },
-  {
-    id: 'n-005',
-    type: 'rx-reminder',
-    icon: 'orange',
-    title: 'Prescription Reminder',
-    text: 'Your order for Chenodeoxycholic Acid 250mg Capsules is scheduled for 20 May 2026. Please upload a valid prescription to ensure smooth processing.',
-    orderId: 'SRX-20260520-0035',
-    orderDate: '20 May 2026',
-    reminderDate: '16 May 2026',
-    time: '12 days ago',
-    unread: false
-  },
-  {
-    id: 'n-006',
-    type: 'rx-reminder',
-    icon: 'orange',
-    title: 'Prescription Reminder',
-    text: 'Your order for Midodrine 2.5mg Tablets is scheduled for 19 May 2026. Please upload a valid prescription to ensure smooth processing.',
-    orderId: 'SRX-20260519-0033',
-    orderDate: '19 May 2026',
-    reminderDate: '15 May 2026',
-    time: '13 days ago',
-    unread: false
+    unread: true,
+    previousOrder: {
+      date: '28 May 2025',
+      items: [
+        { name: 'Omeprazole 10mg/5ml Suspension 75ml', qty: 3 }
+      ]
+    }
   }
 ];
 

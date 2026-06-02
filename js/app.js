@@ -1391,9 +1391,6 @@ function renderNotifications() {
     badge.style.display = unreadCount > 0 ? 'inline-flex' : 'none';
   }
 
-  const rxIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>';
-  const bellIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>';
-
   if (NOTIFICATIONS.length === 0) {
     container.innerHTML = `
       <div class="empty-state" style="padding: 48px 24px;">
@@ -1404,10 +1401,51 @@ function renderNotifications() {
     return;
   }
 
-  container.innerHTML = `
-    <div class="notifications-list">
-      ${NOTIFICATIONS.map(n => `
-        <div class="notif-item ${n.unread ? 'unread' : ''} fade-in" style="border-left: 3px solid ${n.unread ? 'var(--primary)' : 'transparent'};">
+  let html = '<div class="notifications-list" style="padding: 16px;">';
+
+  NOTIFICATIONS.forEach(n => {
+    if (n.type === 'repeat-reminder' && n.previousOrder) {
+      // Clean modern card layout for Prescription Reminders
+      html += `
+        <div class="notif-reminder-card ${n.unread ? 'unread' : ''} fade-in" onclick="markAsRead('${n.id}')">
+          <div class="notif-reminder-header">
+            <div class="notif-reminder-title-row">
+              <div class="notif-reminder-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+              </div>
+              <div class="notif-reminder-title-text">
+                <span class="notif-reminder-title">${n.title || 'Prescription Reminder'}</span>
+                ${n.unread ? '<span class="notif-reminder-badge-dot"></span>' : ''}
+              </div>
+            </div>
+            <span class="notif-reminder-time">${n.time}</span>
+          </div>
+          
+          <div class="notif-reminder-body">
+            <p class="notif-reminder-message">${n.text}</p>
+            
+            <div class="notif-reminder-med-box">
+              <div class="notif-reminder-med-details">
+                <div class="notif-reminder-med-name">${n.previousOrder.items[0].name}</div>
+                <div class="notif-reminder-med-meta">
+                  <span class="notif-reminder-qty-badge">Qty: ${n.previousOrder.items[0].qty}</span>
+                  <span class="notif-reminder-meta-sep">•</span>
+                  <span class="notif-reminder-ordered-date">Ordered: ${n.previousOrder.date}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    } else {
+      // Fallback/standard notifications card
+      const rxIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>';
+      const bellIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>';
+      html += `
+        <div class="notif-item ${n.unread ? 'unread' : ''} fade-in" onclick="markAsRead('${n.id}')">
           <div class="notif-icon ${n.icon}">${n.icon === 'blue' ? bellIcon : rxIcon}</div>
           <div class="notif-body">
             <div class="nb-title">${n.title}</div>
@@ -1419,9 +1457,20 @@ function renderNotifications() {
             </div>
           </div>
         </div>
-      `).join('')}
-    </div>
-  `;
+      `;
+    }
+  });
+
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function markAsRead(id) {
+  const notif = NOTIFICATIONS.find(n => n.id === id);
+  if (notif && notif.unread) {
+    notif.unread = false;
+    renderNotifications();
+  }
 }
 
 // ============ SUPPORT ============
