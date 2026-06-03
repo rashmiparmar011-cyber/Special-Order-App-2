@@ -45,31 +45,13 @@
     <!-- ========== LOGIN SCREEN ========== -->
     <div id="screen-login" class="screen">
       <div class="auth-screen">
-        <div class="auth-header">
-          <div class="auth-logo-row">
-            <!-- B&S Circular Logo Icon -->
-            <div class="auth-logo-icon">
-              <img src="images/bs-logo.png" alt="B&S Logo" />
-            </div>
-
-            <!-- Thame Horizontal White Monochrome Logo -->
-            <div class="auth-thame-logo">
-              <img src="images/thame-logo-white.png" alt="Thame Logo" />
-            </div>
+        <div class="auth-header-clean">
+          <div class="auth-logo-centered">
+            <img src="images/bs-logo.png" alt="B&S Logo" />
           </div>
-
-          <!-- Brand Text Centered in the middle -->
-          <div class="auth-brand-center">
-            <span class="auth-bs-text">B&S<span class="brand-divider" aria-hidden="true"></span>SPECIALS</span>
-          </div>
-          <!-- <p class="auth-welcome">Welcome</p> -->
-          <p class="auth-desc">Sign in to manage your pharmacy orders</p>
+          <h1 class="auth-title-centered">SPECIALS</h1>
         </div>
         <div class="auth-body">
-          <div class="auth-tabs">
-            <button class="auth-tab active" data-tab="email">Email</button>
-            <button class="auth-tab" data-tab="otp">OTP</button>
-          </div>
           <form id="login-form" class="auth-form" novalidate>
             <div id="login-email-fields">
               <div class="form-group">
@@ -102,48 +84,81 @@
                 <span class="field-error" id="login-password-error"></span>
               </div>
             </div>
-            <div id="login-otp-fields" class="hidden">
-              <div class="form-group">
-                <label>Mobile Number</label>
-                <div class="input-wrapper">
-                  <span class="input-prefix">+44</span>
-                  <input type="tel" id="login-otp-mobile" placeholder="7700 900000" />
-                </div>
-              </div>
-              <button type="button" class="btn btn-outline btn-full" onclick="sendLoginOTP()">Send OTP</button>
-              <div id="login-otp-entry" class="hidden" style="margin-top:16px;">
-                <div class="otp-inputs">
-                  <input type="text" maxlength="1" class="otp-box" data-otp="1" />
-                  <input type="text" maxlength="1" class="otp-box" data-otp="2" />
-                  <input type="text" maxlength="1" class="otp-box" data-otp="3" />
-                  <input type="text" maxlength="1" class="otp-box" data-otp="4" />
-                  <input type="text" maxlength="1" class="otp-box" data-otp="5" />
-                  <input type="text" maxlength="1" class="otp-box" data-otp="6" />
-                </div>
-              </div>
-            </div>
             <div class="form-options">
               <label class="checkbox-label">
-                <input type="checkbox" checked /> <span class="checkmark"></span> Remember me
+                <input type="checkbox" checked /> <span class="checkmark"></span> Remember Email
               </label>
               <a href="#" onclick="navigateTo('screen-forgot-password');return false;">Forgot Password?</a>
             </div>
             <button type="submit" class="btn btn-primary btn-full" id="login-btn">
               <span>Sign In</span>
             </button>
-            <button type="button" class="btn btn-biometric btn-full" onclick="biometricLogin()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
-                <path d="M12 6a4 4 0 00-4 4c0 3 4 7 4 7s4-4 4-7a4 4 0 00-4-4z" />
-                <circle cx="12" cy="10" r="1.5" />
-              </svg>
-              <span>Sign in with Biometrics</span>
-            </button>
+
+            <!-- Alternative login options section -->
+            <div class="alt-login-container">
+              <div class="alt-login-divider">
+                <span>Or Sign In With</span>
+              </div>
+              <div class="alt-login-tabs">
+                <button type="button" class="alt-login-tab" id="tab-otp" onclick="switchAltTab('otp')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                    <path d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                  OTP
+                </button>
+                <button type="button" class="alt-login-tab" id="tab-biometric" onclick="biometricLogin()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 6a6 6 0 00-6 6c0 4.5 6 9 6 9s6-4.5 6-9a6 6 0 00-6-6z" />
+                  </svg>
+                  Biometric
+                </button>
+              </div>
+
+              <div class="alt-login-content">
+                <div id="alt-otp-section" class="alt-section hidden">
+                  <div class="form-group">
+                    <label>Mobile Number</label>
+                    <div class="input-wrapper">
+                      <span class="input-prefix">+44</span>
+                      <input type="tel" id="login-otp-mobile" placeholder="7700 900000" />
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-outline btn-full" onclick="sendLoginOTP()"
+                    style="margin-bottom: 12px; font-size:14px; padding:10px 16px;">Send OTP</button>
+                  <div id="login-otp-entry" class="hidden">
+                    <div class="otp-inputs" style="margin-bottom: 16px;">
+                      <input type="text" maxlength="1" class="otp-box" />
+                      <input type="text" maxlength="1" class="otp-box" />
+                      <input type="text" maxlength="1" class="otp-box" />
+                      <input type="text" maxlength="1" class="otp-box" />
+                      <input type="text" maxlength="1" class="otp-box" />
+                      <input type="text" maxlength="1" class="otp-box" />
+                    </div>
+                    <button type="button" class="btn btn-primary btn-full" onclick="verifyLoginOTP()"
+                      style="font-size:14px; padding:10px 16px;">Verify & Sign In</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="auth-footer">
               <p>Don't have an account? <a href="#" onclick="navigateTo('screen-register');return false;">Register</a>
               </p>
             </div>
           </form>
+          <div class="auth-brand-footer-logos">
+            <div class="footer-powered-by"><strong>Powered by</strong></div>
+            <div class="footer-logos-row">
+              <div class="footer-logo bs">
+                <img src="images/bs-logo.png" alt="B&S Logo" />
+              </div>
+              <div class="footer-divider"></div>
+              <div class="footer-logo thame">
+                <img src="images/Thame Labs Logo_01-01.jpg" alt="Thame Logo" />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -411,8 +426,8 @@
           <div style="width:40px"></div>
         </div>
         <div class="page-body scrollable">
-          <p class="form-section-desc" style="text-align:center; margin-top:0; margin-bottom:12px;">Choose the pharmacy
-            you're ordering for today</p>
+          <!-- <p class="form-section-desc" style="text-align:center; margin-top:0; margin-bottom:12px;">Choose the pharmacy
+            you're ordering for today</p> -->
           <div class="search-bar-mini">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="11" cy="11" r="8" />
@@ -456,41 +471,43 @@
             <div class="page-header-dashboard">
               <div class="header-top">
                 <div class="header-left">
-                  <p class="greeting" id="greeting-text">Greetings From B&S</p>
-                  <h2 class="pharmacy-name" id="selected-pharmacy-name">Green Cross Pharmacy</h2>
-                </div>
-                <div class="header-right">
-                  <button class="icon-btn notification-btn" onclick="showPage('page-notifications')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                    </svg>
-                    <span class="notification-badge" id="notif-badge">1</span>
-                  </button>
-                  <div class="avatar" onclick="switchTab('account')">
-                    <span>GC</span>
+                  <div class="pharmacy-smart-dropdown" id="pharmacy-smart-dropdown">
+                    <button class="pharmacy-trigger" onclick="togglePharmacyDropdown(event)">
+                      <div class="pharmacy-header-info">
+                        <div class="pharmacy-name-row">
+                          <h2 class="pharmacy-name" id="selected-pharmacy-name"></h2>
+                          <svg class="dropdown-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                          </svg>
+                        </div>
+                      </div>
+                    </button>
+                    <div class="pharmacy-menu" id="pharmacy-menu">
+                      <!-- Dynamically populated by JS -->
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div class="selected-pharmacy-pill" onclick="navigateTo('screen-select-pharmacy')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                  <circle cx="12" cy="10" r="3" />
-                </svg>
-                <span id="pharmacy-pill-name">Green Cross Pharmacy</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
+                <div class="header-right">
+                </div>
               </div>
             </div>
             <div class="page-scroll">
               <!-- Dashboard Search Bar -->
-              <div class="dash-search-bar" onclick="switchTab('search')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+              <!-- <div class="dash-search-bar" onclick="switchTab('search')"> -->
+              <!-- <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
                   <circle cx="11" cy="11" r="8" />
                   <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
-                <span>Search medicines...</span>
+                <span>Search Orders</span> -->
+              <!-- </div> -->
+
+              <!-- Recent Orders Section -->
+              <div class="section-header">
+                <h3>Recent Orders</h3>
+                <a href="#" class="see-all" onclick="showAllOrdersModal(); return false;">See All</a>
+              </div>
+              <div id="recent-orders-list" class="orders-list">
+                <!-- Dynamic cards populated by JS -->
               </div>
 
               <!-- Dashboard Options Grid -->
@@ -510,7 +527,7 @@
                   </div>
                 </div>
 
-                <!-- Reorder -->
+                <!-- Reorder
                 <div class="dash-option-card reorder" onclick="showPage('page-orders');setOrderTab('previous', true);">
                   <div class="doc-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -522,9 +539,9 @@
                   </div>
                   <div class="doc-info">
                     <span class="doc-title">Re-Order</span>
-                    <span class="doc-subtitle">Repeat your order Prescriptions</span>
+                    <span class="doc-subtitle">Repeat order Prescriptions</span>
                   </div>
-                </div>
+                </div> -->
 
                 <!-- Today's Orders -->
                 <div class="dash-option-card today-orders"
@@ -554,15 +571,6 @@
                     <span class="doc-subtitle">Explore your new product requirements</span>
                   </div>
                 </div>
-              </div>
-
-              <!-- Recent Orders Section -->
-              <div class="section-header">
-                <h3>Recent Orders</h3>
-                <a href="#" class="see-all" onclick="showAllOrdersModal(); return false;">See All</a>
-              </div>
-              <div id="recent-orders-list" class="orders-list">
-                <!-- Dynamic cards populated by JS -->
               </div>
             </div>
           </div>
@@ -749,9 +757,6 @@
           <div id="page-account" class="page">
             <div class="page-scroll">
               <div class="account-header">
-                <div class="account-avatar">
-                  <span>GC</span>
-                </div>
                 <h3 id="account-name">Green Cross Pharmacy</h3>
                 <p id="account-email">admin@greencross.co.uk</p>
                 <!-- <span class="verified-badge">
@@ -896,7 +901,7 @@
               <circle cx="11" cy="11" r="8" />
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
-            <span>Search</span>
+            <span>New Search</span>
           </button>
           <button class="nav-item cart-nav" data-tab="cart" onclick="switchTab('cart')">
             <div class="cart-icon-wrap">
@@ -910,11 +915,24 @@
             <span>Cart</span>
           </button>
 
-          <button class="nav-item" data-tab="help" onclick="switchTab('help')">
+          <button class="nav-item" data-tab="orders" onclick="switchTab('orders')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
             </svg>
-            <span>Support</span>
+            <span>My Orders</span>
+          </button>
+
+          <button class="nav-item" data-tab="inbox" onclick="switchTab('inbox')">
+            <div style="position: relative; display: inline-block;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                <polyline points="22,6 12,13 2,6" />
+              </svg>
+              <span class="notification-badge" id="inbox-badge"
+                style="position: absolute; top: -6px; right: -6px; display: flex; align-items: center; justify-content: center; min-width: 16px; height: 16px; border-radius: 50%; background: var(--danger); color: white; font-size: 9px; font-weight: 800; border: 1.5px solid var(--white);">1</span>
+            </div>
+            <span>Inbox</span>
           </button>
           <button class="nav-item" data-tab="account" onclick="switchTab('account')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

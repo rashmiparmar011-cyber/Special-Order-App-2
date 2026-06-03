@@ -40,19 +40,10 @@ function initApp() {
   setupForgotForm();
   setupOTPInputs();
 
-  // Auth tabs
-  document.querySelectorAll('.auth-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      const tabName = tab.dataset.tab;
-      document.getElementById('login-email-fields').classList.toggle('hidden', tabName !== 'email');
-      document.getElementById('login-otp-fields').classList.toggle('hidden', tabName !== 'otp');
-    });
-  });
-
   // Render initial data
   renderPharmacyList();
+  updateSelectedPharmacyName();
+  renderPharmacySmartMenu();
   renderNotifications();
   updateGreeting();
 }
@@ -107,6 +98,7 @@ function switchTab(tabName) {
     search: 'page-search',
     cart: 'page-cart',
     orders: 'page-orders',
+    inbox: 'page-notifications',
     help: 'page-help',
     account: 'page-account'
   };
@@ -195,6 +187,45 @@ function sendLoginOTP() {
     showToast('OTP sent to your mobile', 'success');
   }, 1200);
 }
+
+function switchAltTab(type) {
+  const otpTab = document.getElementById('tab-otp');
+  const otpSection = document.getElementById('alt-otp-section');
+
+  if (!otpTab || !otpSection) return;
+
+  const isOtpActive = otpTab.classList.contains('active');
+
+  if (type === 'otp') {
+    if (isOtpActive) {
+      otpTab.classList.remove('active');
+      otpSection.classList.add('hidden');
+    } else {
+      otpTab.classList.add('active');
+      otpSection.classList.remove('hidden');
+    }
+  }
+}
+
+
+function verifyLoginOTP() {
+  const boxes = document.querySelectorAll('#alt-otp-section .otp-box');
+  let otp = '';
+  boxes.forEach(b => otp += b.value);
+
+  if (otp.length < 6) {
+    showToast('Please enter the complete 6-digit OTP', 'error');
+    return;
+  }
+
+  showLoading('Verifying OTP...');
+  setTimeout(() => {
+    hideLoading();
+    showToast('OTP verified successfully', 'success');
+    setTimeout(() => navigateTo('screen-select-pharmacy'), 600);
+  }, 1500);
+}
+
 
 function togglePassword(inputId, btn) {
   const input = document.getElementById(inputId);
@@ -381,22 +412,25 @@ function setupForgotForm() {
   });
 }
 
-// ============ PHARMACY SELECTION ============
 function renderPharmacyList() {
   const container = document.getElementById('pharmacy-list');
-  container.innerHTML = PHARMACIES.map(ph => `
-    <div class="pharmacy-card fade-in" onclick="selectPharmacy('${ph.id}')">
-      <div class="pc-name">${ph.name}</div>
-      <div class="pc-gphc">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="display:inline;vertical-align:middle;margin-right:4px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        ${ph.gphc}
+  if (!container) return;
+  container.innerHTML = PHARMACIES.map(ph => {
+    const postcode = ph.address.match(/[A-Z0-9]+\s+[A-Z0-9]+$/i)?.[0] || '';
+    const isSelected = selectedPharmacy && selectedPharmacy.id === ph.id;
+    return `
+      <div class="pharmacy-card fade-in ${isSelected ? 'selected' : ''}" onclick="selectPharmacy('${ph.id}')">
+        <div class="pc-header">
+          <span class="pc-name">${ph.name}</span>
+          <span class="pc-postcode">${postcode}</span>
+        </div>
+        <div class="pc-address-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="address-icon"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span class="pc-address-text" title="${ph.address}">${ph.address}</span>
+        </div>
       </div>
-      <div class="pc-address">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        <span>${ph.address}</span>
-      </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
 function filterPharmacies(query) {
@@ -409,17 +443,38 @@ function filterPharmacies(query) {
   });
 }
 
+function updateSelectedPharmacyName() {
+  const selectedPharmacyName = document.getElementById('selected-pharmacy-name');
+  if (selectedPharmacyName && selectedPharmacy) {
+    selectedPharmacyName.textContent = selectedPharmacy.name;
+  }
+}
+
 function selectPharmacy(id) {
   selectedPharmacy = PHARMACIES.find(p => p.id === id);
-  document.querySelectorAll('.pharmacy-card').forEach(c => c.classList.remove('selected'));
-  event.currentTarget.classList.add('selected');
+
+  // Update select screen list selection class
+  document.querySelectorAll('.pharmacy-card').forEach((c, idx) => {
+    if (PHARMACIES[idx] && PHARMACIES[idx].id === id) {
+      c.classList.add('selected');
+    } else {
+      c.classList.remove('selected');
+    }
+  });
 
   showLoading('Loading dashboard...');
   setTimeout(() => {
     hideLoading();
-    document.getElementById('selected-pharmacy-name').textContent = selectedPharmacy.name;
-    document.getElementById('pharmacy-pill-name').textContent = selectedPharmacy.name;
-    document.getElementById('account-name').textContent = selectedPharmacy.name;
+
+    updateSelectedPharmacyName();
+    renderPharmacySmartMenu();
+
+    const selectedPharmacyName = document.getElementById('selected-pharmacy-name');
+    if (selectedPharmacyName) selectedPharmacyName.textContent = selectedPharmacy.name;
+    const pharmacyPillName = document.getElementById('pharmacy-pill-name');
+    if (pharmacyPillName) pharmacyPillName.textContent = selectedPharmacy.name;
+    const accountName = document.getElementById('account-name');
+    if (accountName) accountName.textContent = selectedPharmacy.name;
 
     const avatar = document.querySelector('.account-avatar span');
     if (avatar) avatar.textContent = selectedPharmacy.initials;
@@ -430,6 +485,41 @@ function selectPharmacy(id) {
     showPage('page-home');
     switchTab('home');
   }, 1200);
+}
+
+// ============ PHARMACY SMART DROPDOWN ============
+function togglePharmacyDropdown(event) {
+  event.stopPropagation();
+  const dropdown = document.getElementById('pharmacy-smart-dropdown');
+  if (dropdown) {
+    dropdown.classList.toggle('open');
+  }
+}
+
+function renderPharmacySmartMenu() {
+  const menu = document.getElementById('pharmacy-menu');
+  if (!menu) return;
+  
+  menu.innerHTML = PHARMACIES.map(ph => {
+    const isActive = selectedPharmacy.id === ph.id;
+    return `
+      <button class="pharmacy-menu-item ${isActive ? 'active' : ''}" onclick="selectPharmacyFromDropdown(event, '${ph.id}')">
+        <span class="pm-name">${ph.name}</span>
+        <span class="pm-gphc">${ph.gphc || ''}</span>
+      </button>
+    `;
+  }).join('');
+}
+
+function selectPharmacyFromDropdown(event, id) {
+  event.stopPropagation();
+  
+  const dropdown = document.getElementById('pharmacy-smart-dropdown');
+  if (dropdown) dropdown.classList.remove('open');
+  
+  if (selectedPharmacy.id === id) return;
+  
+  selectPharmacy(id);
 }
 
 // ============ DASHBOARD ============
@@ -487,17 +577,12 @@ function renderProductsGrid(medicines) {
             <button class="pc-remove-btn" onclick="removeFromSearch('${med.id}')" title="Remove from cart">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
             </button>
-            <div class="pc-qty-control">
-              <button class="pc-qty-btn" onclick="changeSearchQty('${med.id}', -1)">−</button>
-              <span class="pc-qty-value">${qty}</span>
-              <button class="pc-qty-btn" onclick="changeSearchQty('${med.id}', 1)">+</button>
-            </div>
-          ` : `
-            <button class="pc-add-btn" onclick="addFromSearch('${med.id}')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              Add
-            </button>
-          `}
+          ` : ''}
+          <div class="pc-qty-control">
+            <button class="pc-qty-btn" onclick="changeSearchQty('${med.id}', -1)">−</button>
+            <span class="pc-qty-value">${qty}</span>
+            <button class="pc-qty-btn" onclick="changeSearchQty('${med.id}', 1)">+</button>
+          </div>
         </div>
       </div>
     </div>
@@ -524,7 +609,12 @@ function addFromSearch(medId) {
 
 function changeSearchQty(medId, delta) {
   const item = cart.find(c => c.id === medId);
-  if (!item) return;
+  if (!item) {
+    if (delta > 0) {
+      addFromSearch(medId);
+    }
+    return;
+  }
 
   const newQty = item.qty + delta;
   if (newQty <= 0) {
@@ -738,51 +828,26 @@ function renderCart() {
     }
 
     html += `
-      <div class="cart-item fade-in">
-        <div class="cart-item-top">
-          <div class="cart-item-info">
-            <div class="cart-item-name">${displayName} (${item.packSize})</div>
-            <span class="cart-item-category">${item.categoryLabel}</span>
+      <div class="product-card in-cart fade-in" style="margin-bottom: 10px; cursor: default;">
+        <div class="product-card-row">
+          <div class="product-info">
+            <div class="p-name">${displayName} (${item.packSize})</div>
+            <span class="p-category">${item.categoryLabel}</span>
           </div>
-          <button class="cart-remove-btn" onclick="removeFromCart('${item.id}')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-          </button>
-        </div>
-        <div class="cart-item-bottom">
-          <div class="quantity-control">
-            <button class="qty-btn" onclick="updateCartQty('${item.id}', -1)">−</button>
-            <div class="qty-display">${item.qty}</div>
-            <button class="qty-btn" onclick="updateCartQty('${item.id}', 1)">+</button>
+          <div class="product-card-actions">
+            <button class="pc-remove-btn" onclick="removeFromCart('${item.id}')" title="Remove from cart">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+            <div class="pc-qty-control">
+              <button class="pc-qty-btn" onclick="updateCartQty('${item.id}', -1)">−</button>
+              <span class="pc-qty-value">${item.qty}</span>
+              <button class="pc-qty-btn" onclick="updateCartQty('${item.id}', 1)">+</button>
+            </div>
           </div>
-          <input type="text" class="cart-notes-input" placeholder="Add notes (optional)" value="${item.notes || ''}" oninput="updateCartNote('${item.id}', this.value)" />
         </div>
       </div>
     `;
   });
-
-  // Prescription Upload (if Rx items)
-  if (hasRxItems) {
-    html += `
-      <div class="cart-section">
-        <h4>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          Upload Prescription
-        </h4>
-        <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Optional for Rx medicines in your cart</p>
-        <div class="upload-area" onclick="simulateUpload()" id="upload-area">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          <p>Tap to upload prescription</p>
-          <p class="upload-formats">PDF, JPG, PNG (Max 10MB)</p>
-        </div>
-        <div id="upload-success-area" class="${rxUploaded ? '' : 'hidden'}">
-          <div class="upload-success">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            <span>prescription_scan.pdf uploaded successfully</span>
-          </div>
-        </div>
-      </div>
-    `;
-  }
 
   // Delivery Address
   html += `
@@ -819,6 +884,32 @@ function renderCart() {
       </div>
     </div>
   `;
+
+  // Prescription Upload (if Rx items)
+  if (hasRxItems) {
+    const uploadBtnText = rxUploaded ? 'Uploaded' : 'Upload';
+    const uploadBtnColor = rxUploaded ? 'var(--success)' : 'var(--primary)';
+    const uploadBtnBorder = rxUploaded ? '1px solid var(--success)' : '1px solid var(--primary)';
+
+    html += `
+      <div class="cart-section">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
+          <h4 style="margin: 0; display:flex; align-items:center; gap: 8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px; height:18px; color:var(--primary);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Upload Prescription
+          </h4>
+          <button class="btn btn-outline" id="cart-upload-btn" onclick="simulateUpload()" style="padding: 6px 14px; font-size: 12px; font-weight: 700; border-radius: 8px; border: ${uploadBtnBorder}; color: ${uploadBtnColor}; transition: var(--transition);">${uploadBtnText}</button>
+        </div>
+        <p style="font-size:12px;color:var(--text-muted);margin:0 0 4px 0; display: none">Optional for Rx medicines in your cart</p>
+        <div id="upload-success-area" class="${rxUploaded ? '' : 'hidden'}" style="margin-top: 8px;">
+          <div class="upload-success">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span>prescription_scan.pdf uploaded successfully</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
 
   // Declarations
   html += `
@@ -863,8 +954,16 @@ function simulateUpload() {
   setTimeout(() => {
     hideLoading();
     rxUploaded = true;
-    document.getElementById('upload-area').style.display = 'none';
-    document.getElementById('upload-success-area').classList.remove('hidden');
+    const uploadArea = document.getElementById('upload-area');
+    if (uploadArea) uploadArea.style.display = 'none';
+    const successArea = document.getElementById('upload-success-area');
+    if (successArea) successArea.classList.remove('hidden');
+    const uploadBtn = document.getElementById('cart-upload-btn');
+    if (uploadBtn) {
+      uploadBtn.textContent = 'Uploaded';
+      uploadBtn.style.borderColor = 'var(--success)';
+      uploadBtn.style.color = 'var(--success)';
+    }
     showToast('Prescription uploaded successfully', 'success');
   }, 1800);
 }
@@ -1390,6 +1489,11 @@ function renderNotifications() {
     badge.textContent = unreadCount;
     badge.style.display = unreadCount > 0 ? 'inline-flex' : 'none';
   }
+  const inboxBadge = document.getElementById('inbox-badge');
+  if (inboxBadge) {
+    inboxBadge.textContent = unreadCount;
+    inboxBadge.style.display = unreadCount > 0 ? 'flex' : 'none';
+  }
 
   if (NOTIFICATIONS.length === 0) {
     container.innerHTML = `
@@ -1566,7 +1670,7 @@ function renderSupportContent(tab) {
             <label>Product Description</label>
             <div class="input-wrapper textarea-wrapper">
  
-              <textarea id="support-prod-desc" placeholder="Describe the product you are looking for.." rows="3"></textarea>
+              <textarea id="support-prod-desc" placeholder="Describe the product you are looking for.." rows="1"></textarea>
             </div>
           </div>
           
@@ -1580,25 +1684,29 @@ function renderSupportContent(tab) {
           
           <div class="form-group">
             <label>Prescription Type</label>
-            <div class="input-wrapper">
-             
-              <select id="support-prod-rx-type" style="flex: 1; border: none; background: transparent; padding: 13px 0; font-size: 14px; color: var(--text-primary); outline: none; cursor: pointer;">
-                <option value="">Select Prescription Type</option>
-                <option value="Private">Private</option>
-                <option value="NHS">NHS</option>
-              </select>
+            <div class="input-wrapper" style="padding: 12px 14px; gap: 24px;">
+              <label class="radio-label" style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-primary); cursor: pointer; font-weight: 500; margin: 0;">
+                <input type="radio" name="support-prod-rx-type" value="Private" style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; margin: 0;" />
+                <span>Private</span>
+              </label>
+              <label class="radio-label" style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-primary); cursor: pointer; font-weight: 500; margin: 0;">
+                <input type="radio" name="support-prod-rx-type" value="NHS" checked style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; margin: 0;" />
+                <span>NHS</span>
+              </label>
             </div>
           </div>
           
           <div class="form-group">
             <label>Response type</label>
-            <div class="input-wrapper">
-             
-              <select id="support-prod-priority" style="flex: 1; border: none; background: transparent; padding: 13px 0; font-size: 14px; color: var(--text-primary); outline: none; cursor: pointer;">
-                <option value="">Select Response Type</option>
-                <option value="Call Back">Call Back</option>
-                <option value="Email">Email</option>
-              </select>
+            <div class="input-wrapper" style="padding: 12px 14px; gap: 24px;">
+              <label class="radio-label" style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-primary); cursor: pointer; font-weight: 500; margin: 0;">
+                <input type="radio" name="support-prod-priority" value="Call Back" style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; margin: 0;" />
+                <span>Call Back</span>
+              </label>
+              <label class="radio-label" style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-primary); cursor: pointer; font-weight: 500; margin: 0;">
+                <input type="radio" name="support-prod-priority" value="Email" checked style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; margin: 0;" />
+                <span>Email</span>
+              </label>
             </div>
           </div>
             
@@ -1606,7 +1714,7 @@ function renderSupportContent(tab) {
             <label>Notes (Optional)</label>
             <div class="input-wrapper textarea-wrapper">
               
-              <textarea id="support-prod-notes" placeholder="Enter any additional information or special requirements..." rows="2"></textarea>
+              <textarea id="support-prod-notes" placeholder="Enter any information" rows="1"></textarea>
             </div>
           </div>
           
@@ -1739,8 +1847,10 @@ function submitOrderSupportRequest() {
 function submitProductSupportRequest() {
   const description = document.getElementById('support-prod-desc').value;
   const packSize = document.getElementById('support-prod-packsize').value;
-  const rxType = document.getElementById('support-prod-rx-type').value;
-  const priority = document.getElementById('support-prod-priority').value;
+  const rxTypeEl = document.querySelector('input[name="support-prod-rx-type"]:checked');
+  const rxType = rxTypeEl ? rxTypeEl.value : '';
+  const priorityEl = document.querySelector('input[name="support-prod-priority"]:checked');
+  const priority = priorityEl ? priorityEl.value : '';
   const notes = document.getElementById('support-prod-notes').value;
 
   showLoading('Submitting request...');
@@ -1771,8 +1881,10 @@ function submitProductSupportRequest() {
     // Clear fields
     document.getElementById('support-prod-desc').value = '';
     document.getElementById('support-prod-packsize').value = '';
-    document.getElementById('support-prod-rx-type').value = '';
-    document.getElementById('support-prod-priority').value = '';
+    const nhsRadio = document.querySelector('input[name="support-prod-rx-type"][value="NHS"]');
+    if (nhsRadio) nhsRadio.checked = true;
+    const emailRadio = document.querySelector('input[name="support-prod-priority"][value="Email"]');
+    if (emailRadio) emailRadio.checked = true;
     document.getElementById('support-prod-notes').value = '';
 
     renderSupportTicketsList('product-support');
@@ -2086,3 +2198,12 @@ function formatDate(date) {
 function formatDateShort(date) {
   return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
 }
+
+// ============ GLOBAL EVENT LISTENERS ============
+document.addEventListener('click', () => {
+  const pDropdown = document.querySelector('.pharmacist-dropdown');
+  if (pDropdown) pDropdown.classList.remove('open');
+  
+  const pSmartDropdown = document.getElementById('pharmacy-smart-dropdown');
+  if (pSmartDropdown) pSmartDropdown.classList.remove('open');
+});
