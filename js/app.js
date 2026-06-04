@@ -1322,13 +1322,42 @@ function createOrderCard(order, isRecent, showReorder) {
     `;
   }
 
+  const ctx = isRecent ? 'recent' : 'orders';
   const cardClickHtml = isReorderFlow ? '' : `onclick="viewOrderTracking('${order.id}')"`;
   const extraCardClass = isReorderFlow ? 'reorder-flow-card' : '';
+
+  const reorderSectionId = `reorder-section-${ctx}-${order.id}`;
+  let reorderHtml = `<div id="${reorderSectionId}" class="reorder-expand-section" style="display: none; margin-top: 16px; border-top: 1px dashed var(--border-light); padding-top: 12px; cursor: default;">`;
+
+  order.items.slice(0, 1).forEach((item, i) => {
+    reorderHtml += `
+      <div id="reorder-row-${ctx}-${order.id}-${i}" class="reorder-item-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 10px;" onclick="event.stopPropagation();">
+        <div style="flex: 1;">
+          <div style="font-size: 13px; font-weight: 500; color: var(--text-primary); line-height: 1.3;">${item.name}</div>
+          <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">${item.packSize}</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <div class="pc-qty-control" style="border: 1px solid var(--border); border-radius: 6px; padding: 2px; display: flex; align-items: center;">
+            <button class="pc-qty-btn" type="button" onclick="updateReorderQty('${ctx}', '${order.id}', ${i}, -1)" style="width: 24px; height: 24px; padding: 0; background: var(--bg); border-radius: 4px; border: none; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-primary);">−</button>
+            <span class="pc-qty-value" id="reorder-qty-${ctx}-${order.id}-${i}" style="width: 24px; text-align: center; font-size: 13px; font-weight: 600; display: inline-block;" data-item-name="${item.name.replace(/"/g, '&quot;')}">${item.qty}</span>
+            <button class="pc-qty-btn" type="button" onclick="updateReorderQty('${ctx}', '${order.id}', ${i}, 1)" style="width: 24px; height: 24px; padding: 0; background: var(--bg); border-radius: 4px; border: none; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-primary);">+</button>
+          </div>
+          <button class="btn btn-outline" type="button" onclick="removeReorderItem('${ctx}', '${order.id}', ${i})" title="Remove item" style="padding: 4px; border: none; color: var(--danger); background: transparent; cursor: pointer;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+          </button>
+        </div>
+      </div>
+    `;
+  });
+
+  reorderHtml += `
+    <button class="btn btn-primary btn-full" style="padding: 10px; font-size: 13px; border-radius: 8px; margin-top: 4px;" onclick="event.stopPropagation();addReorderSelectedToCart('${ctx}', '${order.id}')">Add to Cart</button>
+  </div>`;
 
   return `
     <div class="order-card fade-in ${extraCardClass}" ${cardClickHtml} style="margin-bottom: 12px; padding: 14px 16px;">
       <div class="order-card-top" style="display: flex; justify-content: space-between; align-items: flex-start;">
-        <div style="flex: 1; min-width: 0; padding-right: 12px;">
+        <div style="flex: 1; min-width: 0;">
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
             <span class="order-id" style="margin: 0;">SR-${order.id.split('-')[1].substring(0, 6)}</span>
             <span class="order-date" style="margin: 0;">${order.date}</span>
@@ -1345,7 +1374,7 @@ function createOrderCard(order, isRecent, showReorder) {
               Invoice
             </button>
             ` : ''}
-            <button class="order-quick-btn view" onclick="event.stopPropagation();reorderFlow('${order.id}')">
+            <button class="order-quick-btn view" onclick="event.stopPropagation();toggleReorderSection('${ctx}', '${order.id}')">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
               Re-order
             </button>
@@ -1356,6 +1385,7 @@ function createOrderCard(order, isRecent, showReorder) {
           </div>
         </div>
       </div>
+      ${reorderHtml}
     </div>
   `;
 }
@@ -1519,52 +1549,67 @@ function toggleTrackingItems() {
 }
 
 // ============ RE-ORDER ============
-function reorderFlow(orderId) {
-  const order = ORDERS.find(o => o.id === orderId);
-  if (!order) return;
-
-  let content = '<h3>Re-order Items</h3>';
-  content += '<p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Select items to add back to your cart</p>';
-
-  order.items.forEach((item, i) => {
-    content += `
-      <div class="reorder-item">
-        <input type="checkbox" id="reorder-${i}" checked />
-        <div class="reorder-item-info">
-          <div class="ri-name">${item.name}</div>
-          <div class="ri-detail">${item.packSize} • Qty: ${item.qty}</div>
-        </div>
-      </div>
-    `;
-  });
-
-  content += `<button class="btn btn-primary btn-full" style="margin-top:16px;" onclick="executeReorder('${orderId}')">Add to Cart</button>`;
-  openModal(content);
+function toggleReorderSection(ctx, orderId) {
+  const section = document.getElementById(`reorder-section-${ctx}-${orderId}`);
+  if (section) {
+    if (section.style.display === 'none') {
+      section.style.display = 'block';
+    } else {
+      section.style.display = 'none';
+    }
+  }
 }
 
-function executeReorder(orderId) {
+function updateReorderQty(ctx, orderId, itemIndex, delta) {
+  const qtySpan = document.getElementById(`reorder-qty-${ctx}-${orderId}-${itemIndex}`);
+  if (qtySpan) {
+    let currentQty = parseInt(qtySpan.textContent, 10);
+    currentQty += delta;
+    if (currentQty < 1) currentQty = 1;
+    qtySpan.textContent = currentQty;
+  }
+}
+
+function removeReorderItem(ctx, orderId, itemIndex) {
+  const row = document.getElementById(`reorder-row-${ctx}-${orderId}-${itemIndex}`);
+  if (row) {
+    row.remove();
+  }
+}
+
+function addReorderSelectedToCart(ctx, orderId) {
   const order = ORDERS.find(o => o.id === orderId);
   if (!order) return;
 
+  let itemsAdded = 0;
+
   order.items.forEach((item, i) => {
-    const cb = document.getElementById(`reorder-${i}`);
-    if (cb && cb.checked) {
-      const med = MEDICINES.find(m => m.name.includes(item.name.substring(0, 20)));
+    // If the row exists, the item is still in the list and should be added
+    const row = document.getElementById(`reorder-row-${ctx}-${orderId}-${i}`);
+    if (row) {
+      const qtySpan = document.getElementById(`reorder-qty-${ctx}-${orderId}-${i}`);
+      const qty = qtySpan ? parseInt(qtySpan.textContent, 10) : item.qty;
+
+      const med = MEDICINES.find(m => m.name === item.name || m.name.includes(item.name.substring(0, 20)));
       if (med) {
         const existing = cart.find(c => c.id === med.id);
         if (existing) {
-          existing.qty += item.qty;
+          existing.qty += qty;
         } else {
-          cart.push({ ...med, qty: item.qty, notes: '' });
+          cart.push({ ...med, qty: qty, notes: '' });
         }
+        itemsAdded++;
       }
     }
   });
 
-  closeModal();
-  updateCartBadge();
-  showToast('Items added to cart', 'success');
-  setTimeout(() => { switchTab('cart'); }, 600);
+  if (itemsAdded > 0) {
+    updateCartBadge();
+    showToast(`${itemsAdded} item(s) added to cart`, 'success');
+    toggleReorderSection(ctx, orderId);
+  } else {
+    showToast('No items to add', 'warning');
+  }
 }
 
 function downloadInvoice(orderId) {
