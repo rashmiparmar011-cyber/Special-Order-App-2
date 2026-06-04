@@ -200,7 +200,7 @@
           <div style="width:40px"></div>
         </div>
         <div class="auth-body scrollable">
-          
+
           <form id="register-form" class="auth-form" novalidate>
             <!-- SECTION 1: PHARMACY DETAILS -->
             <div class="form-section-header" style="margin-top: 10px; margin-bottom: 16px;">
@@ -487,44 +487,49 @@
           </div>
         </div>
 
+        <!-- GLOBAL APP HEADER -->
+        <div class="page-header-dashboard" style="z-index: 50; position: relative; padding-top: 10px;">
+          <div class="header-top">
+            <div class="header-left">
+              <div class="pharmacy-smart-dropdown" id="pharmacy-smart-dropdown">
+                <button class="pharmacy-trigger" onclick="togglePharmacyDropdown(event)">
+                  <div class="pharmacy-header-info">
+                    <div class="pharmacy-name-row">
+                      <h2 class="pharmacy-name" id="selected-pharmacy-name"></h2>
+                      <svg class="dropdown-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    </div>
+                  </div>
+                </button>
+                <div class="pharmacy-menu" id="pharmacy-menu">
+                  <!-- Dynamically populated by JS -->
+                </div>
+              </div>
+            </div>
+            <div class="header-right">
+            </div>
+          </div>
+        </div>
+
         <!-- PAGE CONTAINER -->
         <div class="page-container">
 
           <!-- ===== HOME / DASHBOARD ===== -->
           <div id="page-home" class="page active">
-            <div class="page-header-dashboard">
-              <div class="header-top">
-                <div class="header-left">
-                  <div class="pharmacy-smart-dropdown" id="pharmacy-smart-dropdown">
-                    <button class="pharmacy-trigger" onclick="togglePharmacyDropdown(event)">
-                      <div class="pharmacy-header-info">
-                        <div class="pharmacy-name-row">
-                          <h2 class="pharmacy-name" id="selected-pharmacy-name"></h2>
-                          <svg class="dropdown-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2.5">
-                            <polyline points="6 9 12 15 18 9"></polyline>
-                          </svg>
-                        </div>
-                      </div>
-                    </button>
-                    <div class="pharmacy-menu" id="pharmacy-menu">
-                      <!-- Dynamically populated by JS -->
-                    </div>
-                  </div>
-                </div>
-                <div class="header-right">
-                </div>
-              </div>
-            </div>
             <div class="page-scroll">
-              <!-- Dashboard Search Bar -->
-              <!-- <div class="dash-search-bar" onclick="switchTab('search')"> -->
-              <!-- <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+
+              <!-- Dashboard Order Search Bar -->
+              <div class="search-bar-mini" style="margin: 10px 15px 0 15px; padding: 10px 12px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  style="width: 16px; height: 16px;">
                   <circle cx="11" cy="11" r="8" />
                   <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
-                <span>Search Orders</span> -->
-              <!-- </div> -->
+                <input type="text" id="home-order-search" placeholder="Search by Order No, Date"
+                  oninput="searchHomeOrders(this.value)" style="font-size: 13px;" />
+              </div>
 
               <!-- Recent Orders Section -->
               <div class="section-header">
@@ -542,7 +547,7 @@
           <!-- ===== SEARCH / MEDICINES ===== -->
           <div id="page-search" class="page">
             <div class="page-header-simple">
-              <h2>Search Medicines</h2>
+              <h2>New Order</h2>
             </div>
             <div class="page-scroll">
               <div class="search-bar">
@@ -706,7 +711,7 @@
           <div id="page-account" class="page">
             <div class="page-scroll">
               <div class="account-header">
-                <h3 id="account-name">Green Cross Pharmacy</h3>
+                <h3 id="account-name">Green Cross Pharmacy (B5010) W8 4PT</h3>
                 <p id="account-email">admin@greencross.co.uk</p>
                 <!-- <span class="verified-badge">
                   <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" width="14" height="14">

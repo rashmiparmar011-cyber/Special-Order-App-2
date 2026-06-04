@@ -74,6 +74,11 @@ function showPage(pageId) {
     currentPage = pageId;
   }
 
+  const globalHeader = document.querySelector('.page-header-dashboard');
+  if (globalHeader) {
+    globalHeader.style.display = pageId === 'page-account' ? 'none' : '';
+  }
+
   if (pageId === 'page-cart') renderCart();
   if (pageId === 'page-orders') {
     const tabContainer = document.getElementById('order-tabs');
@@ -503,12 +508,16 @@ function renderPharmacyList() {
     const isSelected = selectedPharmacy && selectedPharmacy.id === ph.id;
     return `
       <div class="pharmacy-card fade-in ${isSelected ? 'selected' : ''}" onclick="selectPharmacy('${ph.id}')">
-        <div class="pc-header">
-          <span class="pc-name" style="font-size: 14px;">${ph.name}, ${postcode}${ph.accountNo ? `, (${ph.accountNo})` : ''}</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <span class="pc-name" style="font-size: 14px; flex: 1; margin-right: 8px;">${ph.name}</span>
+          ${ph.accountNo ? `<span style="font-size: 12px; font-weight: 600;padding: 2px 8px; border-radius: 20px; white-space: nowrap;">${ph.accountNo}</span>` : ''}
         </div>
-        <div class="pc-address-row">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="address-icon"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          <span class="pc-address-text" title="${ph.address}">${addressWithoutPostcode}</span>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="pc-address-row" style="flex: 1; margin-right: 8px; overflow: hidden;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="address-icon"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span class="pc-address-text" title="${ph.address}" style="font-size: 11px;">${addressWithoutPostcode}</span>
+          </div>
+          ${postcode ? `<span style="font-size: 11px; padding-right:3px ;font-weight: 500; color: var(--text-secondary); white-space: nowrap;">${postcode}</span>` : ''}
         </div>
       </div>
     `;
@@ -533,7 +542,10 @@ function updateSelectedPharmacyName() {
   if (selectedPharmacyName && selectedPharmacy) {
     const postcode = (selectedPharmacy.address.match(/[A-Z0-9]+\s+[A-Z0-9]+$/i)?.[0] || '');
     const accountStr = selectedPharmacy.accountNo ? ` (${selectedPharmacy.accountNo})` : '';
-    selectedPharmacyName.innerHTML = `<div>${selectedPharmacy.name}${accountStr}</div><div style="font-size: 13px; color: var(--text-muted); font-weight: 500; margin-top: 2px;">${postcode}</div>`;
+    selectedPharmacyName.innerHTML = `${selectedPharmacy.name}${accountStr} <span style="font-weight: bold; margin-left: 4px;">${postcode}</span>`;
+
+    const accName = document.getElementById('account-name');
+    if (accName) accName.textContent = `${selectedPharmacy.name}${accountStr} ${postcode}`;
   }
 }
 
@@ -558,8 +570,6 @@ function selectPharmacy(id) {
 
     const pharmacyPillName = document.getElementById('pharmacy-pill-name');
     if (pharmacyPillName) pharmacyPillName.textContent = selectedPharmacy.name;
-    const accountName = document.getElementById('account-name');
-    if (accountName) accountName.textContent = selectedPharmacy.name;
 
     const avatar = document.querySelector('.account-avatar span');
     if (avatar) avatar.textContent = selectedPharmacy.initials;
@@ -621,6 +631,33 @@ function renderRecentOrders() {
   container.innerHTML = recentOrders.map(order => createOrderCard(order, true, false)).join('');
 }
 
+function searchHomeOrders(query) {
+  const container = document.getElementById('recent-orders-list');
+  if (!container) return;
+  const q = query.toLowerCase().trim();
+  if (!q) {
+    renderRecentOrders();
+    return;
+  }
+  const filtered = ORDERS.filter(order => {
+    const shortId = 'SR-' + order.id.split('-')[1].substring(0, 6);
+    return order.id.toLowerCase().includes(q) ||
+      shortId.toLowerCase().includes(q) ||
+      order.date.toLowerCase().includes(q) ||
+      (order.dateShort && order.dateShort.includes(q));
+  });
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state" style="padding: 30px 0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <h3 style="font-size:14px; margin-top:12px;">No orders found</h3>
+        <p style="font-size:12px; color:var(--text-muted);">Try a different order number or date</p>
+      </div>`;
+    return;
+  }
+  container.innerHTML = filtered.map(order => createOrderCard(order, true, false)).join('');
+}
+
 // ============ PRODUCT SEARCH & LISTING ============
 function getCartItem(medId) {
   return cart.find(c => c.id === medId);
@@ -653,23 +690,25 @@ function renderProductsGrid(medicines) {
 
     return `
     <div class="product-card fade-in ${inCart ? 'in-cart' : ''}">
-      <div class="product-card-row">
+      <div class="product-card-row" style="align-items: flex-start;">
         <div class="product-info">
           <div class="p-name" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
             <span>${displayName} (${med.packSize})</span>
-            <span class="p-category" style="margin-top:0; margin-bottom:0;">${med.categoryLabel}</span>
           </div>
         </div>
-        <div class="product-card-actions" onclick="event.stopPropagation();">
+        <div class="product-card-actions" onclick="event.stopPropagation();" style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+          <span class="p-category" style="margin-top:0; margin-bottom:0;">${med.categoryLabel}</span>
+          <div style="display:flex; align-items:center; gap:10px;">
           ${inCart ? `
             <button class="pc-remove-btn" onclick="removeFromSearch('${med.id}')" title="Remove from cart">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
             </button>
           ` : ''}
-          <div class="pc-qty-control">
-            <button class="pc-qty-btn" onclick="changeSearchQty('${med.id}', -1)">−</button>
-            <span class="pc-qty-value">${qty}</span>
-            <button class="pc-qty-btn" onclick="changeSearchQty('${med.id}', 1)">+</button>
+            <div class="pc-qty-control">
+              <button class="pc-qty-btn" onclick="changeSearchQty('${med.id}', -1)">−</button>
+              <span class="pc-qty-value">${qty}</span>
+              <button class="pc-qty-btn" onclick="changeSearchQty('${med.id}', 1)">+</button>
+            </div>
           </div>
         </div>
       </div>
@@ -868,21 +907,23 @@ function renderCart() {
 
     html += `
       <div class="product-card in-cart fade-in" style="margin-bottom: 10px; cursor: default;">
-        <div class="product-card-row">
+        <div class="product-card-row" style="align-items: flex-start;">
           <div class="product-info">
             <div class="p-name" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
               <span>${displayName} (${item.packSize})</span>
-              <span class="p-category" style="margin-top:0; margin-bottom:0;">${item.categoryLabel}</span>
             </div>
           </div>
-          <div class="product-card-actions">
-            <button class="pc-remove-btn" onclick="removeFromCart('${item.id}')" title="Remove from cart">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-            </button>
-            <div class="pc-qty-control">
-              <button class="pc-qty-btn" onclick="updateCartQty('${item.id}', -1)">−</button>
-              <span class="pc-qty-value">${item.qty}</span>
-              <button class="pc-qty-btn" onclick="updateCartQty('${item.id}', 1)">+</button>
+          <div class="product-card-actions" style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+            <span class="p-category" style="margin-top:0; margin-bottom:0;">${item.categoryLabel}</span>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <button class="pc-remove-btn" onclick="removeFromCart('${item.id}')" title="Remove from cart">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+              <div class="pc-qty-control">
+                <button class="pc-qty-btn" onclick="updateCartQty('${item.id}', -1)">−</button>
+                <span class="pc-qty-value">${item.qty}</span>
+                <button class="pc-qty-btn" onclick="updateCartQty('${item.id}', 1)">+</button>
+              </div>
             </div>
           </div>
         </div>
@@ -890,24 +931,19 @@ function renderCart() {
     `;
   });
 
-  // Delivery Address
+  // Delivery Address & GPhC Verification Merged
   html += `
     <div class="cart-section fade-in">
-      <h4>
+      <h4 style="margin-bottom: 12px;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
         Delivery Address
       </h4>
-      <div style="background:var(--primary-bg);padding:12px 14px;border-radius:var(--radius-md);border:1px solid var(--border-light);margin-top:10px;">
+      <div style="background:var(--primary-bg);padding:12px 14px;border-radius:var(--radius-md);border:1px solid var(--border-light);margin-bottom:20px;">
         <strong style="display:block;font-size:14px;color:var(--text-primary);margin-bottom:4px;">${selectedPharmacy.name}</strong>
         <p style="font-size:13px;color:var(--text-secondary);line-height:1.4;margin:0;">${selectedPharmacy.address}</p>
       </div>
-    </div>
-  `;
-
-  // GPhC Verification
-  html += `
-    <div class="cart-section">
-      <h4>
+      
+      <h4 style="margin-bottom: 12px;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         Pharmacist Verification
       </h4>
@@ -917,7 +953,7 @@ function renderCart() {
           <input type="text" id="cart-gphc" placeholder="Enter GPhC number" value="2087654" />
         </div>
       </div>
-      <div class="form-group">
+      <div class="form-group" style="margin-bottom: 0;">
         <label>Pharmacist Name <span class="required">*</span></label>
         <div class="input-wrapper">
           <input type="text" id="cart-pharmacist" placeholder="Enter pharmacist name" value="Dr. Sarah Mitchell" />
@@ -1263,14 +1299,25 @@ function createOrderCard(order, isRecent, showReorder) {
   const itemCount = order.items.reduce((sum, i) => sum + i.qty, 0);
 
   let itemsHtml = '';
-  if (isReorderFlow && order.items.length > 0) {
-    const firstItem = order.items[0];
+  if (order.items && order.items.length > 0) {
+    const item = order.items[0];
+    let displayName = item.name;
+    if (item.packSize && item.packSize.toLowerCase().includes('tablets')) {
+      displayName = displayName.replace(/\bTablets\b/gi, '').replace(/\s+/g, ' ').trim();
+    } else if (item.packSize && item.packSize.toLowerCase().includes('capsules')) {
+      displayName = displayName.replace(/\bCapsules\b/gi, '').replace(/\s+/g, ' ').trim();
+    }
+    const packStr = item.packSize ? ` (${item.packSize})` : '';
+    const itemsList = `
+      <div class="order-card-item" style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 0px; gap: 16px; align-items: flex-start;">
+        <span style="text-align: left; font-weight: 500; color: var(--text-primary); line-height: 1.4;">${displayName}${packStr}</span>
+        <span style="font-size: 12px; font-weight: 600; color: var(--text-primary); white-space: nowrap;">Qty-${item.qty}</span>
+      </div>
+    `;
+
     itemsHtml = `
-      <div class="order-card-items" style="margin-top: 10px; margin-bottom: 12px; border-top: 1px dashed var(--border); padding-top: 8px;">
-        <div class="order-card-item" style="display: flex; justify-content: space-between; font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; gap: 16px; align-items: center;">
-          <span style="text-align: left; font-weight: 500;">${firstItem.name}</span>
-          <span style="background: var(--primary-bg); color: var(--primary); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 100px; border: 1px solid rgba(10, 36, 99, 0.08); white-space: nowrap;">Qty: ${firstItem.qty}</span>
-        </div>
+      <div class="order-card-items" style="margin-top: 8px; margin-bottom: 4px;">
+        ${itemsList}
       </div>
     `;
   }
@@ -1282,14 +1329,17 @@ function createOrderCard(order, isRecent, showReorder) {
     <div class="order-card fade-in ${extraCardClass}" ${cardClickHtml} style="margin-bottom: 12px; padding: 14px 16px;">
       <div class="order-card-top" style="display: flex; justify-content: space-between; align-items: flex-start;">
         <div style="flex: 1; min-width: 0; padding-right: 12px;">
-          <div class="order-id">${order.id}</div>
-          <div class="order-date" style="margin-bottom: 8px;">${order.date}</div>
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <span class="order-id" style="margin: 0;">SR-${order.id.split('-')[1].substring(0, 6)}</span>
+            <span class="order-date" style="margin: 0;">${order.date}</span>
+            <span class="status-pill ${order.statusClass}">${order.statusLabel}</span>
+          </div>
           
           ${itemsHtml}
           
           <!-- Reorder, Invoice and Support buttons placed side-by-side directly under the date -->
           <div class="order-card-quick-actions" style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
-            ${order.status === 'delivered' ? `
+            ${(order.status === 'delivered' || order.status === 'transit') ? `
             <button class="order-quick-btn invoice" onclick="event.stopPropagation();downloadInvoice('${order.id}')">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               Invoice
@@ -1301,11 +1351,10 @@ function createOrderCard(order, isRecent, showReorder) {
             </button>
             <button class="order-quick-btn support" onclick="event.stopPropagation();showPage('page-help');">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-              Support
+              Query
             </button>
           </div>
         </div>
-        <span class="status-pill ${order.statusClass}">${order.statusLabel}</span>
       </div>
     </div>
   `;
@@ -1329,7 +1378,7 @@ function viewOrderTracking(orderId) {
     <div class="tracking-header">
       <div style="display:flex; justify-content:space-between; align-items:flex-start;">
         <div>
-          <div class="th-order-id">${order.id}</div>
+          <div class="th-order-id">SR-${order.id.split('-')[1].substring(0, 6)}</div>
           <div class="th-date">Ordered on ${order.date}</div>
         </div>
         <button class="btn btn-outline" onclick="downloadInvoice('${order.id}')" style="padding: 6px 12px; font-size: 11px; font-weight: 700; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; margin-top: 2px; height: auto; border: 1px solid var(--border);">

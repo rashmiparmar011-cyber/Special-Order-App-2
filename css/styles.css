@@ -1078,7 +1078,7 @@ img {
 }
 
 .pharmacy-card .pc-address-text {
-  font-size: 13px;
+  font-size: 11px;
   color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
@@ -1148,10 +1148,10 @@ img {
 
 /* === Dashboard Header === */
 .page-header-dashboard {
-  background: var(--white);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
   padding: 16px 20px;
-  color: var(--text-primary);
-  border-bottom: 1px solid var(--border-light);
+  color: var(--white);
+  border-bottom: none;
   position: relative;
 }
 
@@ -1167,6 +1167,7 @@ img {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex: 1;
 }
 
 .back-btn-pharmacy {
@@ -1220,7 +1221,7 @@ img {
 .pharmacy-name {
   font-size: 15px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--white);
   line-height: 1.3;
   margin: 0;
 }
@@ -1228,6 +1229,7 @@ img {
 /* === Pharmacy Smart Dropdown === */
 .pharmacy-smart-dropdown {
   position: relative;
+  width: 100%;
 }
 
 .pharmacy-trigger {
@@ -1244,12 +1246,14 @@ img {
   display: flex;
   align-items: center;
   gap: 6px;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .pharmacy-trigger .dropdown-chevron {
   width: 16px;
   height: 16px;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.8);
   transition: transform 0.2s ease;
 }
 
@@ -1912,6 +1916,17 @@ img {
   border-color: var(--text-muted);
 }
 
+.order-quick-btn.support {
+  background: var(--white);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.order-quick-btn.support:hover {
+  background: var(--bg);
+  border-color: var(--text-muted);
+}
+
 .order-quick-btn.reorder {
   background: transparent;
   color: var(--primary);
@@ -2246,12 +2261,12 @@ img {
 }
 
 
-.product-info .p-category {
-  font-size: 11px;
+.p-category {
+  font-size: 10px;
   font-weight: 600;
-  color: var(--accent);
-  background: var(--accent-bg);
-  padding: 2px 8px;
+  color: var(--success);
+  background: #eaf6ec;
+  padding: 1px 6px;
   border-radius: var(--radius-full);
   display: inline-block;
   margin-top: 4px;
@@ -3357,7 +3372,7 @@ img {
 }
 
 .account-header h3 {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 700;
   margin-bottom: 4px;
 }
