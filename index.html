@@ -106,7 +106,7 @@
                   </svg>
                   OTP
                 </button>
-                <button type="button" class="alt-login-tab" id="tab-biometric" onclick="biometricLogin()">
+                <button type="button" class="alt-login-tab" id="tab-biometric" onclick="switchAltTab('biometric')">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                     <circle cx="12" cy="12" r="10" />
                     <path d="M12 6a6 6 0 00-6 6c0 4.5 6 9 6 9s6-4.5 6-9a6 6 0 00-6-6z" />
@@ -138,6 +138,30 @@
                     <button type="button" class="btn btn-primary btn-full" onclick="verifyLoginOTP()"
                       style="font-size:14px; padding:10px 16px;">Verify & Sign In</button>
                   </div>
+                </div>
+                <div id="alt-biometric-section" class="alt-section hidden" style="text-align: center; padding: 20px 0;">
+                  <div class="biometric-icon-wrapper" style="margin: 0 auto 24px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="fingerprint">
+                      <path d="M12 11a2 2 0 00-2 2" />
+                      <path d="M16 13a4 4 0 00-8 0" />
+                      <path d="M20 13a8 8 0 00-16 0" />
+                      <path d="M20 13v1" />
+                      <path d="M4 13v1" />
+                      <path d="M16 13v3" />
+                      <path d="M8 13v3" />
+                      <path d="M12 5v2" />
+                      <path d="M12 22v-4" />
+                    </svg>
+                    <div class="check-wrapper">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="check">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </div>
+                  </div>
+                  <h3 style="font-size: 18px; font-weight: 700; color: #1A1D29; margin-bottom: 8px;">Biometric Sign-In
+                    Successful!</h3>
+                  <p style="font-size: 14px; color: #5A6178; margin-bottom: 24px;">Successfully signed in using
+                    Fingerprint.</p>
                 </div>
               </div>
             </div>
@@ -176,7 +200,7 @@
           <div style="width:40px"></div>
         </div>
         <div class="auth-body scrollable">
-          <p class="form-section-desc">Register your pharmacy to start ordering special medicines</p>
+          
           <form id="register-form" class="auth-form" novalidate>
             <!-- SECTION 1: PHARMACY DETAILS -->
             <div class="form-section-header" style="margin-top: 10px; margin-bottom: 16px;">
@@ -433,7 +457,7 @@
               <circle cx="11" cy="11" r="8" />
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
-            <input type="text" id="pharmacy-search" placeholder="Search pharmacy..."
+            <input type="text" id="pharmacy-search" placeholder="Search Pharmacy, Ac No, Postcode..."
               oninput="filterPharmacies(this.value)" />
           </div>
           <div id="pharmacy-list" class="pharmacy-list">
@@ -476,7 +500,8 @@
                       <div class="pharmacy-header-info">
                         <div class="pharmacy-name-row">
                           <h2 class="pharmacy-name" id="selected-pharmacy-name"></h2>
-                          <svg class="dropdown-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                          <svg class="dropdown-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
                             <polyline points="6 9 12 15 18 9"></polyline>
                           </svg>
                         </div>
@@ -504,74 +529,12 @@
               <!-- Recent Orders Section -->
               <div class="section-header">
                 <h3>Recent Orders</h3>
-                <a href="#" class="see-all" onclick="showAllOrdersModal(); return false;">See All</a>
+                <a href="#" class="see-all" onclick="switchTab('orders'); return false;">See All</a>
               </div>
               <div id="recent-orders-list" class="orders-list">
                 <!-- Dynamic cards populated by JS -->
               </div>
 
-              <!-- Dashboard Options Grid -->
-              <div class="dash-options-grid">
-                <!-- Place Order -->
-                <div class="dash-option-card place-order" onclick="switchTab('search')">
-                  <div class="doc-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="9" cy="21" r="1" />
-                      <circle cx="20" cy="21" r="1" />
-                      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-                    </svg>
-                  </div>
-                  <div class="doc-info">
-                    <span class="doc-title">New Order</span>
-                    <span class="doc-subtitle">Search & order special medicines</span>
-                  </div>
-                </div>
-
-                <!-- Reorder
-                <div class="dash-option-card reorder" onclick="showPage('page-orders');setOrderTab('previous', true);">
-                  <div class="doc-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <polyline points="17 1 21 5 17 9" />
-                      <path d="M3 11V9a4 4 0 0 1 4-4h14" />
-                      <polyline points="7 23 3 19 7 15" />
-                      <path d="M21 13v2a4 4 0 0 1-4 4H3" />
-                    </svg>
-                  </div>
-                  <div class="doc-info">
-                    <span class="doc-title">Re-Order</span>
-                    <span class="doc-subtitle">Repeat order Prescriptions</span>
-                  </div>
-                </div> -->
-
-                <!-- Today's Orders -->
-                <div class="dash-option-card today-orders"
-                  onclick="showPage('page-orders');setOrderTab('active', false);">
-                  <div class="doc-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                      <polyline points="14 2 14 8 20 8" />
-                    </svg>
-                  </div>
-                  <div class="doc-info">
-                    <span class="doc-title">My Order <span class="doc-badge" id="today-orders">4</span></span>
-                    <span class="doc-subtitle">Active and past orders</span>
-                  </div>
-                </div>
-
-                <!-- Product Support -->
-                <div class="dash-option-card product-support"
-                  onclick="showPage('page-help');setSupportTab('product-support');">
-                  <div class="doc-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                    </svg>
-                  </div>
-                  <div class="doc-info">
-                    <span class="doc-title">New Product Enquiry</span>
-                    <span class="doc-subtitle">Explore your new product requirements</span>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -624,20 +587,6 @@
             </div>
           </div>
 
-          <!-- ===== PRODUCT DETAIL ===== -->
-          <div id="page-product-detail" class="page">
-            <div class="page-header-simple" style="position:relative;">
-              <button class="back-btn" onclick="showPage('page-search')" style="position:absolute;left:16px;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="15 18 9 12 15 6" />
-                </svg>
-              </button>
-              <h2>Product Details</h2>
-            </div>
-            <div class="page-scroll" id="product-detail-content">
-              <!-- Populated by JS -->
-            </div>
-          </div>
 
           <!-- ===== CART ===== -->
           <div id="page-cart" class="page">
@@ -901,7 +850,7 @@
               <circle cx="11" cy="11" r="8" />
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
-            <span>New Search</span>
+            <span>New Order</span>
           </button>
           <button class="nav-item cart-nav" data-tab="cart" onclick="switchTab('cart')">
             <div class="cart-icon-wrap">
@@ -960,6 +909,8 @@
         <span class="toast-message" id="toast-message"></span>
       </div>
     </div>
+
+
 
     <!-- ========== MODAL / BOTTOM SHEET ========== -->
     <div id="modal-overlay" class="modal-overlay hidden" onclick="closeModal()">

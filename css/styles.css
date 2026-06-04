@@ -719,7 +719,7 @@ img {
 
 .input-wrapper textarea {
   resize: none;
-  padding: 13px 0;
+  padding: 11px 0;
 }
 
 .textarea-wrapper {
@@ -1218,14 +1218,11 @@ img {
 }
 
 .pharmacy-name {
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--text-primary);
-  max-width: 260px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-  line-height: 1.25;
+  line-height: 1.3;
+  margin: 0;
 }
 
 /* === Pharmacy Smart Dropdown === */
@@ -4315,4 +4312,83 @@ img {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Biometric Modal Styles */
+.biometric-modal {
+  background: var(--white);
+  width: 90%;
+  max-width: 320px;
+  border-radius: 20px;
+  padding: 32px 24px 24px;
+  position: relative;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(10, 36, 99, 0.15);
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #F3F4F6;
+  color: #1A1D29;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+}
+
+.biometric-icon-wrapper {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: #E8F0FE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  position: relative;
+}
+
+.biometric-icon-wrapper svg.fingerprint {
+  width: 48px;
+  height: 48px;
+  color: #1A73E8;
+}
+
+.biometric-icon-wrapper .check-wrapper {
+  position: absolute;
+  bottom: 0;
+  right: -4px;
+  background: #10B981;
+  color: white;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid white;
+}
+
+.biometric-icon-wrapper .check-wrapper svg {
+  width: 14px;
+  height: 14px;
+}
+
+.biometric-modal h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1A1D29;
+  margin-bottom: 8px;
+}
+
+.biometric-modal p {
+  font-size: 14px;
+  color: #5A6178;
+  margin-bottom: 24px;
 }

@@ -7,6 +7,7 @@ let currentScreen = 'screen-splash';
 let currentPage = 'page-home';
 let selectedPharmacy = PHARMACIES[0];
 let cart = [];
+let latestOrderId = '';
 let rxUploaded = false;
 let currentOrderTab = 'active';
 let prevTimeframeFilter = 'all';
@@ -171,12 +172,26 @@ function setupLoginForm() {
 }
 
 function biometricLogin() {
-  showLoading('Verifying biometrics...');
-  setTimeout(() => {
-    hideLoading();
-    showToast('Biometric verified successfully', 'success');
-    setTimeout(() => navigateTo('screen-select-pharmacy'), 600);
-  }, 2000);
+  const modal = document.getElementById('biometric-modal-overlay');
+  if (modal) {
+    modal.style.display = 'flex';
+    modal.classList.remove('hidden');
+  }
+}
+
+function closeBiometricModal() {
+  const modal = document.getElementById('biometric-modal-overlay');
+  if (modal) {
+    modal.classList.add('hidden');
+    setTimeout(() => {
+      modal.style.display = '';
+    }, 300);
+  }
+}
+
+function closeBiometricModalAndProceed() {
+  closeBiometricModal();
+  setTimeout(() => navigateTo('screen-select-pharmacy'), 300);
 }
 
 function sendLoginOTP() {
@@ -190,19 +205,86 @@ function sendLoginOTP() {
 
 function switchAltTab(type) {
   const otpTab = document.getElementById('tab-otp');
+  const biometricTab = document.getElementById('tab-biometric');
   const otpSection = document.getElementById('alt-otp-section');
+  const biometricSection = document.getElementById('alt-biometric-section');
+  const emailFields = document.getElementById('login-email-fields');
+  const formOptions = document.querySelector('.form-options');
+  const loginBtn = document.getElementById('login-btn');
+  const loginForm = document.getElementById('login-form');
+  const altContainer = document.querySelector('.alt-login-container');
+  const altContent = document.querySelector('.alt-login-content');
 
-  if (!otpTab || !otpSection) return;
+  if (!otpTab || !otpSection || !biometricTab || !biometricSection) return;
+
+  const resetToEmail = () => {
+    otpTab.classList.remove('active');
+    biometricTab.classList.remove('active');
+    otpSection.classList.add('hidden');
+    biometricSection.classList.add('hidden');
+
+    if (emailFields) emailFields.classList.remove('hidden');
+    if (formOptions) formOptions.classList.remove('hidden');
+    if (loginBtn) loginBtn.classList.remove('hidden');
+
+    if (altContent) {
+      altContent.appendChild(otpSection);
+      altContent.appendChild(biometricSection);
+    }
+
+    otpTab.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                    <path d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                  OTP`;
+    biometricTab.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 6a6 6 0 00-6 6c0 4.5 6 9 6 9s6-4.5 6-9a6 6 0 00-6-6z" />
+                  </svg>
+                  Biometric`;
+  };
 
   const isOtpActive = otpTab.classList.contains('active');
+  const isBiometricActive = biometricTab.classList.contains('active');
+
+  const showEmailLabel = (tab) => {
+    tab.classList.add('active');
+    tab.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                    <polyline points="22,6 12,13 2,6" />
+                  </svg>
+                  Email`;
+  };
 
   if (type === 'otp') {
     if (isOtpActive) {
-      otpTab.classList.remove('active');
-      otpSection.classList.add('hidden');
+      resetToEmail();
     } else {
-      otpTab.classList.add('active');
+      resetToEmail();
       otpSection.classList.remove('hidden');
+      if (emailFields) emailFields.classList.add('hidden');
+      if (formOptions) formOptions.classList.add('hidden');
+      if (loginBtn) loginBtn.classList.add('hidden');
+      if (loginForm && altContainer) loginForm.insertBefore(otpSection, altContainer);
+      showEmailLabel(otpTab);
+    }
+  } else if (type === 'biometric') {
+    if (isBiometricActive) {
+      resetToEmail();
+    } else {
+      resetToEmail();
+      biometricSection.classList.remove('hidden');
+      if (emailFields) emailFields.classList.add('hidden');
+      if (formOptions) formOptions.classList.add('hidden');
+      if (loginBtn) loginBtn.classList.add('hidden');
+      if (loginForm && altContainer) loginForm.insertBefore(biometricSection, altContainer);
+      showEmailLabel(biometricTab);
+
+      // Auto-navigate after a short delay since there's no button
+      setTimeout(() => {
+        if (document.getElementById('tab-biometric').classList.contains('active')) {
+          navigateTo('screen-select-pharmacy');
+        }
+      }, 1500);
     }
   }
 }
@@ -417,16 +499,16 @@ function renderPharmacyList() {
   if (!container) return;
   container.innerHTML = PHARMACIES.map(ph => {
     const postcode = ph.address.match(/[A-Z0-9]+\s+[A-Z0-9]+$/i)?.[0] || '';
+    const addressWithoutPostcode = ph.address.replace(postcode, '').replace(/,\s*$/, '').trim();
     const isSelected = selectedPharmacy && selectedPharmacy.id === ph.id;
     return `
       <div class="pharmacy-card fade-in ${isSelected ? 'selected' : ''}" onclick="selectPharmacy('${ph.id}')">
         <div class="pc-header">
-          <span class="pc-name">${ph.name}</span>
-          <span class="pc-postcode">${postcode}</span>
+          <span class="pc-name" style="font-size: 14px;">${ph.name}, ${postcode}${ph.accountNo ? `, (${ph.accountNo})` : ''}</span>
         </div>
         <div class="pc-address-row">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="address-icon"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          <span class="pc-address-text" title="${ph.address}">${ph.address}</span>
+          <span class="pc-address-text" title="${ph.address}">${addressWithoutPostcode}</span>
         </div>
       </div>
     `;
@@ -435,18 +517,23 @@ function renderPharmacyList() {
 
 function filterPharmacies(query) {
   const cards = document.querySelectorAll('.pharmacy-card');
-  const q = query.toLowerCase();
+  const q = query.toLowerCase().trim();
   cards.forEach((card, i) => {
-    const name = PHARMACIES[i].name.toLowerCase();
-    const gphc = PHARMACIES[i].gphc.toLowerCase();
-    card.style.display = (name.includes(q) || gphc.includes(q)) ? '' : 'none';
+    const ph = PHARMACIES[i];
+    const name = ph.name.toLowerCase();
+    const postcode = (ph.address.match(/[A-Z0-9]+\s+[A-Z0-9]+$/i)?.[0] || '').toLowerCase();
+    const accountNo = (ph.accountNo || '').toLowerCase();
+
+    card.style.display = (name.includes(q) || postcode.includes(q) || accountNo.includes(q)) ? '' : 'none';
   });
 }
 
 function updateSelectedPharmacyName() {
   const selectedPharmacyName = document.getElementById('selected-pharmacy-name');
   if (selectedPharmacyName && selectedPharmacy) {
-    selectedPharmacyName.textContent = selectedPharmacy.name;
+    const postcode = (selectedPharmacy.address.match(/[A-Z0-9]+\s+[A-Z0-9]+$/i)?.[0] || '');
+    const accountStr = selectedPharmacy.accountNo ? ` (${selectedPharmacy.accountNo})` : '';
+    selectedPharmacyName.innerHTML = `<div>${selectedPharmacy.name}${accountStr}</div><div style="font-size: 13px; color: var(--text-muted); font-weight: 500; margin-top: 2px;">${postcode}</div>`;
   }
 }
 
@@ -469,8 +556,6 @@ function selectPharmacy(id) {
     updateSelectedPharmacyName();
     renderPharmacySmartMenu();
 
-    const selectedPharmacyName = document.getElementById('selected-pharmacy-name');
-    if (selectedPharmacyName) selectedPharmacyName.textContent = selectedPharmacy.name;
     const pharmacyPillName = document.getElementById('pharmacy-pill-name');
     if (pharmacyPillName) pharmacyPillName.textContent = selectedPharmacy.name;
     const accountName = document.getElementById('account-name');
@@ -499,13 +584,14 @@ function togglePharmacyDropdown(event) {
 function renderPharmacySmartMenu() {
   const menu = document.getElementById('pharmacy-menu');
   if (!menu) return;
-  
+
   menu.innerHTML = PHARMACIES.map(ph => {
     const isActive = selectedPharmacy.id === ph.id;
+    const postcode = ph.address.match(/[A-Z0-9]+\s+[A-Z0-9]+$/i)?.[0] || '';
     return `
       <button class="pharmacy-menu-item ${isActive ? 'active' : ''}" onclick="selectPharmacyFromDropdown(event, '${ph.id}')">
         <span class="pm-name">${ph.name}</span>
-        <span class="pm-gphc">${ph.gphc || ''}</span>
+        <span class="pm-gphc">Ac no: ${ph.accountNo || ''}${postcode ? `, ${postcode}` : ''}</span>
       </button>
     `;
   }).join('');
@@ -513,12 +599,12 @@ function renderPharmacySmartMenu() {
 
 function selectPharmacyFromDropdown(event, id) {
   event.stopPropagation();
-  
+
   const dropdown = document.getElementById('pharmacy-smart-dropdown');
   if (dropdown) dropdown.classList.remove('open');
-  
+
   if (selectedPharmacy.id === id) return;
-  
+
   selectPharmacy(id);
 }
 
@@ -531,7 +617,7 @@ function renderDashboard() {
 function renderRecentOrders() {
   const container = document.getElementById('recent-orders-list');
   if (!container) return;
-  const recentOrders = ORDERS.slice(0, 3);
+  const recentOrders = ORDERS.slice(0, 5);
   container.innerHTML = recentOrders.map(order => createOrderCard(order, true, false)).join('');
 }
 
@@ -566,11 +652,13 @@ function renderProductsGrid(medicines) {
     }
 
     return `
-    <div class="product-card fade-in ${inCart ? 'in-cart' : ''}" onclick="showProductDetail('${med.id}')">
+    <div class="product-card fade-in ${inCart ? 'in-cart' : ''}">
       <div class="product-card-row">
         <div class="product-info">
-          <div class="p-name">${displayName} (${med.packSize})</div>
-          <span class="p-category">${med.categoryLabel}</span>
+          <div class="p-name" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span>${displayName} (${med.packSize})</span>
+            <span class="p-category" style="margin-top:0; margin-bottom:0;">${med.categoryLabel}</span>
+          </div>
         </div>
         <div class="product-card-actions" onclick="event.stopPropagation();">
           ${inCart ? `
@@ -683,55 +771,6 @@ function toggleChip(btn) {
   btn.classList.add('active');
 }
 
-function showProductDetail(medId) {
-  const med = MEDICINES.find(m => m.id === medId);
-  if (!med) return;
-
-  // Clean up duplicate unit in product name if it's already in the pack size
-  let displayName = med.name;
-  const packSizeLower = med.packSize.toLowerCase();
-  if (packSizeLower.includes('tablets') && displayName.endsWith('Tablets')) {
-    displayName = displayName.slice(0, -8).trim();
-  } else if (packSizeLower.includes('capsules') && displayName.endsWith('Capsules')) {
-    displayName = displayName.slice(0, -9).trim();
-  }
-
-  const container = document.getElementById('product-detail-content');
-  container.innerHTML = `
-    <div class="product-detail fade-in" style="padding: 16px;">
-      <!-- Product Name with Pack Size -->
-      <h2 class="pd-name" style="margin-bottom:8px; font-size:20px;">${displayName} (${med.packSize})</h2>
-
-      <!-- Category Badges (Below Product Name) -->
-      <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
-        <span style="font-size:11px; font-weight:700; color:white; background:var(--primary); padding:4px 10px; border-radius:100px;">${med.categoryLabel}</span>
-      </div>
-
-      <!-- Description -->
-      <p class="pd-description" style="margin-bottom:14px; font-size:13px; line-height:1.55;">${med.description}</p>
-
-      <!-- Info Card -->
-      <div style="background:var(--bg); border:1px solid var(--border-light); border-radius:var(--radius-md); padding:14px; margin-bottom:14px;">
-        <div>
-          <span style="display:block; font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; font-weight:700; margin-bottom:3px;">Storage</span>
-          <strong style="font-size:13px; color:var(--text-primary); font-weight:500; line-height:1.4;">${med.storage}</strong>
-        </div>
-      </div>
-
-      <!-- Actions -->
-      <div class="pd-actions" style="gap:10px; display:flex;">
-        <button class="btn btn-outline" onclick="showPage('page-search')" style="flex:1; padding:12px;">
-          Cancel
-        </button>
-        <button class="btn btn-primary" onclick="addToCart('${med.id}')" style="flex:1; padding:12px;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-          Add to Cart
-        </button>
-      </div>
-    </div>
-  `;
-  showPage('page-product-detail');
-}
 
 function showQueryModal(medId) {
   const med = MEDICINES.find(m => m.id === medId);
@@ -831,8 +870,10 @@ function renderCart() {
       <div class="product-card in-cart fade-in" style="margin-bottom: 10px; cursor: default;">
         <div class="product-card-row">
           <div class="product-info">
-            <div class="p-name">${displayName} (${item.packSize})</div>
-            <span class="p-category">${item.categoryLabel}</span>
+            <div class="p-name" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span>${displayName} (${item.packSize})</span>
+              <span class="p-category" style="margin-top:0; margin-bottom:0;">${item.categoryLabel}</span>
+            </div>
           </div>
           <div class="product-card-actions">
             <button class="pc-remove-btn" onclick="removeFromCart('${item.id}')" title="Remove from cart">
@@ -1246,21 +1287,25 @@ function createOrderCard(order, isRecent, showReorder) {
           
           ${itemsHtml}
           
-          <!-- Reorder and Invoice buttons placed side-by-side directly under the date -->
-          <div class="order-card-quick-actions" style="display: flex; gap: 8px; margin-top: 8px;">
-            ${showReorder ? `
-              <button class="order-quick-btn view" onclick="event.stopPropagation();reorderFlow('${order.id}')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-                Reorder
-              </button>
-            ` : ''}
+          <!-- Reorder, Invoice and Support buttons placed side-by-side directly under the date -->
+          <div class="order-card-quick-actions" style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
+            ${order.status === 'delivered' ? `
             <button class="order-quick-btn invoice" onclick="event.stopPropagation();downloadInvoice('${order.id}')">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               Invoice
             </button>
+            ` : ''}
+            <button class="order-quick-btn view" onclick="event.stopPropagation();reorderFlow('${order.id}')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              Re-order
+            </button>
+            <button class="order-quick-btn support" onclick="event.stopPropagation();showPage('page-help');">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              Support
+            </button>
           </div>
         </div>
-        <span class="status-pill status-delivered">Delivered</span>
+        <span class="status-pill ${order.statusClass}">${order.statusLabel}</span>
       </div>
     </div>
   `;
@@ -1601,47 +1646,46 @@ function renderSupportContent(tab) {
           <h3 style="font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 16px; border-bottom: 2px solid var(--border-light); padding-bottom: 8px;">Order Support</h3>
           
           <div class="form-group">
-            <label>Order No</label>
+            <label>Order Number</label>
             <div class="input-wrapper">
-             
               <input type="text" id="support-order-id" placeholder="e.g. SRX-20260522-0042" value="${latestOrderId || ''}" />
             </div>
           </div>
           
           <div class="form-group">
-            <label>Pharma Name</label>
+            <label>Issue Category</label>
             <div class="input-wrapper">
-             
-              <input type="text" id="support-order-pharma" placeholder="Enter pharmacy name" value="${selectedPharmacy.name}" readonly style="background:rgba(0,0,0,0.03); color:var(--text-secondary);" />
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label>Issue Type</label>
-            <div class="input-wrapper">
-             
               <select id="support-order-issue-type" style="flex: 1; border: none; background: transparent; padding: 13px 0; font-size: 14px; color: var(--text-primary); outline: none; cursor: pointer;">
-                <option value="">Select Issue Type</option>
-                <option value="Delayed Delivery">Delayed Delivery</option>
-                <option value="Incorrect Items Delivered">Incorrect Items Delivered</option>
-                <option value="Missing Items">Missing Items</option>
-                <option value="Damaged in Transit">Damaged in Transit</option>
-                <option value="Invoice Discrepancy">Invoice Discrepancy</option>
-                <option value="Other">Other</option>
+                <option value="">Select Issue Category</option>
+                <option value="Missing Item">Missing Item</option>
+                <option value="Wrong Product">Wrong Product</option>
+                <option value="Delivery Delay">Delivery Delay</option>
               </select>
             </div>
           </div>
           
-          
           <div class="form-group">
-            <label>Notes (Optional)</label>
-            <div class="input-wrapper textarea-wrapper">
-              
-              <textarea id="support-order-notes" placeholder="Add any additional order-related information" rows="2"></textarea>
+            <label>Response Type</label>
+            <div class="input-wrapper" style="padding: 12px 14px; gap: 24px;">
+              <label class="radio-label" style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-primary); cursor: pointer; font-weight: 500; margin: 0;">
+                <input type="radio" name="support-order-response-type" value="Call Back" style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; margin: 0;" />
+                <span>Call Back</span>
+              </label>
+              <label class="radio-label" style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-primary); cursor: pointer; font-weight: 500; margin: 0;">
+                <input type="radio" name="support-order-response-type" value="Email" checked style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; margin: 0;" />
+                <span>Email</span>
+              </label>
             </div>
           </div>
           
-          <button class="btn btn-primary btn-full" style="margin-top:16px;" onclick="submitOrderSupportRequest()">Submit Order Request</button>
+          <div class="form-group">
+            <label>Additional Notes</label>
+            <div class="input-wrapper textarea-wrapper">
+              <textarea id="support-order-notes" placeholder="Enter additional details regarding your issue..." rows="1"></textarea>
+            </div>
+          </div>
+          
+          <button class="btn btn-primary btn-full" style="margin-top:16px;" onclick="submitOrderSupportRequest()">Submit Support Request</button>
         </div>
 
         <!-- History Section for Order Support -->
@@ -1807,9 +1851,11 @@ function renderSupportTicketsList(tab) {
 
 function submitOrderSupportRequest() {
   const orderId = document.getElementById('support-order-id').value;
-  const pharmaName = document.getElementById('support-order-pharma').value;
   const issueType = document.getElementById('support-order-issue-type').value;
+  const responseTypeEl = document.querySelector('input[name="support-order-response-type"]:checked');
+  const responseType = responseTypeEl ? responseTypeEl.value : 'Email';
   const notes = document.getElementById('support-order-notes').value;
+  const pharmaName = selectedPharmacy ? selectedPharmacy.name : '';
 
   showLoading('Submitting request...');
   setTimeout(() => {
@@ -1825,10 +1871,10 @@ function submitOrderSupportRequest() {
       orderCategory: 'open',
       issueType: issueType || 'General Inquiry',
       description: 'Order inquiry',
-      priority: 'Medium',
+      priority: responseType,
       notes: notes,
       status: 'open',
-      statusLabel: 'Under Review',
+      statusLabel: 'Open',
       statusClass: 'status-review',
       date: formatDate(new Date())
     });
@@ -1839,6 +1885,8 @@ function submitOrderSupportRequest() {
     document.getElementById('support-order-id').value = '';
     document.getElementById('support-order-issue-type').value = '';
     document.getElementById('support-order-notes').value = '';
+    const emailRadio = document.querySelector('input[name="support-order-response-type"][value="Email"]');
+    if (emailRadio) emailRadio.checked = true;
 
     renderSupportTicketsList('order-support');
   }, 1200);
@@ -1871,7 +1919,7 @@ function submitProductSupportRequest() {
       priority: priority || 'Medium',
       notes: notes,
       status: 'open',
-      statusLabel: 'Under Review',
+      statusLabel: 'Open',
       statusClass: 'status-review',
       date: formatDate(new Date())
     });
@@ -2203,7 +2251,7 @@ function formatDateShort(date) {
 document.addEventListener('click', () => {
   const pDropdown = document.querySelector('.pharmacist-dropdown');
   if (pDropdown) pDropdown.classList.remove('open');
-  
+
   const pSmartDropdown = document.getElementById('pharmacy-smart-dropdown');
   if (pSmartDropdown) pSmartDropdown.classList.remove('open');
 });

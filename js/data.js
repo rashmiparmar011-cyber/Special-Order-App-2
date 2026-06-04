@@ -8,21 +8,24 @@ const PHARMACIES = [
     name: 'Green Cross Pharmacy',
     gphc: 'GPhC-9012345',
     address: '42 High Street, Kensington, London W8 4PT',
-    initials: 'GC'
+    initials: 'GC',
+    accountNo: 'B5010'
   },
   {
     id: 'ph-002',
     name: 'CarePlus Pharmacy',
     gphc: 'GPhC-9023456',
     address: '15 Victoria Road, Birmingham B1 1PN',
-    initials: 'CP'
+    initials: 'CP',
+    accountNo: 'B5011'
   },
   {
     id: 'ph-003',
     name: 'MedPoint Pharmacy',
     gphc: 'GPhC-9034567',
     address: '7 Castle Street, Manchester M3 4LZ',
-    initials: 'MP'
+    initials: 'MP',
+    accountNo: 'B5012'
   }
 ];
 
@@ -235,7 +238,7 @@ const ORDERS = [
       { name: 'Melatonin 2mg/5ml Oral Solution', qty: 1, packSize: '150ml' }
     ],
     status: 'transit',
-    statusLabel: 'In Transit',
+    statusLabel: 'In-transit',
     statusClass: 'status-transit',
     trackingStep: 5,
     estimatedDelivery: '24 May 2026'
@@ -277,10 +280,10 @@ const ORDERS = [
     items: [
       { name: 'Chenodeoxycholic Acid 250mg Capsules', qty: 1, packSize: '100 Capsules' }
     ],
-    status: 'pending',
-    statusLabel: 'Under Review',
-    statusClass: 'status-review',
-    trackingStep: 1,
+    status: 'transit',
+    statusLabel: 'In-transit',
+    statusClass: 'status-transit',
+    trackingStep: 5,
     estimatedDelivery: '26 May 2026'
   },
   {
@@ -291,10 +294,10 @@ const ORDERS = [
     items: [
       { name: 'Midodrine 2.5mg Tablets', qty: 2, packSize: '100 Tablets' }
     ],
-    status: 'hold',
-    statusLabel: 'On Hold',
-    statusClass: 'status-hold',
-    trackingStep: 2,
+    status: 'processing',
+    statusLabel: 'Processing',
+    statusClass: 'status-processing',
+    trackingStep: 3,
     estimatedDelivery: 'TBC'
   },
   {
@@ -367,7 +370,7 @@ const TRACKING_STEPS = [
   // { key: 'approved', label: 'Approved', desc: 'Your order has been approved for processing' },
   { key: 'processing', label: 'Processing', desc: 'Your medicines are being prepared' },
   // { key: 'dispatched', label: 'Dispatched', desc: 'Your order has been dispatched from our facility' },
-  { key: 'transit', label: 'In Transit', desc: 'Your order is on its way to your pharmacy' },
+  { key: 'transit', label: 'In-transit', desc: 'Your order is on its way to your pharmacy' },
   { key: 'delivered', label: 'Delivered', desc: 'Your order has been delivered successfully' }
 ];
 
@@ -405,7 +408,7 @@ const SUPPORT_TICKETS = [
     priority: 'High',
     notes: 'Please check on supply issues.',
     status: 'open',
-    statusLabel: 'Under Review',
+    statusLabel: 'Open',
     statusClass: 'status-review',
     date: '20 May 2026'
   },
@@ -421,7 +424,7 @@ const SUPPORT_TICKETS = [
     priority: 'Medium',
     notes: 'Replacement was requested.',
     status: 'open',
-    statusLabel: 'In Progress',
+    statusLabel: 'Open',
     statusClass: 'status-processing',
     date: '18 May 2026'
   },
@@ -437,7 +440,7 @@ const SUPPORT_TICKETS = [
     priority: 'High',
     notes: 'Delivered and verified.',
     status: 'closed',
-    statusLabel: 'Resolved',
+    statusLabel: 'Closed',
     statusClass: 'status-delivered',
     date: '12 May 2026'
   },
@@ -452,7 +455,7 @@ const SUPPORT_TICKETS = [
     priority: 'Email',
     notes: 'Batch LN-90214.',
     status: 'open',
-    statusLabel: 'Under Review',
+    statusLabel: 'Open',
     statusClass: 'status-review',
     date: '10 May 2026'
   },
@@ -467,7 +470,7 @@ const SUPPORT_TICKETS = [
     priority: 'High',
     notes: 'Stock is now returned.',
     status: 'closed',
-    statusLabel: 'Answered',
+    statusLabel: 'Closed',
     statusClass: 'status-delivered',
     date: '08 May 2026'
   }
