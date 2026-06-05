@@ -89,7 +89,7 @@ function showPage(pageId) {
     pendingTimeframeFilter = prevTimeframeFilter;
     renderOrders();
   }
-  if (pageId === 'page-help') setSupportTab('product-support');
+  if (pageId === 'page-help') setSupportTab('order-support');
   if (pageId === 'page-notifications') renderNotifications();
   if (pageId === 'page-search') renderProductsGrid();
 }
@@ -334,16 +334,15 @@ function setupRegisterForm() {
     let valid = true;
 
     const fields = [
-      // Pharmacy Details Section
+      // Fields in form order
       { id: 'reg-pharmacy-name', errorId: 'reg-pharmacy-name-error', msg: 'Pharmacy Name is required', validate: v => v.trim().length > 0 },
-      { id: 'reg-pharmacy-gphc', errorId: 'reg-pharmacy-gphc-error', msg: 'GPhC Number is required', validate: v => v.trim().length > 0 },
-      { id: 'reg-org-code', errorId: 'reg-org-code-error', msg: 'Organization Code is required', validate: v => v.trim().length > 0 },
+      { id: 'reg-pharmacy-address', errorId: 'reg-pharmacy-address-error', msg: 'Pharmacy Address is required', validate: v => v.trim().length > 0 },
+      { id: 'reg-postcode', errorId: 'reg-postcode-error', msg: 'Postcode is required', validate: v => v.trim().length > 0 },
       { id: 'reg-pharmacy-email', errorId: 'reg-pharmacy-email-error', msg: 'Valid pharmacy email address required', validate: v => isValidEmail(v) },
       { id: 'reg-contact', errorId: 'reg-contact-error', msg: 'Contact Number is required', validate: v => v.trim().length > 0 },
-      { id: 'reg-postcode', errorId: 'reg-postcode-error', msg: 'Postcode is required', validate: v => v.trim().length > 0 },
-
-      // Personal Details Section
       { id: 'reg-director-name', errorId: 'reg-director-name-error', msg: 'Director Name is required', validate: v => v.trim().length > 0 },
+      { id: 'reg-pharmacy-gphc', errorId: 'reg-pharmacy-gphc-error', msg: 'GPhC Number is required', validate: v => v.trim().length > 0 },
+      { id: 'reg-org-code', errorId: 'reg-org-code-error', msg: 'Organization Code is required', validate: v => v.trim().length > 0 },
       { id: 'reg-company-reg', errorId: 'reg-company-reg-error', msg: 'Company Registration Number is required', validate: v => v.trim().length > 0 }
     ];
 
@@ -510,14 +509,14 @@ function renderPharmacyList() {
       <div class="pharmacy-card fade-in ${isSelected ? 'selected' : ''}" onclick="selectPharmacy('${ph.id}')">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
           <span class="pc-name" style="font-size: 14px; flex: 1; margin-right: 8px;">${ph.name}</span>
-          ${ph.accountNo ? `<span style="font-size: 12px; font-weight: 600;padding: 2px 8px; border-radius: 20px; white-space: nowrap;">${ph.accountNo}</span>` : ''}
+          ${ph.accountNo ? `<span style="font-size: 12px; font-weight: 700; color: #D97706; text-align: right; min-width: 60px; white-space: nowrap;">${ph.accountNo}</span>` : ''}
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <div class="pc-address-row" style="flex: 1; margin-right: 8px; overflow: hidden;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="address-icon"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
             <span class="pc-address-text" title="${ph.address}" style="font-size: 11px;">${addressWithoutPostcode}</span>
           </div>
-          ${postcode ? `<span style="font-size: 11px; padding-right:3px ;font-weight: 500; color: var(--text-secondary); white-space: nowrap;">${postcode}</span>` : ''}
+          ${postcode ? `<span style="font-size: 11px; font-weight: 600; color: #059669; text-align: right; min-width: 60px; white-space: nowrap;">${postcode}</span>` : ''}
         </div>
       </div>
     `;
@@ -541,8 +540,9 @@ function updateSelectedPharmacyName() {
   const selectedPharmacyName = document.getElementById('selected-pharmacy-name');
   if (selectedPharmacyName && selectedPharmacy) {
     const postcode = (selectedPharmacy.address.match(/[A-Z0-9]+\s+[A-Z0-9]+$/i)?.[0] || '');
-    const accountStr = selectedPharmacy.accountNo ? ` (${selectedPharmacy.accountNo})` : '';
-    selectedPharmacyName.innerHTML = `${selectedPharmacy.name}${accountStr} <span style="font-weight: bold; margin-left: 4px;">${postcode}</span>`;
+    const accountStr = selectedPharmacy.accountNo ? `<span style="background: rgba(255,255,255,0.2); color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 700; margin: 0 4px; letter-spacing: 0.5px;">${selectedPharmacy.accountNo}</span>` : '';
+    const postcodeStr = postcode ? `<span style="color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600;">${postcode}</span>` : '';
+    selectedPharmacyName.innerHTML = `<span style="font-weight: 700; font-size: 14px;">${selectedPharmacy.name}</span>${accountStr}${postcodeStr}`;
 
     const accName = document.getElementById('account-name');
     if (accName) accName.textContent = `${selectedPharmacy.name}${accountStr} ${postcode}`;
@@ -614,7 +614,7 @@ function renderPharmacySmartMenu(query = '') {
   }
 
   if (filtered.length === 0) {
-    list.innerHTML = `<div style="padding: 16px; text-align: center; font-size: 13px; color: var(--text-muted);">No pharmacies found</div>`;
+    list.innerHTML = `<div style="padding: 10px; text-align: center; font-size: 13px; color: var(--text-muted);">No pharmacies found</div>`;
     return;
   }
 
@@ -719,13 +719,13 @@ function renderProductsGrid(medicines) {
     <div class="product-card fade-in ${inCart ? 'in-cart' : ''}">
       <div class="product-card-row" style="align-items: flex-start;">
         <div class="product-info">
-          <div class="p-name" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          <div class="p-name" style="display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
             <span>${displayName} (${med.packSize})</span>
           </div>
         </div>
-        <div class="product-card-actions" onclick="event.stopPropagation();" style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+        <div class="product-card-actions" onclick="event.stopPropagation();" style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
           <span class="p-category" style="margin-top:0; margin-bottom:0;">${med.categoryLabel}</span>
-          <div style="display:flex; align-items:center; gap:10px;">
+          <div style="display:flex; align-items:center; gap:6px;">
           ${inCart ? `
             <button class="pc-remove-btn" onclick="removeFromSearch('${med.id}')" title="Remove from cart">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
@@ -933,16 +933,16 @@ function renderCart() {
     }
 
     html += `
-      <div class="product-card in-cart fade-in" style="margin-bottom: 10px; cursor: default;">
-        <div class="product-card-row" style="align-items: flex-start;">
+      <div class="product-card in-cart fade-in" style="margin-bottom: 8px; cursor: default; padding: 12px 14px;">
+        <div class="product-card-row" style="align-items: center;">
           <div class="product-info">
-            <div class="p-name" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <div class="p-name" style="display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
               <span>${displayName} (${item.packSize})</span>
             </div>
           </div>
-          <div class="product-card-actions" style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+          <div class="product-card-actions" style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
             <span class="p-category" style="margin-top:0; margin-bottom:0;">${item.categoryLabel}</span>
-            <div style="display:flex; align-items:center; gap:10px;">
+            <div style="display:flex; align-items:center; gap:6px;">
               <button class="pc-remove-btn" onclick="removeFromCart('${item.id}')" title="Remove from cart">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
               </button>
@@ -961,16 +961,16 @@ function renderCart() {
   // Delivery Address & GPhC Verification Merged
   html += `
     <div class="cart-section fade-in">
-      <h4 style="margin-bottom: 12px;">
+      <h4 style="margin-bottom: 8px;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
         Delivery Address
       </h4>
-      <div style="background:var(--primary-bg);padding:12px 14px;border-radius:var(--radius-md);border:1px solid var(--border-light);margin-bottom:20px;">
+      <div style="background:var(--primary-bg);padding:10px 12px;border-radius:var(--radius-md);border:1px solid var(--border-light);margin-bottom:12px;">
         <strong style="display:block;font-size:14px;color:var(--text-primary);margin-bottom:4px;">${selectedPharmacy.name}</strong>
         <p style="font-size:13px;color:var(--text-secondary);line-height:1.4;margin:0;">${selectedPharmacy.address}</p>
       </div>
       
-      <h4 style="margin-bottom: 12px;">
+      <h4 style="margin-bottom: 8px;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         Pharmacist Verification
       </h4>
@@ -1005,7 +1005,7 @@ function renderCart() {
           <button class="btn btn-outline" id="cart-upload-btn" onclick="simulateUpload()" style="padding: 6px 14px; font-size: 12px; font-weight: 700; border-radius: 8px; border: ${uploadBtnBorder}; color: ${uploadBtnColor}; transition: var(--transition);">${uploadBtnText}</button>
         </div>
         <p style="font-size:12px;color:var(--text-muted);margin:0 0 4px 0; display: none">Optional for Rx medicines in your cart</p>
-        <div id="upload-success-area" class="${rxUploaded ? '' : 'hidden'}" style="margin-top: 8px;">
+        <div id="upload-success-area" class="${rxUploaded ? '' : 'hidden'}" style="margin-top: 6px;">
           <div class="upload-success">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             <span>prescription_scan.pdf uploaded successfully</span>
@@ -1035,7 +1035,7 @@ function renderCart() {
 
   // Place Order Button
   html += `
-    <div style="padding:20px 0;">
+    <div style="padding:12px 0;">
       <button class="btn btn-accent btn-full" onclick="placeOrder()" style="padding:16px;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         Place Order
@@ -1132,7 +1132,6 @@ function placeOrder() {
   }, 2500);
 }
 
-// ============ ORDERS ============
 // ============ ORDERS ============
 function renderOrders() {
   const container = document.getElementById('orders-list-container');
@@ -1335,18 +1334,21 @@ function createOrderCard(order, context, showReorder) {
       displayName = displayName.replace(/\bCapsules\b/gi, '').replace(/\s+/g, ' ').trim();
     }
     const packStr = item.packSize ? ` (${item.packSize})` : '';
+    const med = MEDICINES.find(m => m.name === item.name || m.name.includes(item.name.substring(0, 20)));
+    const catLabel = med ? med.categoryLabel : '';
     const itemsList = `
-      <div class="order-card-item" style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 0px; gap: 16px; align-items: flex-start;">
-        <span style="text-align: left; font-weight: 500; color: var(--text-primary); line-height: 1.4;">${displayName}${packStr}</span>
-        <span style="font-size: 12px; font-weight: 600; color: var(--text-primary); white-space: nowrap;">Qty-${item.qty}</span>
+      <div class="order-card-item" style="font-size: 12px; margin-bottom: 0px; line-height: 1.4; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+        <span style="font-weight: 500; color: var(--text-primary);">${displayName}${packStr}</span>
+        ${catLabel ? `<span class="p-category" style="margin: 0 4px; font-size: 9px; padding: 1px 5px; vertical-align: middle;">${catLabel}</span>` : ''}
+        <span style="font-size: 12px; font-weight: 600; color: var(--text-primary); margin-left: 4px;">Qty-${item.qty}</span>
       </div>
     `;
 
     itemsHtml = `
-      <div class="order-card-items" style="margin-top: 8px; margin-bottom: 4px;">
-        ${itemsList}
-      </div>
-    `;
+        <div id="order-items-summary-${context}-${order.id}" class="order-card-items" style="margin-top: 6px; margin-bottom: 4px; display: block;">
+          ${itemsList}
+        </div>
+      `;
   }
 
   const ctx = context;
@@ -1354,11 +1356,11 @@ function createOrderCard(order, context, showReorder) {
   const extraCardClass = isReorderFlow ? 'reorder-flow-card' : '';
 
   const reorderSectionId = `reorder-section-${ctx}-${order.id}`;
-  let reorderHtml = `<div id="${reorderSectionId}" class="reorder-expand-section" style="display: none; margin-top: 16px; border-top: 1px dashed var(--border-light); padding-top: 12px; cursor: default;">`;
+  let reorderHtml = `<div id="${reorderSectionId}" class="reorder-expand-section" style="display: none; margin-top: 6px; margin-bottom: 8px; cursor: default;">`;
 
   order.items.slice(0, 1).forEach((item, i) => {
     reorderHtml += `
-      <div id="reorder-row-${ctx}-${order.id}-${i}" class="reorder-item-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 10px;" onclick="event.stopPropagation();">
+      <div id="reorder-row-${ctx}-${order.id}-${i}" class="reorder-item-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 6px;" onclick="event.stopPropagation();">
         <div style="flex: 1;">
           <div style="font-size: 13px; font-weight: 500; color: var(--text-primary); line-height: 1.3;">${item.name}</div>
           <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">${item.packSize}</div>
@@ -1374,14 +1376,11 @@ function createOrderCard(order, context, showReorder) {
     `;
   });
 
-  reorderHtml += `
-    <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
-      <button class="btn btn-primary" style="padding: 8px 20px; font-size: 12px; font-weight: 700; border-radius: 8px;" onclick="event.stopPropagation();addReorderSelectedToCart('${ctx}', '${order.id}')">Add to Cart</button>
-    </div>
-  </div>`;
+  // Removed the duplicate Add to Cart button from here, as the quick action button will transform into it.
+  reorderHtml += `</div>`;
 
   return `
-    <div class="order-card fade-in ${extraCardClass}" ${cardClickHtml} style="margin-bottom: 12px; padding: 14px 16px;">
+    <div class="order-card fade-in ${extraCardClass}" ${cardClickHtml} style="margin-bottom: 8px; padding: 8px 10px;">
       <div class="order-card-top" style="display: flex; justify-content: space-between; align-items: flex-start;">
         <div style="flex: 1; min-width: 0;">
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
@@ -1391,16 +1390,17 @@ function createOrderCard(order, context, showReorder) {
           </div>
           
           ${itemsHtml}
+          ${reorderHtml}
           
           <!-- Reorder, Invoice and Support buttons placed side-by-side directly under the date -->
-          <div class="order-card-quick-actions" style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
+          <div class="order-card-quick-actions" style="display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap;">
             ${(order.status === 'delivered' || order.status === 'transit') ? `
             <button class="order-quick-btn invoice" onclick="event.stopPropagation();downloadInvoice('${order.id}')">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               Invoice
             </button>
             ` : ''}
-            <button class="order-quick-btn view" onclick="event.stopPropagation();toggleReorderSection('${ctx}', '${order.id}')">
+            <button class="order-quick-btn view" onclick="event.stopPropagation();toggleReorderSection('${ctx}', '${order.id}', this)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
               Re-order
             </button>
@@ -1411,7 +1411,6 @@ function createOrderCard(order, context, showReorder) {
           </div>
         </div>
       </div>
-      ${reorderHtml}
     </div>
   `;
 }
@@ -1450,49 +1449,19 @@ function viewOrderTracking(orderId) {
   `;
 
   // Items
-  html += '<div class="tracking-header" style="margin-bottom:10px;"><h4 style="font-size:14px;font-weight:700;margin-bottom:12px;">Order Items</h4>';
-  if (order.items.length > 1) {
-    const firstItem = order.items[0];
-    html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-light);font-size:13px;"><span style="color:var(--text-secondary);">${firstItem.name}</span><span style="background: var(--primary-bg); color: var(--primary); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 100px; border: 1px solid rgba(10, 36, 99, 0.08); white-space: nowrap;">Qty: ${firstItem.qty}</span></div>`;
-
-    html += `<div id="extra-items" style="display:none;">`;
-    order.items.slice(1).forEach(item => {
-      html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-light);font-size:13px;"><span style="color:var(--text-secondary);">${item.name}</span><span style="background: var(--primary-bg); color: var(--primary); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 100px; border: 1px solid rgba(10, 36, 99, 0.08); white-space: nowrap;">Qty: ${item.qty}</span></div>`;
-    });
-    html += `</div>`;
-
-    html += `
-      <div style="text-align:right; margin-top:8px;">
-        <button id="toggle-items-btn" onclick="toggleTrackingItems()" style="background:none; border:none; color:var(--primary); font-size:12px; font-weight:700; cursor:pointer; padding:4px 0; display:inline-flex; align-items:center; gap:4px;">
-          View all
-          <svg id="toggle-items-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12" style="transition: transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-      </div>
-    `;
-  } else {
-    order.items.forEach(item => {
-      html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-light);font-size:13px;"><span style="color:var(--text-secondary);">${item.name}</span><span style="background: var(--primary-bg); color: var(--primary); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 100px; border: 1px solid rgba(10, 36, 99, 0.08); white-space: nowrap;">Qty: ${item.qty}</span></div>`;
-    });
-  }
-  html += '</div>';
-
-  // Delivery Address Card
-  const pharmacyObj = PHARMACIES.find(p => p.name === order.pharmacy) || selectedPharmacy;
+  const firstItem = order.items[0];
   html += `
-    <div class="tracking-header" style="margin-bottom:10px;">
-      <h4 style="font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="color:var(--primary);"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        Delivery Address
-      </h4>
-      <div style="font-size:13px;color:var(--text-secondary);line-height:1.4;">
-        <strong style="color:var(--text-primary);display:block;margin-bottom:4px;">${pharmacyObj.name}</strong>
-        <div>${pharmacyObj.address}</div>
+    <div class="tracking-header" style="margin-bottom:8px;">
+      <h4 style="font-size:14px;font-weight:700;margin-bottom:8px;">Order Items</h4>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:13px;">
+        <span style="color:var(--text-secondary);">${firstItem.name}</span>
+        <span style="background: var(--primary-bg); color: var(--primary); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 100px; border: 1px solid rgba(10, 36, 99, 0.08); white-space: nowrap;">Qty: ${firstItem.qty}</span>
       </div>
     </div>
   `;
 
   // Timeline
-  html += '<div class="tracking-timeline"><h4 style="font-size:14px;font-weight:700;margin-bottom:16px;">Order Timeline</h4>';
+  html += '<div class="tracking-timeline"><h4 style="font-size:14px;font-weight:700;margin-bottom:12px;">Order Timeline</h4>';
 
   TRACKING_STEPS.forEach((step, i) => {
     let dotClass = 'pending';
@@ -1575,13 +1544,26 @@ function toggleTrackingItems() {
 }
 
 // ============ RE-ORDER ============
-function toggleReorderSection(ctx, orderId) {
+function toggleReorderSection(ctx, orderId, btnElement) {
   const section = document.getElementById(`reorder-section-${ctx}-${orderId}`);
+  const summary = document.getElementById(`order-items-summary-${ctx}-${orderId}`);
   if (section) {
     if (section.style.display === 'none') {
       section.style.display = 'block';
+      if (summary) summary.style.display = 'none';
+      if (btnElement) {
+        btnElement.classList.add('active');
+        btnElement.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg> Add to Cart`;
+        btnElement.setAttribute('onclick', `event.stopPropagation();addReorderSelectedToCart('${ctx}', '${orderId}', this)`);
+      }
     } else {
       section.style.display = 'none';
+      if (summary) summary.style.display = 'block';
+      if (btnElement) {
+        btnElement.classList.remove('active');
+        btnElement.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Re-order`;
+        btnElement.setAttribute('onclick', `event.stopPropagation();toggleReorderSection('${ctx}', '${orderId}', this)`);
+      }
     }
   }
 }
@@ -1603,7 +1585,7 @@ function removeReorderItem(ctx, orderId, itemIndex) {
   }
 }
 
-function addReorderSelectedToCart(ctx, orderId) {
+function addReorderSelectedToCart(ctx, orderId, btnElement) {
   const order = ORDERS.find(o => o.id === orderId);
   if (!order) return;
 
@@ -1632,14 +1614,16 @@ function addReorderSelectedToCart(ctx, orderId) {
   if (itemsAdded > 0) {
     updateCartBadge();
     showToast(`${itemsAdded} item(s) added to cart`, 'success');
-    toggleReorderSection(ctx, orderId);
+    if (btnElement) {
+      toggleReorderSection(ctx, orderId, btnElement);
+    }
   } else {
     showToast('No items to add', 'warning');
   }
 }
 
 function downloadInvoice(orderId) {
-  showToast('Invoice downloaded successfully', 'success');
+  showToast('Invoice sent to registered email ID', 'success');
 }
 
 // ============ NOTIFICATIONS ============
@@ -1670,7 +1654,7 @@ function renderNotifications() {
     return;
   }
 
-  let html = '<div class="notifications-list" style="padding: 16px;">';
+  let html = '<div class="notifications-list" style="padding: 10px;">';
 
   NOTIFICATIONS.forEach(n => {
     if (n.type === 'repeat-reminder' && n.previousOrder) {
@@ -1763,19 +1747,42 @@ function renderSupportContent(tab) {
     container.innerHTML = `
       <div class="support-content" style="text-align: left;">
         <div class="support-form" style="background:white; padding:20px; border-radius:var(--radius-lg); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
-          <h3 style="font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 16px; border-bottom: 2px solid var(--border-light); padding-bottom: 8px;">Order Support</h3>
+          <h3 style="font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 10px; border-bottom: 2px solid var(--border-light); padding-bottom: 8px;">Order Support</h3>
           
-          <div class="form-group">
+          <div class="form-group compact">
             <label>Order Number</label>
-            <div class="input-wrapper">
-              <input type="text" id="support-order-id" placeholder="e.g. SRX-20260522-0042" value="${latestOrderId || ''}" />
+            <div class="input-wrapper compact">
+              <input type="text" id="support-order-id" placeholder="e.g. SRX-20260522-0042" value="${latestOrderId || ''}" oninput="populateOrderSupportDetails(this.value)" />
             </div>
           </div>
           
-          <div class="form-group">
+          <div class="form-group compact">
+            <label>Product Name</label>
+            <div class="input-wrapper compact" style="background: var(--bg); border-color: var(--border-light);">
+              <input type="text" id="support-order-product" disabled style="color: var(--text-muted); background: transparent;" placeholder="Auto-populated" />
+            </div>
+          </div>
+          
+          <div style="display: flex; gap: 12px;">
+            <div class="form-group compact" style="flex: 1; margin-bottom: 0;">
+              <label>Quantity</label>
+              <div class="input-wrapper compact" style="background: var(--bg); border-color: var(--border-light);">
+                <input type="text" id="support-order-qty" disabled style="color: var(--text-muted); background: transparent;" placeholder="Auto-populated" />
+              </div>
+            </div>
+            <div class="form-group compact" style="flex: 1; margin-bottom: 0;">
+              <label>Pack Size</label>
+              <div class="input-wrapper compact" style="background: var(--bg); border-color: var(--border-light);">
+                <input type="text" id="support-order-packsize" disabled style="color: var(--text-muted); background: transparent;" placeholder="Auto-populated" />
+              </div>
+            </div>
+          </div>
+          <div style="height: 12px;"></div>
+          
+          <div class="form-group compact">
             <label>Issue Category</label>
-            <div class="input-wrapper">
-              <select id="support-order-issue-type" style="flex: 1; border: none; background: transparent; padding: 13px 0; font-size: 14px; color: var(--text-primary); outline: none; cursor: pointer;">
+            <div class="input-wrapper compact">
+              <select id="support-order-issue-type" style="flex: 1; border: none; background: transparent; padding: 8px 0; font-size: 12px; color: var(--text-primary); outline: none; cursor: pointer;">
                 <option value="">Select Issue Category</option>
                 <option value="Missing Item">Missing Item</option>
                 <option value="Wrong Product">Wrong Product</option>
@@ -1784,9 +1791,9 @@ function renderSupportContent(tab) {
             </div>
           </div>
           
-          <div class="form-group">
+          <div class="form-group compact">
             <label>Response Type</label>
-            <div class="input-wrapper" style="padding: 12px 14px; gap: 24px;">
+            <div class="input-wrapper compact" style="padding: 8px 10px; gap: 24px;">
               <label class="radio-label" style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-primary); cursor: pointer; font-weight: 500; margin: 0;">
                 <input type="radio" name="support-order-response-type" value="Call Back" style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; margin: 0;" />
                 <span>Call Back</span>
@@ -1798,19 +1805,19 @@ function renderSupportContent(tab) {
             </div>
           </div>
           
-          <div class="form-group">
+          <div class="form-group compact">
             <label>Additional Notes</label>
-            <div class="input-wrapper textarea-wrapper">
+            <div class="input-wrapper textarea-wrapper compact">
               <textarea id="support-order-notes" placeholder="Enter additional details regarding your issue..." rows="1"></textarea>
             </div>
           </div>
           
-          <button class="btn btn-primary btn-full" style="margin-top:16px;" onclick="submitOrderSupportRequest()">Submit Support Request</button>
+          <button class="btn btn-primary btn-full" style="margin-top:8px;" onclick="submitOrderSupportRequest()">Submit Support Request</button>
         </div>
 
         <!-- History Section for Order Support -->
-        <div class="history-section" style="margin-top: 32px; border-top: 1px solid var(--border); padding-top: 20px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <div class="history-section" style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
             <h3 style="font-size: 15px; font-weight: 700; color: var(--primary); margin:0;">Order Tickets History</h3>
             <div style="display:flex; background:var(--border-light); padding:2px; border-radius:8px;">
               <button onclick="toggleSupportHistoryStatus('order-support', 'open')" id="order-support-history-open-btn" class="support-sub-tab active" style="font-size:12px; font-weight:600; padding:4px 12px; border-radius:6px; cursor: pointer; transition:var(--transition); background:white; box-shadow:var(--shadow-sm); color:var(--primary);">Open</button>
@@ -1824,31 +1831,35 @@ function renderSupportContent(tab) {
       </div>
     `;
     renderSupportTicketsList('order-support');
+
+    if (latestOrderId) {
+      setTimeout(() => populateOrderSupportDetails(latestOrderId), 50);
+    }
   } else if (tab === 'product-support') {
     container.innerHTML = `
       <div class="support-content" style="text-align: left;">
         <div class="support-form" style="background:white; padding:20px; border-radius:var(--radius-lg); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
-          <h3 style="font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 16px; border-bottom: 2px solid var(--border-light); padding-bottom: 8px;">Product Enquiry</h3>
+          <h3 style="font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 10px; border-bottom: 2px solid var(--border-light); padding-bottom: 8px;">Product Enquiry</h3>
           
-          <div class="form-group">
+          <div class="form-group compact">
             <label>Product Description</label>
-            <div class="input-wrapper textarea-wrapper">
+            <div class="input-wrapper textarea-wrapper compact">
  
               <textarea id="support-prod-desc" placeholder="Describe the product you are looking for.." rows="1"></textarea>
             </div>
           </div>
           
-          <div class="form-group">
+          <div class="form-group compact">
             <label>Pack Size</label>
-            <div class="input-wrapper">
+            <div class="input-wrapper compact">
             
-              <input type="text" id="support-prod-packsize" placeholder="e.g. 28 tablets" style="flex: 1; border: none; background: transparent; padding: 13px 0; font-size: 14px; color: var(--text-primary); outline: none;" />
+              <input type="text" id="support-prod-packsize" placeholder="e.g. 28 tablets" style="flex: 1; border: none; background: transparent; padding: 8px 0; font-size: 12px; color: var(--text-primary); outline: none;" />
             </div>
           </div>
           
-          <div class="form-group">
+          <div class="form-group compact">
             <label>Prescription Type</label>
-            <div class="input-wrapper" style="padding: 12px 14px; gap: 24px;">
+            <div class="input-wrapper compact" style="padding: 8px 10px; gap: 24px;">
               <label class="radio-label" style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-primary); cursor: pointer; font-weight: 500; margin: 0;">
                 <input type="radio" name="support-prod-rx-type" value="Private" style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; margin: 0;" />
                 <span>Private</span>
@@ -1860,9 +1871,9 @@ function renderSupportContent(tab) {
             </div>
           </div>
           
-          <div class="form-group">
+          <div class="form-group compact">
             <label>Response type</label>
-            <div class="input-wrapper" style="padding: 12px 14px; gap: 24px;">
+            <div class="input-wrapper compact" style="padding: 8px 10px; gap: 24px;">
               <label class="radio-label" style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-primary); cursor: pointer; font-weight: 500; margin: 0;">
                 <input type="radio" name="support-prod-priority" value="Call Back" style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; margin: 0;" />
                 <span>Call Back</span>
@@ -1874,20 +1885,20 @@ function renderSupportContent(tab) {
             </div>
           </div>
             
-          <div class="form-group">
+          <div class="form-group compact">
             <label>Notes (Optional)</label>
-            <div class="input-wrapper textarea-wrapper">
+            <div class="input-wrapper textarea-wrapper compact">
               
               <textarea id="support-prod-notes" placeholder="Enter any information" rows="1"></textarea>
             </div>
           </div>
           
-          <button class="btn btn-primary btn-full" style="margin-top:16px;" onclick="submitProductSupportRequest()">Submit Product Request</button>
+          <button class="btn btn-primary btn-full" style="margin-top:8px;" onclick="submitProductSupportRequest()">Submit Product Request</button>
         </div>
 
         <!-- History Section for Product Support -->
-        <div class="history-section" style="margin-top: 32px; border-top: 1px solid var(--border); padding-top: 20px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <div class="history-section" style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
             <h3 style="font-size: 15px; font-weight: 700; color: var(--primary); margin:0;">Product Enquiry History</h3>
             <div style="display:flex; background:var(--border-light); padding:2px; border-radius:8px;">
               <button onclick="toggleSupportHistoryStatus('product-support', 'open')" id="product-support-history-open-btn" class="support-sub-tab active" style="font-size:12px; font-weight:600; padding:4px 12px; border-radius:6px; cursor: pointer; transition:var(--transition); background:white; box-shadow:var(--shadow-sm); color:var(--primary);">Open</button>
@@ -1908,7 +1919,7 @@ function renderSupportContent(tab) {
         ${FAQS.map((faq, i) => `
           <div class="faq-item" onclick="toggleFAQ(this)" style="background:white; border-radius:var(--radius-md); border:1px solid var(--border); margin-bottom:10px; padding:12px 14px; cursor:pointer;">
             <div class="faq-question" style="display:flex; justify-content:space-between; align-items:center; font-weight:600; font-size:14px; color:var(--text-primary);">
-              <div style="display:flex; align-items:center; gap:8px;">
+              <div style="display:flex; align-items:center; gap:4px;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="color:var(--primary);flex-shrink:0;"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                 <span>${faq.q}</span>
               </div>
@@ -1919,6 +1930,26 @@ function renderSupportContent(tab) {
         `).join('')}
       </div>
     `;
+  }
+}
+
+function populateOrderSupportDetails(orderId) {
+  const productInput = document.getElementById('support-order-product');
+  const qtyInput = document.getElementById('support-order-qty');
+  const packSizeInput = document.getElementById('support-order-packsize');
+
+  if (!productInput || !qtyInput || !packSizeInput) return;
+
+  const order = ORDERS.find(o => o.id === (orderId || '').trim());
+  if (order && order.items && order.items.length > 0) {
+    const item = order.items[0];
+    productInput.value = item.name || '';
+    qtyInput.value = item.qty || '';
+    packSizeInput.value = item.packSize || '';
+  } else {
+    productInput.value = '';
+    qtyInput.value = '';
+    packSizeInput.value = '';
   }
 }
 
@@ -2062,7 +2093,7 @@ function submitProductSupportRequest() {
 function createTicketCard(ticket) {
   if (ticket.type === 'order-support') {
     return `
-      <div class="support-ticket fade-in" style="background: white; border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 12px; text-align: left;">
+      <div class="support-ticket fade-in" style="background: white; border-radius: var(--radius-md); padding: 10px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 8px; text-align: left;">
         <div class="ticket-header" style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
           <div>
             <div class="ticket-id" style="font-size:14px; font-weight:700; color:var(--primary);">${ticket.id}</div>
@@ -2071,30 +2102,31 @@ function createTicketCard(ticket) {
           <span class="status-pill ${ticket.statusClass}" style="font-size:11px; padding:3px 8px; border-radius:100px;">${ticket.statusLabel}</span>
         </div>
         
-        <div class="ticket-body" style="margin-bottom: 12px;">
-          <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
-            <span style="font-size:11px; background:#EEF2F6; color:var(--primary); padding:4px 8px; border-radius:6px; font-weight:600; display:inline-flex; align-items:center; gap:4px;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              ${ticket.issueType}
-            </span>
-            <span style="font-size:11px; background:#F5F3FF; color:#7C3AED; padding:4px 8px; border-radius:6px; font-weight:600; display:inline-flex; align-items:center; gap:4px;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-              ${ticket.pharmaName}
-            </span>
+        <div class="ticket-body" style="margin-bottom: 4px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px; margin-bottom:6px;">
+            <div style="display:flex; flex-wrap:wrap; gap:4px;">
+              <span style="font-size:11px; background:#EEF2F6; color:var(--primary); padding:4px 8px; border-radius:6px; font-weight:600; display:inline-flex; align-items:center; gap:4px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                ${ticket.issueType}
+              </span>
+              <span style="font-size:11px; background:#F5F3FF; color:#7C3AED; padding:4px 8px; border-radius:6px; font-weight:600; display:inline-flex; align-items:center; gap:4px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                ${ticket.pharmaName}
+              </span>
+            </div>
+            <div class="ticket-date" style="font-size:10px; color:var(--text-muted); text-align:right;">Submitted: ${ticket.date}</div>
           </div>
           ${ticket.notes ? `
-            <div style="font-size: 12px; color: var(--text-secondary); margin-top: 6px; font-style: italic;">
+            <div style="font-size: 11.5px; color: var(--text-secondary); margin-top: 4px; font-style: italic;">
               Notes: ${ticket.notes}
             </div>
           ` : ''}
         </div>
-        
-        <div class="ticket-date" style="font-size:11px; color:var(--text-muted); text-align:right; border-top: 1px dashed var(--border-light); padding-top: 8px;">Submitted: ${ticket.date}</div>
       </div>
     `;
   } else {
     return `
-      <div class="support-ticket fade-in" style="background: white; border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 12px; text-align: left;">
+      <div class="support-ticket fade-in" style="background: white; border-radius: var(--radius-md); padding: 10px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 8px; text-align: left;">
         <div class="ticket-header" style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
           <div>
             <div class="ticket-id" style="font-size:14px; font-weight:700; color:var(--primary);">${ticket.id}</div>
@@ -2102,38 +2134,39 @@ function createTicketCard(ticket) {
           <span class="status-pill ${ticket.statusClass}" style="font-size:11px; padding:3px 8px; border-radius:100px;">${ticket.statusLabel}</span>
         </div>
         
-        <div class="ticket-body" style="margin-bottom: 12px;">
-          <p style="margin:0 0 10px; font-size:13px; color:var(--text-primary); font-weight:600; line-height:1.4;">
+        <div class="ticket-body" style="margin-bottom: 4px;">
+          <p style="margin:0 0 6px; font-size:13px; color:var(--text-primary); font-weight:600; line-height:1.4;">
             ${ticket.description}
           </p>
           
-          <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
-            <span style="font-size:11px; background:#EEF2F6; color:var(--primary); padding:4px 8px; border-radius:6px; font-weight:600; display:inline-flex; align-items:center; gap:4px;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-              Response: ${ticket.priority}
-            </span>
-            ${ticket.packSize ? `
-              <span style="font-size:11px; background:#ECFDF5; color:#059669; padding:4px 8px; border-radius:6px; font-weight:600; display:inline-flex; align-items:center; gap:4px;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
-                Pack Size: ${ticket.packSize}
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px; margin-bottom:6px;">
+            <div style="display:flex; flex-wrap:wrap; gap:4px;">
+              <span style="font-size:11px; background:#EEF2F6; color:var(--primary); padding:4px 8px; border-radius:6px; font-weight:600; display:inline-flex; align-items:center; gap:4px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                Response: ${ticket.priority}
               </span>
-            ` : ''}
-            ${ticket.rxType ? `
-              <span style="font-size:11px; background:#EFF6FF; color:#1D4ED8; padding:4px 8px; border-radius:6px; font-weight:600; display:inline-flex; align-items:center; gap:4px;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                Rx Type: ${ticket.rxType}
-              </span>
-            ` : ''}
+              ${ticket.packSize ? `
+                <span style="font-size:11px; background:#ECFDF5; color:#059669; padding:4px 8px; border-radius:6px; font-weight:600; display:inline-flex; align-items:center; gap:4px;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+                  Pack Size: ${ticket.packSize}
+                </span>
+              ` : ''}
+              ${ticket.rxType ? `
+                <span style="font-size:11px; background:#EFF6FF; color:#1D4ED8; padding:4px 8px; border-radius:6px; font-weight:600; display:inline-flex; align-items:center; gap:4px;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  Rx Type: ${ticket.rxType}
+                </span>
+              ` : ''}
+            </div>
+            <div class="ticket-date" style="font-size:10px; color:var(--text-muted); text-align:right;">Submitted: ${ticket.date}</div>
           </div>
           
           ${ticket.notes ? `
-            <div style="font-size: 12px; color: var(--text-secondary); margin-top: 6px; font-style: italic;">
+            <div style="font-size: 11.5px; color: var(--text-secondary); margin-top: 4px; font-style: italic;">
               Notes: ${ticket.notes}
             </div>
           ` : ''}
         </div>
-        
-        <div class="ticket-date" style="font-size:11px; color:var(--text-muted); text-align:right; border-top: 1px dashed var(--border-light); padding-top: 8px;">Submitted: ${ticket.date}</div>
       </div>
     `;
   }
