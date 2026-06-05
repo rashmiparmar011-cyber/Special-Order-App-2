@@ -1337,10 +1337,12 @@ function createOrderCard(order, context, showReorder) {
     const med = MEDICINES.find(m => m.name === item.name || m.name.includes(item.name.substring(0, 20)));
     const catLabel = med ? med.categoryLabel : '';
     const itemsList = `
-      <div class="order-card-item" style="font-size: 12px; margin-bottom: 0px; line-height: 1.4; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-        <span style="font-weight: 500; color: var(--text-primary);">${displayName}${packStr}</span>
-        ${catLabel ? `<span class="p-category" style="margin: 0 4px; font-size: 9px; padding: 1px 5px; vertical-align: middle;">${catLabel}</span>` : ''}
-        <span style="font-size: 12px; font-weight: 600; color: var(--text-primary); margin-left: 4px;">Qty-${item.qty}</span>
+      <div class="order-card-item" style="font-size: 12px; margin-bottom: 0px; line-height: 1.4;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+          <span style="font-weight: 500; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}${packStr}</span>
+          <span style="font-size: 12px; font-weight: 600; color: var(--text-primary); white-space: nowrap;">Qty-${item.qty}</span>
+        </div>
+        ${catLabel ? `<div style="margin-top: 2px;"><span class="p-category" style="margin: 0; font-size: 9px; padding: 1px 5px;">${catLabel}</span></div>` : ''}
       </div>
     `;
 
