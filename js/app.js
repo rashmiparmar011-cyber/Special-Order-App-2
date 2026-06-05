@@ -545,7 +545,7 @@ function updateSelectedPharmacyName() {
     selectedPharmacyName.innerHTML = `<span style="font-weight: 700; font-size: 14px;">${selectedPharmacy.name}</span>${accountStr}${postcodeStr}`;
 
     const accName = document.getElementById('account-name');
-    if (accName) accName.textContent = `${selectedPharmacy.name}${accountStr} ${postcode}`;
+    if (accName) accName.innerHTML = `<span style="font-weight: 700; font-size: 14px;">${selectedPharmacy.name}</span>${accountStr}${postcodeStr}`;
   }
 }
 
