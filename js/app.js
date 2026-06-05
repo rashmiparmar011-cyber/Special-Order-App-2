@@ -587,15 +587,38 @@ function togglePharmacyDropdown(event) {
   event.stopPropagation();
   const dropdown = document.getElementById('pharmacy-smart-dropdown');
   if (dropdown) {
-    dropdown.classList.toggle('open');
+    const isOpen = dropdown.classList.toggle('open');
+    if (isOpen) {
+      const searchInput = document.getElementById('pharmacy-menu-search');
+      if (searchInput) {
+        searchInput.value = '';
+        setTimeout(() => searchInput.focus(), 50);
+      }
+      renderPharmacySmartMenu('');
+    }
   }
 }
 
-function renderPharmacySmartMenu() {
-  const menu = document.getElementById('pharmacy-menu');
-  if (!menu) return;
+function renderPharmacySmartMenu(query = '') {
+  const list = document.getElementById('pharmacy-menu-list');
+  if (!list) return;
 
-  menu.innerHTML = PHARMACIES.map(ph => {
+  let filtered = PHARMACIES;
+  const q = query.toLowerCase().trim();
+  if (q) {
+    filtered = PHARMACIES.filter(ph => {
+      const postcode = (ph.address.match(/[A-Z0-9]+\s+[A-Z0-9]+$/i)?.[0] || '').toLowerCase();
+      const acNo = (ph.accountNo || '').toLowerCase();
+      return ph.name.toLowerCase().includes(q) || acNo.includes(q) || postcode.includes(q);
+    });
+  }
+
+  if (filtered.length === 0) {
+    list.innerHTML = `<div style="padding: 16px; text-align: center; font-size: 13px; color: var(--text-muted);">No pharmacies found</div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(ph => {
     const isActive = selectedPharmacy.id === ph.id;
     const postcode = ph.address.match(/[A-Z0-9]+\s+[A-Z0-9]+$/i)?.[0] || '';
     return `
@@ -605,6 +628,10 @@ function renderPharmacySmartMenu() {
       </button>
     `;
   }).join('');
+}
+
+function filterPharmacySmartMenu(query) {
+  renderPharmacySmartMenu(query);
 }
 
 function selectPharmacyFromDropdown(event, id) {
@@ -628,7 +655,7 @@ function renderRecentOrders() {
   const container = document.getElementById('recent-orders-list');
   if (!container) return;
   const recentOrders = ORDERS.slice(0, 5);
-  container.innerHTML = recentOrders.map(order => createOrderCard(order, true, false)).join('');
+  container.innerHTML = recentOrders.map(order => createOrderCard(order, 'home-recent', false)).join('');
 }
 
 function searchHomeOrders(query) {
@@ -655,7 +682,7 @@ function searchHomeOrders(query) {
       </div>`;
     return;
   }
-  container.innerHTML = filtered.map(order => createOrderCard(order, true, false)).join('');
+  container.innerHTML = filtered.map(order => createOrderCard(order, 'home-search', false)).join('');
 }
 
 // ============ PRODUCT SEARCH & LISTING ============
@@ -1217,7 +1244,7 @@ function renderOrders() {
     return;
   }
 
-  container.innerHTML = filterPanelHtml + filtered.map(order => createOrderCard(order, currentOrderTab === 'active', true)).join('');
+  container.innerHTML = filterPanelHtml + filtered.map(order => createOrderCard(order, currentOrderTab === 'active' ? 'orders-active' : 'orders-previous', true)).join('');
 }
 
 function selectPendingTimeframe(timeframe) {
@@ -1295,7 +1322,7 @@ function setOrderTab(tab, hideTabs) {
   renderOrders();
 }
 
-function createOrderCard(order, isRecent, showReorder) {
+function createOrderCard(order, context, showReorder) {
   const itemCount = order.items.reduce((sum, i) => sum + i.qty, 0);
 
   let itemsHtml = '';
@@ -1322,7 +1349,7 @@ function createOrderCard(order, isRecent, showReorder) {
     `;
   }
 
-  const ctx = isRecent ? 'recent' : 'orders';
+  const ctx = context;
   const cardClickHtml = isReorderFlow ? '' : `onclick="viewOrderTracking('${order.id}')"`;
   const extraCardClass = isReorderFlow ? 'reorder-flow-card' : '';
 
@@ -1342,16 +1369,15 @@ function createOrderCard(order, isRecent, showReorder) {
             <span class="pc-qty-value" id="reorder-qty-${ctx}-${order.id}-${i}" style="width: 24px; text-align: center; font-size: 13px; font-weight: 600; display: inline-block;" data-item-name="${item.name.replace(/"/g, '&quot;')}">${item.qty}</span>
             <button class="pc-qty-btn" type="button" onclick="updateReorderQty('${ctx}', '${order.id}', ${i}, 1)" style="width: 24px; height: 24px; padding: 0; background: var(--bg); border-radius: 4px; border: none; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-primary);">+</button>
           </div>
-          <button class="btn btn-outline" type="button" onclick="removeReorderItem('${ctx}', '${order.id}', ${i})" title="Remove item" style="padding: 4px; border: none; color: var(--danger); background: transparent; cursor: pointer;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-          </button>
         </div>
       </div>
     `;
   });
 
   reorderHtml += `
-    <button class="btn btn-primary btn-full" style="padding: 10px; font-size: 13px; border-radius: 8px; margin-top: 4px;" onclick="event.stopPropagation();addReorderSelectedToCart('${ctx}', '${order.id}')">Add to Cart</button>
+    <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
+      <button class="btn btn-primary" style="padding: 8px 20px; font-size: 12px; font-weight: 700; border-radius: 8px;" onclick="event.stopPropagation();addReorderSelectedToCart('${ctx}', '${order.id}')">Add to Cart</button>
+    </div>
   </div>`;
 
   return `
@@ -2311,7 +2337,7 @@ function closeModal() {
 }
 
 function showAllOrdersModal() {
-  const ordersHtml = ORDERS.map(order => createOrderCard(order, true, false)).join('');
+  const ordersHtml = ORDERS.map(order => createOrderCard(order, 'modal-all', false)).join('');
   const content = `
     <div class="modal-header-section" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid var(--border-light); padding-bottom:12px;">
       <h3 style="font-size:16px; font-weight:700; color:var(--primary); margin:0;">All Orders</h3>

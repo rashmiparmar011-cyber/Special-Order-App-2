@@ -503,8 +503,18 @@
                     </div>
                   </div>
                 </button>
-                <div class="pharmacy-menu" id="pharmacy-menu">
-                  <!-- Dynamically populated by JS -->
+                <div class="pharmacy-menu" id="pharmacy-menu" style="padding: 0; overflow: hidden; display: flex; flex-direction: column;">
+                  <div style="padding: 6px; border-bottom: 1px solid var(--border-light); background: white; z-index: 10;">
+                    <div class="search-bar-mini" style="margin: 0; padding: 6px 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center;">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="color: var(--text-muted); flex-shrink: 0;">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                      </svg>
+                      <input type="text" id="pharmacy-menu-search" placeholder="Search pharmacy..." oninput="filterPharmacySmartMenu(this.value)" onclick="event.stopPropagation()" style="font-size: 11px; width: 100%; border: none; background: transparent; outline: none; margin-left: 6px; color: var(--text-primary);" autocomplete="off" />
+                    </div>
+                  </div>
+                  <div id="pharmacy-menu-list" style="overflow-y: auto; max-height: 250px; padding: 4px;">
+                    <!-- Dynamically populated by JS -->
+                  </div>
                 </div>
               </div>
             </div>
