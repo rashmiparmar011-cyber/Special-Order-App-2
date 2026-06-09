@@ -980,10 +980,36 @@ function renderCart() {
           <input type="text" id="cart-gphc" placeholder="Enter GPhC number" value="2087654" />
         </div>
       </div>
-      <div class="form-group" style="margin-bottom: 0;">
+      <div class="form-group">
         <label>Pharmacist Name <span class="required">*</span></label>
         <div class="input-wrapper">
           <input type="text" id="cart-pharmacist" placeholder="Enter pharmacist name" value="Dr. Sarah Mitchell" />
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom: 0; position: relative;" id="specs-dropdown-container">
+        <label>Product Specifications <span style="font-size: 11px; font-weight: normal; color: var(--text-muted);">(If Required)</span></label>
+        <div class="input-wrapper" style="cursor: pointer; padding: 8px; position: relative; display: flex; align-items: center;" onclick="toggleCartSpecsDropdown(event)">
+          <div id="cart-specs-text" style="width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; color: var(--text-muted);">Select Specifications</div>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position: absolute; right: 12px; width: 16px; height: 16px; pointer-events: none; color: var(--text-muted);"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div id="cart-specs-dropdown" class="hidden" style="position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: white; border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); z-index: 100; padding: 8px; display: none; flex-direction: column; gap: 4px; max-height: 200px; overflow-y: auto; font-size: 12px;">
+          <label class="checkbox-label" style="margin: 0; padding: 8px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; width: 100%; transition: background 0.2s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='transparent'">
+            <input type="checkbox" id="spec-select-all" onchange="toggleAllCartSpecs(this)" /> 
+            <span class="checkmark"></span> <span style="font-weight: 600;">Select All</span>
+          </label>
+          <div style="height: 1px; background: var(--border-light); margin: 4px 0;"></div>
+          <label class="checkbox-label" style="margin: 0; padding: 8px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; width: 100%; transition: background 0.2s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='transparent'">
+            <input type="checkbox" class="cart-spec-cb" value="Flavor Free" onchange="updateCartSpecsText()" /> 
+            <span class="checkmark"></span> Flavor Free
+          </label>
+          <label class="checkbox-label" style="margin: 0; padding: 8px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; width: 100%; transition: background 0.2s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='transparent'">
+            <input type="checkbox" class="cart-spec-cb" value="Sugar Free" onchange="updateCartSpecsText()" /> 
+            <span class="checkmark"></span> Sugar Free
+          </label>
+          <label class="checkbox-label" style="margin: 0; padding: 8px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; width: 100%; transition: background 0.2s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='transparent'">
+            <input type="checkbox" class="cart-spec-cb" value="Alcohol Free" onchange="updateCartSpecsText()" /> 
+            <span class="checkmark"></span> Alcohol Free
+          </label>
         </div>
       </div>
     </div>
@@ -1162,7 +1188,7 @@ function renderOrders() {
     } else if (prevTimeframeFilter === '90') {
       const ninetyDaysAgo = new Date(currentDate.getTime() - 90 * 24 * 60 * 60 * 1000);
       filtered = filtered.filter(o => new Date(o.date) >= ninetyDaysAgo);
-    } else if (['2025', '2024', '2023', '2022'].includes(prevTimeframeFilter)) {
+    } else if (['2025', '2024'].includes(prevTimeframeFilter)) {
       filtered = filtered.filter(o => {
         const year = new Date(o.date).getFullYear().toString();
         return year === prevTimeframeFilter;
@@ -1170,7 +1196,7 @@ function renderOrders() {
     }
 
     // Apply Year Filter (defaults to 2026 if no explicit timeframe or year chip is active)
-    if (prevYearFilter !== 'all' && !['7', '15', '30', '90', '2025', '2024', '2023', '2022'].includes(prevTimeframeFilter)) {
+    if (prevYearFilter !== 'all' && !['7', '15', '30', '90', '2025', '2024'].includes(prevTimeframeFilter)) {
       filtered = filtered.filter(o => {
         const year = new Date(o.date).getFullYear().toString();
         return year === prevYearFilter;
@@ -1206,9 +1232,7 @@ function renderOrders() {
         { key: '30', label: 'Last 30 Days' },
         { key: '90', label: 'Last 3 Months' },
         { key: '2025', label: '2025' },
-        { key: '2024', label: '2024' },
-        { key: '2023', label: '2023' },
-        { key: '2022', label: '2022' }
+        { key: '2024', label: '2024' }
       ].map(f => {
         const isActive = pendingTimeframeFilter === f.key;
         return `
@@ -1289,7 +1313,7 @@ function getActiveFilterLabel() {
   if (prevTimeframeFilter === '15') return 'Last 15 Days';
   if (prevTimeframeFilter === '30') return 'Last 30 Days';
   if (prevTimeframeFilter === '90') return 'Last 3 Months';
-  if (['2025', '2024', '2023', '2022'].includes(prevTimeframeFilter)) return prevTimeframeFilter;
+  if (['2025', '2024'].includes(prevTimeframeFilter)) return prevTimeframeFilter;
   return '';
 }
 
@@ -2403,10 +2427,60 @@ function formatDateShort(date) {
 }
 
 // ============ GLOBAL EVENT LISTENERS ============
-document.addEventListener('click', () => {
+document.addEventListener('click', (e) => {
   const pDropdown = document.querySelector('.pharmacist-dropdown');
   if (pDropdown) pDropdown.classList.remove('open');
 
   const pSmartDropdown = document.getElementById('pharmacy-smart-dropdown');
   if (pSmartDropdown) pSmartDropdown.classList.remove('open');
+
+  const specsDropdown = document.getElementById('cart-specs-dropdown');
+  const specsContainer = document.getElementById('specs-dropdown-container');
+  if (specsDropdown && specsContainer && !specsContainer.contains(e.target)) {
+    specsDropdown.style.display = 'none';
+    specsDropdown.classList.add('hidden');
+  }
 });
+
+function toggleCartSpecsDropdown(event) {
+  event.stopPropagation();
+  const dropdown = document.getElementById('cart-specs-dropdown');
+  if (dropdown) {
+    const isHidden = dropdown.classList.contains('hidden');
+    if (isHidden) {
+      dropdown.classList.remove('hidden');
+      dropdown.style.display = 'flex';
+    } else {
+      dropdown.classList.add('hidden');
+      dropdown.style.display = 'none';
+    }
+  }
+}
+
+function toggleAllCartSpecs(checkbox) {
+  const cbs = document.querySelectorAll('.cart-spec-cb');
+  cbs.forEach(cb => cb.checked = checkbox.checked);
+  updateCartSpecsText();
+}
+
+function updateCartSpecsText() {
+  const cbs = document.querySelectorAll('.cart-spec-cb');
+  const allCb = document.getElementById('spec-select-all');
+  const textEl = document.getElementById('cart-specs-text');
+
+  const checked = Array.from(cbs).filter(cb => cb.checked);
+
+  if (allCb) {
+    allCb.checked = (checked.length === cbs.length && cbs.length > 0);
+  }
+
+  if (textEl) {
+    if (checked.length === 0) {
+      textEl.textContent = 'Select Specifications';
+      textEl.style.color = 'var(--text-muted)';
+    } else {
+      textEl.textContent = checked.map(cb => cb.value).join(', ');
+      textEl.style.color = 'var(--text-primary)';
+    }
+  }
+}
