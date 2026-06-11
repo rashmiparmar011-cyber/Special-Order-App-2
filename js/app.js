@@ -1361,12 +1361,12 @@ function createOrderCard(order, context, showReorder) {
     const med = MEDICINES.find(m => m.name === item.name || m.name.includes(item.name.substring(0, 20)));
     const catLabel = med ? med.categoryLabel : '';
     const itemsList = `
-      <div class="order-card-item" style="font-size: 12px; margin-bottom: 0px; line-height: 1.4;">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
-          <span style="font-weight: 500; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}${packStr}</span>
-          <span style="font-size: 12px; font-weight: 600; color: var(--text-primary); white-space: nowrap;">Qty-${item.qty}</span>
+      <div class="order-card-item" style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 0px; line-height: 1.4;">
+        <div style="flex: 1; min-width: 0;">
+          <div style="font-weight: 500; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}${packStr}</div>
+          ${catLabel ? `<div style="margin-top: 4px;"><span class="p-category" style="margin: 0; font-size: 9px; padding: 1px 5px;">${catLabel}</span></div>` : ''}
         </div>
-        ${catLabel ? `<div style="margin-top: 2px;"><span class="p-category" style="margin: 0; font-size: 9px; padding: 1px 5px;">${catLabel}</span></div>` : ''}
+        <div style="font-size: 12px; font-weight: 600; color: var(--text-primary); white-space: nowrap; margin-left: 8px; min-width: 75px; text-align: center;">Qty-${item.qty}</div>
       </div>
     `;
 
@@ -1412,7 +1412,9 @@ function createOrderCard(order, context, showReorder) {
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
             <span class="order-id" style="margin: 0;">SR-${order.id.split('-')[1].substring(0, 6)}</span>
             <span class="order-date" style="margin: 0;">${order.date}</span>
-            <span class="status-pill ${order.statusClass}">${order.statusLabel}</span>
+            <div style="width: 75px; display: flex; justify-content: center;">
+              <span class="status-pill ${order.statusClass}">${order.statusLabel}</span>
+            </div>
           </div>
           
           ${itemsHtml}
