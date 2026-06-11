@@ -1361,7 +1361,7 @@ function createOrderCard(order, context, showReorder) {
     const med = MEDICINES.find(m => m.name === item.name || m.name.includes(item.name.substring(0, 20)));
     const catLabel = med ? med.categoryLabel : '';
     const itemsList = `
-      <div class="order-card-item" style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 0px; line-height: 1.4;">
+      <div class="order-card-item" style="display: flex; justify-content: space-between; align-items: flex-start; font-size: 12px; margin-bottom: 0px; line-height: 1.4;">
         <div style="flex: 1; min-width: 0;">
           <div style="font-weight: 500; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}${packStr}</div>
           ${catLabel ? `<div style="margin-top: 4px;"><span class="p-category" style="margin: 0; font-size: 9px; padding: 1px 5px;">${catLabel}</span></div>` : ''}
