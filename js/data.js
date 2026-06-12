@@ -238,7 +238,7 @@ const ORDERS = [
       { name: 'Melatonin 2mg/5ml Oral Solution', qty: 1, packSize: '150ml' }
     ],
     status: 'transit',
-    statusLabel: 'Invoice',
+    statusLabel: 'Invoiced',
     statusClass: 'status-transit',
     trackingStep: 5,
     estimatedDelivery: '24 May 2026'
@@ -252,7 +252,7 @@ const ORDERS = [
       { name: 'Acetazolamide 250mg Tablets', qty: 3, packSize: '112 Tablets' }
     ],
     status: 'transit',
-    statusLabel: 'Invoice',
+    statusLabel: 'Invoiced',
     statusClass: 'status-transit',
     trackingStep: 4,
     estimatedDelivery: '23 May 2026'
@@ -281,7 +281,7 @@ const ORDERS = [
       { name: 'Chenodeoxycholic Acid 250mg Capsules', qty: 1, packSize: '100 Capsules' }
     ],
     status: 'transit',
-    statusLabel: 'Invoice',
+    statusLabel: 'Invoiced',
     statusClass: 'status-transit',
     trackingStep: 5,
     estimatedDelivery: '26 May 2026'
@@ -325,7 +325,7 @@ const ORDERS = [
       { name: 'Sodium Valproate 200mg/5ml SF', qty: 1, packSize: '300ml' }
     ],
     status: 'transit',
-    statusLabel: 'Invoice',
+    statusLabel: 'Invoiced',
     statusClass: 'status-transit',
     trackingStep: 7,
     estimatedDelivery: '18 May 2026',
@@ -370,7 +370,7 @@ const TRACKING_STEPS = [
   // { key: 'approved', label: 'Approved', desc: 'Your order has been approved for processing' },
   { key: 'processing', label: 'Processing', desc: 'Your medicines are being prepared' },
   // { key: 'dispatched', label: 'Dispatched', desc: 'Your order has been dispatched from our facility' },
-  { key: 'transit', label: 'Invoice', desc: 'Your order is currently on its way to your pharmacy' }
+  { key: 'transit', label: 'Invoiced', desc: 'Your order is currently on its way to your pharmacy' }
 ];
 
 const NOTIFICATIONS = [

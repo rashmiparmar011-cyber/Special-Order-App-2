@@ -2269,7 +2269,6 @@ function showAccountSubpage(page) {
               <div class="ticket-id">RX-2026-0089</div>
               <div class="ticket-category">Liothyronine Sodium 20mcg</div>
             </div>
-            <span class="status-pill status-delivered">Verified</span>
           </div>
           <div class="ticket-date">Uploaded: 22 May 2026</div>
         </div>
@@ -2279,7 +2278,6 @@ function showAccountSubpage(page) {
               <div class="ticket-id">RX-2026-0085</div>
               <div class="ticket-category">Melatonin 2mg/5ml Solution</div>
             </div>
-            <span class="status-pill status-delivered">Verified</span>
           </div>
           <div class="ticket-date">Uploaded: 20 May 2026</div>
         </div>
@@ -2289,7 +2287,6 @@ function showAccountSubpage(page) {
               <div class="ticket-id">RX-2026-0079</div>
               <div class="ticket-category">Hydrocortisone 2.5mg MR Capsules</div>
             </div>
-            <span class="status-pill status-review">Under Review</span>
           </div>
           <div class="ticket-date">Uploaded: 18 May 2026</div>
         </div>
