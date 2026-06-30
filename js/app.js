@@ -1424,7 +1424,7 @@ function createOrderCard(order, context, showReorder) {
           <div class="order-card-quick-actions" style="display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap;">
             ${(order.status === 'delivered' || order.status === 'transit') ? `
             <button class="order-quick-btn invoice" onclick="event.stopPropagation();downloadInvoice('${order.id}')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>
               Invoice
             </button>
             ` : ''}
@@ -1465,7 +1465,7 @@ function viewOrderTracking(orderId) {
           <div class="th-date">Ordered on ${order.date}</div>
         </div>
         <button class="btn btn-outline" onclick="downloadInvoice('${order.id}')" style="padding: 6px 12px; font-size: 11px; font-weight: 700; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; margin-top: 2px; height: auto; border: 1px solid var(--border);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>
           Invoice
         </button>
       </div>
