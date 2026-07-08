@@ -309,9 +309,9 @@ const ORDERS = [
       { name: 'Potassium Citrate Mixture BP', qty: 4, packSize: '200ml' },
       { name: 'Levothyroxine 25mcg/5ml Solution', qty: 2, packSize: '100ml' }
     ],
-    status: 'processing',
-    statusLabel: 'Processing',
-    statusClass: 'status-processing',
+    status: 'delivered',
+    statusLabel: 'Invoiced',
+    statusClass: 'status-transit',
     trackingStep: 7,
     estimatedDelivery: '20 May 2026',
     deliveredDate: '20 May 2026'
@@ -324,7 +324,7 @@ const ORDERS = [
     items: [
       { name: 'Sodium Valproate 200mg/5ml SF', qty: 1, packSize: '300ml' }
     ],
-    status: 'transit',
+    status: 'delivered',
     statusLabel: 'Invoiced',
     statusClass: 'status-transit',
     trackingStep: 7,
@@ -341,9 +341,9 @@ const ORDERS = [
       { name: 'Melatonin 2mg/5ml Oral Solution', qty: 2, packSize: '150ml' },
       { name: 'Acetazolamide 250mg Tablets', qty: 1, packSize: '112 Tablets' }
     ],
-    status: 'processing',
-    statusLabel: 'Processing',
-    statusClass: 'status-processing',
+    status: 'delivered',
+    statusLabel: 'Invoiced',
+    statusClass: 'status-transit',
     trackingStep: 7,
     estimatedDelivery: '17 May 2026',
     deliveredDate: '17 May 2026'

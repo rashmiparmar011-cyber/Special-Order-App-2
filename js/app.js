@@ -1428,6 +1428,7 @@ function createOrderCard(order, context, showReorder) {
               Invoice
             </button>
             ` : ''}
+            ${order.status !== 'cancelled' ? `
             <button class="order-quick-btn view" onclick="event.stopPropagation();toggleReorderSection('${ctx}', '${order.id}', this)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
               Re-order
@@ -1436,6 +1437,7 @@ function createOrderCard(order, context, showReorder) {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
               Query
             </button>
+            ` : ''}
           </div>
         </div>
       </div>
@@ -1464,15 +1466,19 @@ function viewOrderTracking(orderId) {
           <div class="th-order-id">SR-${order.id.split('-')[1].substring(0, 6)}</div>
           <div class="th-date">Ordered on ${order.date}</div>
         </div>
+        ${order.status !== 'cancelled' ? `
         <button class="btn btn-outline" onclick="downloadInvoice('${order.id}')" style="padding: 6px 12px; font-size: 11px; font-weight: 700; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; margin-top: 2px; height: auto; border: 1px solid var(--border);">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>
           Invoice
         </button>
+        ` : ''}
       </div>
+      ${order.status !== 'cancelled' ? `
       <div class="th-estimated" style="margin-top:12px;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         Estimated Delivery: ${order.estimatedDelivery}
       </div>
+      ` : ''}
     </div>
   `;
 
@@ -1581,7 +1587,16 @@ function toggleReorderSection(ctx, orderId, btnElement) {
       if (summary) summary.style.display = 'none';
       if (btnElement) {
         btnElement.classList.add('active');
-        btnElement.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg> Add to Cart`;
+        btnElement.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg> Add to Cart
+            </div>
+            <div onclick="event.stopPropagation(); toggleReorderSection('${ctx}', '${orderId}', this.closest('button'))" style="display: flex; align-items: center; justify-content: center; padding: 2px; border-radius: 50%; background: rgba(255,255,255,0.25);" title="Reset Re-order">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="10" height="10"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </div>
+          </div>
+        `;
         btnElement.setAttribute('onclick', `event.stopPropagation();addReorderSelectedToCart('${ctx}', '${orderId}', this)`);
       }
     } else {
