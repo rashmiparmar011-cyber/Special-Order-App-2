@@ -1428,11 +1428,13 @@ function createOrderCard(order, context, showReorder) {
               Invoice
             </button>
             ` : ''}
-            ${order.status !== 'cancelled' ? `
+            ${(order.status !== 'cancelled' && order.status !== 'processing') ? `
             <button class="order-quick-btn view" onclick="event.stopPropagation();toggleReorderSection('${ctx}', '${order.id}', this)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
               Re-order
             </button>
+            ` : ''}
+            ${order.status !== 'cancelled' ? `
             <button class="order-quick-btn support" onclick="event.stopPropagation();showPage('page-help');">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
               Query
@@ -1793,10 +1795,11 @@ function renderSupportContent(tab) {
           <h3 style="font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 10px; border-bottom: 2px solid var(--border-light); padding-bottom: 8px;">Order Support</h3>
           
           <div class="form-group compact">
-            <label>Order Number</label>
-            <div class="input-wrapper compact">
-              <input type="text" id="support-order-id" placeholder="e.g. SRX-20260522-0042" value="${latestOrderId || ''}" oninput="populateOrderSupportDetails(this.value)" />
+            <label>Order Number <span style="color:#DC2626; font-weight:700;">*</span></label>
+            <div class="input-wrapper compact" id="support-order-id-wrapper">
+              <input type="text" id="support-order-id" placeholder="e.g. SRX-20260522-0042" value="${latestOrderId || ''}" oninput="populateOrderSupportDetails(this.value); clearSupportFieldError('support-order-id')" />
             </div>
+            <span class="field-error" id="support-order-id-error"></span>
           </div>
           
           <div class="form-group compact">
@@ -1835,17 +1838,18 @@ function renderSupportContent(tab) {
           </div>
           
           <div class="form-group compact">
-            <label>Response Type</label>
-            <div class="input-wrapper compact" style="padding: 8px 10px; gap: 24px;">
+            <label>Response Type <span style="color:#DC2626; font-weight:700;">*</span></label>
+            <div class="input-wrapper compact" id="support-response-type-wrapper" style="padding: 8px 10px; gap: 24px;">
               <label class="radio-label" style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-primary); cursor: pointer; font-weight: 500; margin: 0;">
-                <input type="radio" name="support-order-response-type" value="Call Back" style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; margin: 0;" />
+                <input type="radio" name="support-order-response-type" value="Call Back" style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; margin: 0;" onclick="clearSupportFieldError('support-response-type')" />
                 <span>Call Back</span>
               </label>
               <label class="radio-label" style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-primary); cursor: pointer; font-weight: 500; margin: 0;">
-                <input type="radio" name="support-order-response-type" value="Email" checked style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; margin: 0;" />
+                <input type="radio" name="support-order-response-type" value="Email" checked style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; margin: 0;" onclick="clearSupportFieldError('support-response-type')" />
                 <span>Email</span>
               </label>
             </div>
+            <span class="field-error" id="support-response-type-error"></span>
           </div>
           
           <div class="form-group compact">
@@ -1885,11 +1889,12 @@ function renderSupportContent(tab) {
           <h3 style="font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 10px; border-bottom: 2px solid var(--border-light); padding-bottom: 8px;">Product Enquiry</h3>
           
           <div class="form-group compact">
-            <label>Product Description</label>
-            <div class="input-wrapper textarea-wrapper compact">
+            <label>Product Description <span style="color:#DC2626; font-weight:700;">*</span></label>
+            <div class="input-wrapper textarea-wrapper compact" id="support-prod-desc-wrapper">
  
-              <textarea id="support-prod-desc" placeholder="Describe the product you are looking for.." rows="1"></textarea>
+              <textarea id="support-prod-desc" placeholder="Describe the product you are looking for.." rows="1" oninput="clearSupportFieldError('support-prod-desc')"></textarea>
             </div>
+            <span class="field-error" id="support-prod-desc-error"></span>
           </div>
           
           <div class="form-group compact">
@@ -1901,31 +1906,33 @@ function renderSupportContent(tab) {
           </div>
           
           <div class="form-group compact">
-            <label>Prescription Type</label>
-            <div class="input-wrapper compact" style="padding: 8px 10px; gap: 24px;">
+            <label>Prescription Type <span style="color:#DC2626; font-weight:700;">*</span></label>
+            <div class="input-wrapper compact" id="support-prod-rx-type-wrapper" style="padding: 8px 10px; gap: 24px;">
               <label class="radio-label" style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-primary); cursor: pointer; font-weight: 500; margin: 0;">
-                <input type="radio" name="support-prod-rx-type" value="Private" style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; margin: 0;" />
+                <input type="radio" name="support-prod-rx-type" value="Private" style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; margin: 0;" onclick="clearSupportFieldError('support-prod-rx-type')" />
                 <span>Private</span>
               </label>
               <label class="radio-label" style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-primary); cursor: pointer; font-weight: 500; margin: 0;">
-                <input type="radio" name="support-prod-rx-type" value="NHS" checked style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; margin: 0;" />
+                <input type="radio" name="support-prod-rx-type" value="NHS" checked style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; margin: 0;" onclick="clearSupportFieldError('support-prod-rx-type')" />
                 <span>NHS</span>
               </label>
             </div>
+            <span class="field-error" id="support-prod-rx-type-error"></span>
           </div>
           
           <div class="form-group compact">
-            <label>Response type</label>
-            <div class="input-wrapper compact" style="padding: 8px 10px; gap: 24px;">
+            <label>Response type <span style="color:#DC2626; font-weight:700;">*</span></label>
+            <div class="input-wrapper compact" id="support-prod-priority-wrapper" style="padding: 8px 10px; gap: 24px;">
               <label class="radio-label" style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-primary); cursor: pointer; font-weight: 500; margin: 0;">
-                <input type="radio" name="support-prod-priority" value="Call Back" style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; margin: 0;" />
+                <input type="radio" name="support-prod-priority" value="Call Back" style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; margin: 0;" onclick="clearSupportFieldError('support-prod-priority')" />
                 <span>Call Back</span>
               </label>
               <label class="radio-label" style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-primary); cursor: pointer; font-weight: 500; margin: 0;">
-                <input type="radio" name="support-prod-priority" value="Email" checked style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; margin: 0;" />
+                <input type="radio" name="support-prod-priority" value="Email" checked style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; margin: 0;" onclick="clearSupportFieldError('support-prod-priority')" />
                 <span>Email</span>
               </label>
             </div>
+            <span class="field-error" id="support-prod-priority-error"></span>
           </div>
             
           <div class="form-group compact">
@@ -2043,13 +2050,47 @@ function renderSupportTicketsList(tab) {
   listContainer.innerHTML = filtered.map(t => createTicketCard(t)).join('');
 }
 
+function clearSupportFieldError(fieldId) {
+  const errorEl = document.getElementById(fieldId + '-error');
+  const wrapperEl = document.getElementById(fieldId + '-wrapper');
+  if (errorEl) errorEl.textContent = '';
+  if (wrapperEl) wrapperEl.classList.remove('error');
+}
+
 function submitOrderSupportRequest() {
   const orderId = document.getElementById('support-order-id').value;
   const issueType = document.getElementById('support-order-issue-type').value;
   const responseTypeEl = document.querySelector('input[name="support-order-response-type"]:checked');
-  const responseType = responseTypeEl ? responseTypeEl.value : 'Email';
+  const responseType = responseTypeEl ? responseTypeEl.value : '';
   const notes = document.getElementById('support-order-notes').value;
   const pharmaName = selectedPharmacy ? selectedPharmacy.name : '';
+
+  // --- Mandatory field validation ---
+  let valid = true;
+
+  // Order Number
+  const orderIdError = document.getElementById('support-order-id-error');
+  const orderIdWrapper = document.getElementById('support-order-id-wrapper');
+  if (orderIdError) orderIdError.textContent = '';
+  if (orderIdWrapper) orderIdWrapper.classList.remove('error');
+  if (!orderId.trim()) {
+    if (orderIdError) orderIdError.textContent = 'Order Number is required';
+    if (orderIdWrapper) orderIdWrapper.classList.add('error');
+    valid = false;
+  }
+
+  // Response Type
+  const responseError = document.getElementById('support-response-type-error');
+  const responseWrapper = document.getElementById('support-response-type-wrapper');
+  if (responseError) responseError.textContent = '';
+  if (responseWrapper) responseWrapper.classList.remove('error');
+  if (!responseTypeEl) {
+    if (responseError) responseError.textContent = 'Please select a response type';
+    if (responseWrapper) responseWrapper.classList.add('error');
+    valid = false;
+  }
+
+  if (!valid) return;
 
   showLoading('Submitting request...');
   setTimeout(() => {
@@ -2094,6 +2135,44 @@ function submitProductSupportRequest() {
   const priorityEl = document.querySelector('input[name="support-prod-priority"]:checked');
   const priority = priorityEl ? priorityEl.value : '';
   const notes = document.getElementById('support-prod-notes').value;
+
+  // --- Mandatory field validation ---
+  let valid = true;
+
+  // Product Description
+  const descError = document.getElementById('support-prod-desc-error');
+  const descWrapper = document.getElementById('support-prod-desc-wrapper');
+  if (descError) descError.textContent = '';
+  if (descWrapper) descWrapper.classList.remove('error');
+  if (!description.trim()) {
+    if (descError) descError.textContent = 'Product Description is required';
+    if (descWrapper) descWrapper.classList.add('error');
+    valid = false;
+  }
+
+  // Prescription Type
+  const rxError = document.getElementById('support-prod-rx-type-error');
+  const rxWrapper = document.getElementById('support-prod-rx-type-wrapper');
+  if (rxError) rxError.textContent = '';
+  if (rxWrapper) rxWrapper.classList.remove('error');
+  if (!rxTypeEl) {
+    if (rxError) rxError.textContent = 'Please select a prescription type';
+    if (rxWrapper) rxWrapper.classList.add('error');
+    valid = false;
+  }
+
+  // Response Type
+  const priorityError = document.getElementById('support-prod-priority-error');
+  const priorityWrapper = document.getElementById('support-prod-priority-wrapper');
+  if (priorityError) priorityError.textContent = '';
+  if (priorityWrapper) priorityWrapper.classList.remove('error');
+  if (!priorityEl) {
+    if (priorityError) priorityError.textContent = 'Please select a response type';
+    if (priorityWrapper) priorityWrapper.classList.add('error');
+    valid = false;
+  }
+
+  if (!valid) return;
 
   showLoading('Submitting request...');
   setTimeout(() => {
