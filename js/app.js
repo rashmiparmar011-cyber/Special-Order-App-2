@@ -753,7 +753,16 @@ function addFromSearch(medId) {
   if (existing) {
     existing.qty++;
   } else {
-    cart.push({ ...med, qty: 1, notes: '' });
+    cart.push({ 
+      ...med, 
+      qty: 1, 
+      notes: '',
+      flavorFree: false,
+      sugarFree: false,
+      alcoholFree: false,
+      rxUploaded: false,
+      rxFileName: null
+    });
   }
 
   updateCartBadge();
@@ -873,7 +882,16 @@ function addToCart(medId) {
   if (existing) {
     existing.qty++;
   } else {
-    cart.push({ ...med, qty: 1, notes: '' });
+    cart.push({ 
+      ...med, 
+      qty: 1, 
+      notes: '',
+      flavorFree: false,
+      sugarFree: false,
+      alcoholFree: false,
+      rxUploaded: false,
+      rxFileName: null
+    });
   }
 
   updateCartBadge();
@@ -919,8 +937,6 @@ function renderCart() {
     return;
   }
 
-  const hasRxItems = cart.some(c => c.rxRequired);
-
   let html = '<div class="cart-content">';
 
   // Cart Items
@@ -933,26 +949,70 @@ function renderCart() {
     }
 
     html += `
-      <div class="product-card in-cart fade-in" style="margin-bottom: 8px; cursor: default; padding: 12px 14px;">
-        <div class="product-card-row" style="align-items: center;">
-          <div class="product-info">
-            <div class="p-name" style="display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
+      <div class="product-card in-cart fade-in" style="margin-bottom: 8px; cursor: default; padding: 8px 12px; border: 2px solid var(--accent); border-radius: var(--radius-md); background: white;">
+        <!-- Top Row: Product Info & Qty Control -->
+        <div class="product-card-row" style="display:flex; justify-content:space-between; align-items: flex-start; gap: 8px;">
+          <div class="product-info" style="flex:1;">
+            <div class="p-name" style="font-size:13px; font-weight:700; color:var(--text-primary); line-height:1.3;">
               <span>${displayName} (${item.packSize})</span>
             </div>
-          </div>
-          <div class="product-card-actions" style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
-            <span class="p-category" style="margin-top:0; margin-bottom:0;">${item.categoryLabel}</span>
-            <div style="display:flex; align-items:center; gap:6px;">
-              <button class="pc-remove-btn" onclick="removeFromCart('${item.id}')" title="Remove from cart">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-              </button>
-              <div class="pc-qty-control">
-                <button class="pc-qty-btn" onclick="updateCartQty('${item.id}', -1)">−</button>
-                <span class="pc-qty-value">${item.qty}</span>
-                <button class="pc-qty-btn" onclick="updateCartQty('${item.id}', 1)">+</button>
-              </div>
+            <div style="margin-top: 2px; display: flex; gap: 6px; align-items: center;">
+              <span class="p-category" style="margin: 0; padding: 1px 5px; font-size: 10px; font-weight: 600; border-radius: 4px; background: var(--accent-bg); color: var(--accent);">${item.categoryLabel}</span>
             </div>
           </div>
+          <div class="product-card-actions" style="display:flex; align-items:center; gap:6px; flex-shrink: 0;">
+            <button class="pc-remove-btn" onclick="removeFromCart('${item.id}')" title="Remove from cart" style="padding: 4px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" width="16" height="16"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+            <div class="pc-qty-control" style="display:flex; align-items:center; background:var(--bg); border-radius:6px; padding:1px;">
+              <button class="pc-qty-btn" onclick="updateCartQty('${item.id}', -1)" style="width:22px; height:22px; font-weight:bold; font-size:12px;">−</button>
+              <span class="pc-qty-value" style="padding:0 6px; font-weight:600; font-size:12px;">${item.qty}</span>
+              <button class="pc-qty-btn" onclick="updateCartQty('${item.id}', 1)" style="width:22px; height:22px; font-weight:bold; font-size:12px;">+</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Options Container -->
+        <div class="product-cart-options" style="display: flex; flex-direction: column; gap: 4px; border-top: 1px solid var(--border-light); margin-top: 6px; padding-top: 6px;">
+          <div style="font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 2px;">Product Specifications</div>
+          <!-- Other Specs Checkboxes -->
+          <div style="display: flex; gap: 14px; margin-top: 0;">
+            <label class="checkbox-label" style="margin: 0; font-size: 11px; display: flex; align-items: center; gap: 5px; cursor: pointer;">
+              <input type="checkbox" onchange="updateProductSpec('${item.id}', 'flavorFree', this.checked)" ${item.flavorFree ? 'checked' : ''} style="width: 14px; height: 14px; accent-color: var(--accent);" />
+              <span style="font-size: 11px; color: var(--text-secondary);">Flavor Free</span>
+            </label>
+            <label class="checkbox-label" style="margin: 0; font-size: 11px; display: flex; align-items: center; gap: 5px; cursor: pointer;">
+              <input type="checkbox" onchange="updateProductSpec('${item.id}', 'sugarFree', this.checked)" ${item.sugarFree ? 'checked' : ''} style="width: 14px; height: 14px; accent-color: var(--accent);" />
+              <span style="font-size: 11px; color: var(--text-secondary);">Sugar Free</span>
+            </label>
+            <label class="checkbox-label" style="margin: 0; font-size: 11px; display: flex; align-items: center; gap: 5px; cursor: pointer;">
+              <input type="checkbox" onchange="updateProductSpec('${item.id}', 'alcoholFree', this.checked)" ${item.alcoholFree ? 'checked' : ''} style="width: 14px; height: 14px; accent-color: var(--accent);" />
+              <span style="font-size: 11px; color: var(--text-secondary);">Alcohol Free</span>
+            </label>
+          </div>
+
+          <!-- Prescription Upload (if Rx Required) -->
+          ${item.rxRequired ? `
+            <div style="height: 1px; background: var(--border-light); margin: 4px 0 2px 0;"></div>
+            <div class="product-rx-section" style="display: flex; flex-direction: column; gap: 4px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 11px; font-weight: 600; color: var(--text-secondary); display: flex; align-items: center; gap: 4px;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="color: var(--primary);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  Prescription Upload
+                </span>
+                <input type="file" id="rx-file-input-${item.id}" style="display:none" onchange="handleProductFileSelect('${item.id}', this)" accept=".pdf,.png,.jpg,.jpeg" />
+                <button class="btn btn-outline" onclick="document.getElementById('rx-file-input-${item.id}').click()" style="padding: 3px 8px; font-size: 11px; font-weight: 700; border-radius: 6px; border: ${item.rxUploaded ? '1px solid var(--success)' : '1px solid var(--primary)'}; color: ${item.rxUploaded ? 'var(--success)' : 'var(--primary)'}; background: transparent; transition: var(--transition); height: auto; min-height: 0; line-height: 1;">
+                  ${item.rxUploaded ? 'Uploaded' : 'Upload'}
+                </button>
+              </div>
+              ${item.rxUploaded ? `
+                <div class="upload-success" style="margin-top: 0; padding: 4px 8px; font-size: 11px; display: flex; align-items: center; gap: 4px; background: var(--success-bg); border-radius: 4px;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="color: var(--success); flex-shrink: 0;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <span style="color: var(--success); font-weight: 600; font-size: 11px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">${item.rxFileName}</span>
+                </div>
+              ` : ''}
+            </div>
+          ` : ''}
         </div>
       </div>
     `;
@@ -980,66 +1040,14 @@ function renderCart() {
           <input type="text" id="cart-gphc" placeholder="Enter GPhC number" value="2087654" />
         </div>
       </div>
-      <div class="form-group">
+      <div class="form-group" style="margin-bottom: 0;">
         <label>Pharmacist Name <span class="required">*</span></label>
         <div class="input-wrapper">
           <input type="text" id="cart-pharmacist" placeholder="Enter pharmacist name" value="Dr. Sarah Mitchell" />
         </div>
       </div>
-      <div class="form-group" style="margin-bottom: 0; position: relative;" id="specs-dropdown-container">
-        <label>Product Specifications <span style="font-size: 11px; font-weight: normal; color: var(--text-muted);">(If Required)</span></label>
-        <div class="input-wrapper" style="cursor: pointer; padding: 8px; position: relative; display: flex; align-items: center;" onclick="toggleCartSpecsDropdown(event)">
-          <div id="cart-specs-text" style="width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; color: var(--text-muted);">Select Specifications</div>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position: absolute; right: 12px; width: 16px; height: 16px; pointer-events: none; color: var(--text-muted);"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-        <div id="cart-specs-dropdown" class="hidden" style="position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: white; border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); z-index: 100; padding: 8px; display: none; flex-direction: column; gap: 4px; max-height: 200px; overflow-y: auto; font-size: 12px;">
-          <label class="checkbox-label" style="margin: 0; padding: 8px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; width: 100%; transition: background 0.2s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='transparent'">
-            <input type="checkbox" id="spec-select-all" onchange="toggleAllCartSpecs(this)" /> 
-            <span class="checkmark"></span> <span style="font-weight: 600;">Select All</span>
-          </label>
-          <div style="height: 1px; background: var(--border-light); margin: 4px 0;"></div>
-          <label class="checkbox-label" style="margin: 0; padding: 8px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; width: 100%; transition: background 0.2s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='transparent'">
-            <input type="checkbox" class="cart-spec-cb" value="Flavor Free" onchange="updateCartSpecsText()" /> 
-            <span class="checkmark"></span> Flavor Free
-          </label>
-          <label class="checkbox-label" style="margin: 0; padding: 8px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; width: 100%; transition: background 0.2s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='transparent'">
-            <input type="checkbox" class="cart-spec-cb" value="Sugar Free" onchange="updateCartSpecsText()" /> 
-            <span class="checkmark"></span> Sugar Free
-          </label>
-          <label class="checkbox-label" style="margin: 0; padding: 8px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; width: 100%; transition: background 0.2s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='transparent'">
-            <input type="checkbox" class="cart-spec-cb" value="Alcohol Free" onchange="updateCartSpecsText()" /> 
-            <span class="checkmark"></span> Alcohol Free
-          </label>
-        </div>
-      </div>
     </div>
   `;
-
-  // Prescription Upload (if Rx items)
-  if (hasRxItems) {
-    const uploadBtnText = rxUploaded ? 'Uploaded' : 'Upload';
-    const uploadBtnColor = rxUploaded ? 'var(--success)' : 'var(--primary)';
-    const uploadBtnBorder = rxUploaded ? '1px solid var(--success)' : '1px solid var(--primary)';
-
-    html += `
-      <div class="cart-section">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
-          <h4 style="margin: 0; display:flex; align-items:center; gap: 8px;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px; height:18px; color:var(--primary);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            Upload Prescription
-          </h4>
-          <button class="btn btn-outline" id="cart-upload-btn" onclick="simulateUpload()" style="padding: 6px 14px; font-size: 12px; font-weight: 700; border-radius: 8px; border: ${uploadBtnBorder}; color: ${uploadBtnColor}; transition: var(--transition);">${uploadBtnText}</button>
-        </div>
-        <p style="font-size:12px;color:var(--text-muted);margin:0 0 4px 0; display: none">Optional for Rx medicines in your cart</p>
-        <div id="upload-success-area" class="${rxUploaded ? '' : 'hidden'}" style="margin-top: 6px;">
-          <div class="upload-success">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            <span>prescription_scan.pdf uploaded successfully</span>
-          </div>
-        </div>
-      </div>
-    `;
-  }
 
   // Declarations
   html += `
@@ -1079,6 +1087,52 @@ function updateCartNote(medId, note) {
   if (item) item.notes = note;
 }
 
+
+function updateProductSpec(medId, specName, value) {
+  const item = cart.find(c => c.id === medId);
+  if (item) {
+    item[specName] = value;
+  }
+}
+
+function simulateProductUpload(medId) {
+  const item = cart.find(c => c.id === medId);
+  if (!item) return;
+
+  showLoading('Uploading prescription...');
+  setTimeout(() => {
+    hideLoading();
+    item.rxUploaded = true;
+    
+    // Create a formatted file name based on the medicine's name
+    const sanitizedName = item.name.toLowerCase()
+      .replace(/\s+/g, '_')
+      .replace(/[^a-z0-9_]/g, '');
+    item.rxFileName = `prescription_${sanitizedName}.pdf`;
+    
+    renderCart();
+    showToast(`Prescription for ${item.name.substring(0, 20)}... uploaded successfully`, 'success');
+  }, 1500);
+}
+
+function handleProductFileSelect(medId, input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const item = cart.find(c => c.id === medId);
+  if (!item) return;
+
+  showLoading('Uploading prescription...');
+  setTimeout(() => {
+    hideLoading();
+    item.rxUploaded = true;
+    item.rxFileName = file.name;
+    
+    renderCart();
+    showToast(`Prescription for ${item.name.substring(0, 20)}... uploaded successfully`, 'success');
+  }, 1200);
+}
+
 function simulateUpload() {
   showLoading('Uploading prescription...');
   setTimeout(() => {
@@ -1100,7 +1154,6 @@ function simulateUpload() {
 
 function placeOrder() {
   // Validate
-  const hasRxItems = cart.some(c => c.rxRequired);
   const gphc = document.getElementById('cart-gphc')?.value?.trim();
   const pharmacist = document.getElementById('cart-pharmacist')?.value?.trim();
   const dec1 = document.getElementById('declaration-1')?.checked;
@@ -1118,6 +1171,14 @@ function placeOrder() {
     showToast('Pharmacist name is required', 'error');
     return;
   }
+
+  // Validate per-product prescription uploads
+  const rxRequiredMissing = cart.filter(c => c.rxRequired && !c.rxUploaded);
+  if (rxRequiredMissing.length > 0) {
+    showToast(`Prescription required for: ${rxRequiredMissing.map(c => c.name.substring(0, 20) + '...').join(', ')}`, 'error');
+    return;
+  }
+
   if (!dec1 || !dec2) {
     showToast('Please accept all mandatory declarations', 'error');
     return;
@@ -1140,7 +1201,16 @@ function placeOrder() {
       date: formatDate(now),
       dateShort: formatDateShort(now),
       pharmacy: selectedPharmacy.name,
-      items: cart.map(c => ({ name: c.name, qty: c.qty, packSize: c.packSize })),
+      items: cart.map(c => ({ 
+        name: c.name, 
+        qty: c.qty, 
+        packSize: c.packSize,
+        flavorFree: c.flavorFree,
+        sugarFree: c.sugarFree,
+        alcoholFree: c.alcoholFree,
+        rxUploaded: c.rxUploaded,
+        rxFileName: c.rxFileName
+      })),
       status: 'pending',
       statusLabel: 'Order Received',
       statusClass: 'status-received',
@@ -1485,16 +1555,32 @@ function viewOrderTracking(orderId) {
   `;
 
   // Items
-  const firstItem = order.items[0];
   html += `
-    <div class="tracking-header" style="margin-bottom:8px;">
-      <h4 style="font-size:14px;font-weight:700;margin-bottom:8px;">Order Items</h4>
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:13px;">
-        <span style="color:var(--text-secondary);">${firstItem.name}</span>
-        <span style="background: var(--primary-bg); color: var(--primary); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 100px; border: 1px solid rgba(10, 36, 99, 0.08); white-space: nowrap;">Qty: ${firstItem.qty}</span>
-      </div>
-    </div>
+    <div class="tracking-header" style="margin-bottom:8px; display: flex; flex-direction: column; gap: 6px;">
+      <h4 style="font-size:14px;font-weight:700;margin-bottom:2px;">Order Items</h4>
   `;
+  order.items.forEach(item => {
+    let specsStr = [];
+    if (item.flavorFree) specsStr.push('Flavor Free');
+    if (item.sugarFree) specsStr.push('Sugar Free');
+    if (item.alcoholFree) specsStr.push('Alcohol Free');
+    if (item.rxUploaded) specsStr.push('Rx Uploaded');
+
+    const specsBadge = specsStr.length > 0 
+      ? `<div style="font-size:11px; color:var(--text-muted); margin-top:2px;">${specsStr.join(', ')}</div>` 
+      : '';
+
+    html += `
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:6px 0;font-size:13px;border-bottom:1px solid var(--border-light);">
+        <div style="flex:1; min-width: 0;">
+          <span style="color:var(--text-primary);font-weight:500;">${item.name}</span>
+          ${specsBadge}
+        </div>
+        <span style="background: var(--primary-bg); color: var(--primary); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 100px; border: 1px solid rgba(10, 36, 99, 0.08); white-space: nowrap; margin-left:8px;">Qty: ${item.qty}</span>
+      </div>
+    `;
+  });
+  html += `</div>`;
 
   // Timeline
   html += '<div class="tracking-timeline"><h4 style="font-size:14px;font-weight:700;margin-bottom:12px;">Order Timeline</h4>';
@@ -1649,7 +1735,16 @@ function addReorderSelectedToCart(ctx, orderId, btnElement) {
         if (existing) {
           existing.qty += qty;
         } else {
-          cart.push({ ...med, qty: qty, notes: '' });
+          cart.push({ 
+            ...med, 
+            qty: qty, 
+            notes: '',
+            flavorFree: false,
+            sugarFree: false,
+            alcoholFree: false,
+            rxUploaded: false,
+            rxFileName: null
+          });
         }
         itemsAdded++;
       }
