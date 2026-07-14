@@ -1539,10 +1539,16 @@ function viewOrderTracking(orderId) {
           <div class="th-date">Ordered on ${order.date}</div>
         </div>
         ${order.status !== 'cancelled' ? `
-        <button class="btn btn-outline" onclick="downloadInvoice('${order.id}')" style="padding: 6px 12px; font-size: 11px; font-weight: 700; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; margin-top: 2px; height: auto; border: 1px solid var(--border);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>
-          Invoice
-        </button>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-outline" onclick="viewPrescription('${order.id}')" style="padding: 6px 12px; font-size: 11px; font-weight: 700; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; margin-top: 2px; height: auto; border: 1px solid var(--border); color: var(--primary);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            Prescription
+          </button>
+          <button class="btn btn-outline" onclick="downloadInvoice('${order.id}')" style="padding: 6px 12px; font-size: 11px; font-weight: 700; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; margin-top: 2px; height: auto; border: 1px solid var(--border);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>
+            Invoice
+          </button>
+        </div>
         ` : ''}
       </div>
       ${order.status !== 'cancelled' ? `
@@ -1764,6 +1770,10 @@ function addReorderSelectedToCart(ctx, orderId, btnElement) {
 
 function downloadInvoice(orderId) {
   showToast('Invoice sent to registered email ID', 'success');
+}
+
+function viewPrescription(orderId) {
+  showToast('Prescription viewed', 'success');
 }
 
 // ============ NOTIFICATIONS ============
@@ -2448,39 +2458,7 @@ function showAccountSubpage(page) {
         </div>
       </div>
     `;
-  } else if (page === 'prescriptions') {
-    title.textContent = 'My Prescriptions';
-    content.innerHTML = `
-      <div style="padding:4px 0;">
-        <div class="support-ticket">
-          <div class="ticket-header">
-            <div>
-              <div class="ticket-id">RX-2026-0089</div>
-              <div class="ticket-category">Liothyronine Sodium 20mcg</div>
-            </div>
-          </div>
-          <div class="ticket-date">Uploaded: 22 May 2026</div>
-        </div>
-        <div class="support-ticket">
-          <div class="ticket-header">
-            <div>
-              <div class="ticket-id">RX-2026-0085</div>
-              <div class="ticket-category">Melatonin 2mg/5ml Solution</div>
-            </div>
-          </div>
-          <div class="ticket-date">Uploaded: 20 May 2026</div>
-        </div>
-        <div class="support-ticket">
-          <div class="ticket-header">
-            <div>
-              <div class="ticket-id">RX-2026-0079</div>
-              <div class="ticket-category">Hydrocortisone 2.5mg MR Capsules</div>
-            </div>
-          </div>
-          <div class="ticket-date">Uploaded: 18 May 2026</div>
-        </div>
-      </div>
-    `;
+
   } else if (page === 'change-password') {
     title.textContent = 'Change Password';
     content.innerHTML = `
