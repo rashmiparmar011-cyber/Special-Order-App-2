@@ -1172,12 +1172,6 @@ function placeOrder() {
     return;
   }
 
-  // Validate per-product prescription uploads
-  const rxRequiredMissing = cart.filter(c => c.rxRequired && !c.rxUploaded);
-  if (rxRequiredMissing.length > 0) {
-    showToast(`Prescription required for: ${rxRequiredMissing.map(c => c.name.substring(0, 20) + '...').join(', ')}`, 'error');
-    return;
-  }
 
   if (!dec1 || !dec2) {
     showToast('Please accept all mandatory declarations', 'error');
@@ -1193,7 +1187,8 @@ function placeOrder() {
     const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
     const seq = String(Math.floor(Math.random() * 100)).padStart(4, '0');
     latestOrderId = `SRX-${dateStr}-${seq}`;
-    document.getElementById('success-order-id').textContent = latestOrderId;
+    const successIdEl = document.getElementById('success-order-id');
+    if (successIdEl) successIdEl.textContent = latestOrderId;
 
     // Add to orders list
     const newOrder = {
@@ -1551,12 +1546,6 @@ function viewOrderTracking(orderId) {
         </div>
         ` : ''}
       </div>
-      ${order.status !== 'cancelled' ? `
-      <div class="th-estimated" style="margin-top:12px;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        Estimated Delivery: ${order.estimatedDelivery}
-      </div>
-      ` : ''}
     </div>
   `;
 

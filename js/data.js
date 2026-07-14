@@ -234,8 +234,7 @@ const ORDERS = [
     dateShort: '22/05/2026',
     pharmacy: 'Green Cross Pharmacy',
     items: [
-      { name: 'Liothyronine Sodium 20mcg Tablets', qty: 2, packSize: '28 Tablets' },
-      { name: 'Melatonin 2mg/5ml Oral Solution', qty: 1, packSize: '150ml' }
+      { name: 'Liothyronine Sodium 20mcg Tablets', qty: 2, packSize: '28 Tablets' }
     ],
     status: 'transit',
     statusLabel: 'Invoiced',
@@ -263,8 +262,7 @@ const ORDERS = [
     dateShort: '21/05/2026',
     pharmacy: 'Green Cross Pharmacy',
     items: [
-      { name: 'Hydrocortisone 2.5mg MR Capsules', qty: 2, packSize: '30 Capsules' },
-      { name: 'Glycopyrronium Bromide 1mg/5ml', qty: 1, packSize: '150ml' }
+      { name: 'Hydrocortisone 2.5mg MR Capsules', qty: 2, packSize: '30 Capsules' }
     ],
     status: 'processing',
     statusLabel: 'Processing',

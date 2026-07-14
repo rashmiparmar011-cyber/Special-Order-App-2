@@ -555,10 +555,15 @@
                   <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
                 <input type="text" id="home-order-search" placeholder="Search by Order No"
-                  oninput="searchHomeOrders(this.value)" style="font-size: 13px; padding-right: 30px; width: 100%; border: none; outline: none; background: transparent;" />
-                <div style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; justify-content: center;">
-                  <input type="text" id="home-date-search" style="position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; right: 0; top: 0; z-index: 2;" />
-                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary, #1e40af)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px; position: relative; z-index: 1; opacity: 0.9;">
+                  oninput="searchHomeOrders(this.value)"
+                  style="font-size: 13px; padding-right: 30px; width: 100%; border: none; outline: none; background: transparent;" />
+                <div
+                  style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; justify-content: center;">
+                  <input type="text" id="home-date-search"
+                    style="position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; right: 0; top: 0; z-index: 2;" />
+                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary, #1e40af)" stroke-width="1.8"
+                    stroke-linecap="round" stroke-linejoin="round"
+                    style="width: 18px; height: 18px; position: relative; z-index: 1; opacity: 0.9;">
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
                     <path d="M16 2v4" />
                     <path d="M8 2v4" />
@@ -663,17 +668,6 @@
               </div>
               <h2 style="margin:24px 0 8px;color:var(--text-primary);">Order Placed Successfully!</h2>
               <p class="form-section-desc">Your order has been submitted and is being processed</p>
-              <div class="order-success-card">
-                <div class="success-detail"><span>Request ID</span>
-                  <strong id="success-order-id">SR2605278</strong>
-                </div>
-                <div class="success-detail"><span>Date</span><strong>22 May 2026</strong></div>
-                <div class="success-detail"><span>Status</span><span class="status-pill status-received">Order
-                    Received</span></div>
-                <div class="success-detail"><span>Expected Delivery</span><strong>24-26 May 2026</strong></div>
-              </div>
-              <button class="btn btn-primary btn-full" style="margin-top:24px;"
-                onclick="viewOrderTracking(latestOrderId)">Track Order</button>
               <button class="btn btn-outline btn-full" style="margin-top:12px;"
                 onclick="showPage('page-home');switchTab('home');">Back to Home</button>
             </div>
@@ -955,18 +949,18 @@
   <script src="js/app.js?v=12"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       flatpickr("#home-date-search", {
         dateFormat: "d/m/Y",
         disableMobile: true,
         position: "auto right",
-        onReady: function(selectedDates, dateStr, instance) {
+        onReady: function (selectedDates, dateStr, instance) {
           const btnRow = document.createElement("div");
           btnRow.style.padding = "10px 15px";
           btnRow.style.borderTop = "1px solid #e2e8f0";
           btnRow.style.display = "flex";
           btnRow.style.justifyContent = "space-between";
-          
+
           const clearBtn = document.createElement("button");
           clearBtn.textContent = "Clear";
           clearBtn.style.color = "var(--primary, #1d4ed8)";
@@ -974,7 +968,7 @@
           clearBtn.style.border = "none";
           clearBtn.style.fontWeight = "600";
           clearBtn.style.cursor = "pointer";
-          clearBtn.onclick = function(e) {
+          clearBtn.onclick = function (e) {
             e.preventDefault();
             instance.clear();
             instance.close();
@@ -989,19 +983,19 @@
           okBtn.style.border = "none";
           okBtn.style.fontWeight = "600";
           okBtn.style.cursor = "pointer";
-          okBtn.onclick = function(e) {
+          okBtn.onclick = function (e) {
             e.preventDefault();
-            if(!instance.selectedDates.length) {
-                instance.setDate(new Date(), true); 
+            if (!instance.selectedDates.length) {
+              instance.setDate(new Date(), true);
             }
             instance.close();
           };
-          
+
           btnRow.appendChild(clearBtn);
           btnRow.appendChild(okBtn);
           instance.calendarContainer.appendChild(btnRow);
         },
-        onChange: function(selectedDates, dateStr, instance) {
+        onChange: function (selectedDates, dateStr, instance) {
           document.getElementById('home-order-search').value = dateStr;
           searchHomeOrders(dateStr);
         }
