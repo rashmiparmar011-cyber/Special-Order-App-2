@@ -1865,6 +1865,19 @@ function markAsRead(id) {
   }
 }
 
+function markAllNotificationsAsRead() {
+  let changed = false;
+  NOTIFICATIONS.forEach(n => {
+    if (n.unread) {
+      n.unread = false;
+      changed = true;
+    }
+  });
+  if (changed) {
+    renderNotifications();
+  }
+}
+
 // ============ SUPPORT ============
 let supportHistoryStatus = {
   'order-support': 'open',

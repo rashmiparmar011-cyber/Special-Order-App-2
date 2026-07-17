@@ -708,8 +708,9 @@
 
           <!-- ===== NOTIFICATIONS ===== -->
           <div id="page-notifications" class="page">
-            <div class="page-header-simple">
+            <div class="page-header-simple" style="position:relative;">
               <h2>Notifications</h2>
+              <button onclick="markAllNotificationsAsRead()" style="position:absolute; right:16px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--primary); font-size:14px; font-weight:600; cursor:pointer; padding:0;">Read all</button>
             </div>
             <div class="page-scroll" id="notifications-content">
               <!-- Populated by JS -->
