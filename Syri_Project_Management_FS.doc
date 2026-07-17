@@ -1,0 +1,128 @@
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+<meta charset="utf-8">
+<title>Functional Specification - Syri Project Management System</title>
+<style>
+  body { font-family: Calibri, sans-serif; font-size: 11pt; }
+  h1 { color: #2e74b5; }
+  h2 { color: #2e74b5; border-bottom: 1px solid #ccc; padding-bottom: 2px;}
+  h3 { color: #1f4d7a; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+  th, td { border: 1px solid #999; padding: 6px 10px; text-align: left; }
+  th { background-color: #f2f2f2; }
+</style>
+</head>
+<body>
+
+<h1>Functional Specification</h1>
+<h2>Project: Syri Project Management System</h2>
+<p><strong>Date:</strong> 14 July 2026</p>
+<p><strong>Status:</strong> Draft</p>
+
+<h2>1. Introduction</h2>
+<p>This Functional Specification (FS) document outlines the requirements, user interface tabs, data fields, and calculation logic for the Syri Project Management System. The system aims to streamline project tracking, task allocation, resource management, and timesheet logging.</p>
+
+<h2>2. Navigation Tabs & Field Specifications</h2>
+<p>The system will feature the following primary tabs:</p>
+
+<h3>2.1. Dashboard Tab</h3>
+<p>Provides a high-level overview of all active projects, pending tasks, and key performance indicators.</p>
+<table>
+  <tr><th>Field Name</th><th>Description</th><th>Type</th></tr>
+  <tr><td>Total Active Projects</td><td>Count of projects with status 'In Progress'</td><td>Numeric (Calculated)</td></tr>
+  <tr><td>Pending Tasks</td><td>Count of tasks assigned to the logged-in user that are not 'Completed'</td><td>Numeric (Calculated)</td></tr>
+  <tr><td>Project Progress Widget</td><td>Visual progress bar showing completion percentage across all projects</td><td>UI Component</td></tr>
+  <tr><td>Recent Activity Feed</td><td>Log of recent updates, comments, and status changes</td><td>List</td></tr>
+</table>
+
+<h3>2.2. Projects Tab</h3>
+<p>Central repository to create, view, and manage projects.</p>
+<table>
+  <tr><th>Field Name</th><th>Description</th><th>Type</th></tr>
+  <tr><td>Project ID</td><td>Unique auto-generated identifier (e.g., SYR-PRJ-001)</td><td>String (Auto)</td></tr>
+  <tr><td>Project Name</td><td>Descriptive title of the project</td><td>Text</td></tr>
+  <tr><td>Client Name</td><td>Client or internal department associated with the project</td><td>Dropdown</td></tr>
+  <tr><td>Start Date</td><td>Planned commencement date</td><td>Date</td></tr>
+  <tr><td>End Date</td><td>Planned completion date</td><td>Date</td></tr>
+  <tr><td>Status</td><td>Current state (Draft, In Progress, On Hold, Completed, Cancelled)</td><td>Dropdown</td></tr>
+  <tr><td>Budget (£)</td><td>Total allocated financial budget</td><td>Currency</td></tr>
+  <tr><td>Total Cost (£)</td><td>Accumulated cost based on resource hours logged</td><td>Currency (Calculated)</td></tr>
+  <tr><td>Completion %</td><td>Overall progress based on completed tasks vs total tasks</td><td>Percentage (Calculated)</td></tr>
+</table>
+
+<h3>2.3. Tasks Tab</h3>
+<p>Detailed work breakdown structure for managing individual activities.</p>
+<table>
+  <tr><th>Field Name</th><th>Description</th><th>Type</th></tr>
+  <tr><td>Task ID</td><td>Unique auto-generated identifier (e.g., TSK-1042)</td><td>String (Auto)</td></tr>
+  <tr><td>Task Name</td><td>Short description of the work</td><td>Text</td></tr>
+  <tr><td>Project ID</td><td>Link to the parent project</td><td>Lookup</td></tr>
+  <tr><td>Assignee</td><td>Team member responsible for the task</td><td>Lookup (User)</td></tr>
+  <tr><td>Priority</td><td>Importance level (Low, Medium, High, Critical)</td><td>Dropdown</td></tr>
+  <tr><td>Estimated Hours</td><td>Planned effort required to complete the task</td><td>Numeric</td></tr>
+  <tr><td>Logged Hours</td><td>Total hours submitted via timesheets against this task</td><td>Numeric (Calculated)</td></tr>
+  <tr><td>Status</td><td>Current state (To Do, In Progress, Review, Done)</td><td>Dropdown</td></tr>
+  <tr><td>Due Date</td><td>Deadline for the task</td><td>Date</td></tr>
+</table>
+
+<h3>2.4. Resources Tab</h3>
+<p>Management of team members, their roles, and capacity.</p>
+<table>
+  <tr><th>Field Name</th><th>Description</th><th>Type</th></tr>
+  <tr><td>Employee ID</td><td>Unique identifier for the team member</td><td>String</td></tr>
+  <tr><td>Name</td><td>Full name of the resource</td><td>Text</td></tr>
+  <tr><td>Role</td><td>Job title (e.g., Project Manager, Developer, QA)</td><td>Dropdown</td></tr>
+  <tr><td>Hourly Rate (£)</td><td>Cost per hour for financial tracking</td><td>Currency</td></tr>
+  <tr><td>Capacity (Hrs/Week)</td><td>Maximum available working hours per week</td><td>Numeric</td></tr>
+  <tr><td>Utilization (%)</td><td>Current allocated hours vs capacity</td><td>Percentage (Calculated)</td></tr>
+</table>
+
+<h3>2.5. Timesheets Tab</h3>
+<p>Log where resources record time spent on specific tasks.</p>
+<table>
+  <tr><th>Field Name</th><th>Description</th><th>Type</th></tr>
+  <tr><td>Log ID</td><td>Unique identifier for the timesheet entry</td><td>String (Auto)</td></tr>
+  <tr><td>Date</td><td>Date the work was performed</td><td>Date</td></tr>
+  <tr><td>Resource Name</td><td>Auto-populated based on logged-in user</td><td>String (Auto)</td></tr>
+  <tr><td>Project ID</td><td>Selection of project being worked on</td><td>Dropdown</td></tr>
+  <tr><td>Task ID</td><td>Selection of specific task within the project</td><td>Dropdown</td></tr>
+  <tr><td>Hours Worked</td><td>Time spent in decimal format (e.g., 2.5)</td><td>Numeric</td></tr>
+  <tr><td>Description</td><td>Brief summary of work done</td><td>Text (Optional)</td></tr>
+  <tr><td>Approval Status</td><td>State of the timesheet (Pending, Approved, Rejected)</td><td>Dropdown</td></tr>
+</table>
+
+<h2>3. Calculation Logic</h2>
+<p>The system relies on the following backend calculations to drive metrics across tabs:</p>
+
+<h3>3.1. Project Completion Percentage</h3>
+<ul>
+  <li><strong>Logic:</strong> (Number of Completed Tasks / Total Number of Tasks in Project) * 100</li>
+  <li><strong>Trigger:</strong> Recalculates whenever a Task Status changes.</li>
+  <li><strong>Example:</strong> If a project has 10 tasks and 4 are marked 'Done', Completion = 40%.</li>
+</ul>
+
+<h3>3.2. Task Logged Hours</h3>
+<ul>
+  <li><strong>Logic:</strong> SUM(Hours Worked) from Timesheets Tab where Task ID matches.</li>
+  <li><strong>Condition:</strong> Only includes timesheets with Approval Status = 'Approved' (Optional based on business rule).</li>
+</ul>
+
+<h3>3.3. Project Total Cost</h3>
+<ul>
+  <li><strong>Logic:</strong> SUM(Task Logged Hours * Resource Hourly Rate) for all tasks linked to the Project ID.</li>
+  <li><strong>Trigger:</strong> Recalculates when a timesheet is approved or a resource rate changes.</li>
+</ul>
+
+<h3>3.4. Resource Utilization (%)</h3>
+<ul>
+  <li><strong>Logic:</strong> (SUM(Estimated Hours of Assigned Tasks in current week) / Capacity (Hrs/Week)) * 100</li>
+  <li><strong>Purpose:</strong> To identify if a resource is over-allocated (>100%) or under-allocated.</li>
+</ul>
+
+<h3>3.5. Task Overrun Indicator</h3>
+<ul>
+  <li><strong>Logic:</strong> IF (Logged Hours > Estimated Hours) THEN Flag = TRUE (Display in Red).</li>
+</ul>
+
+</body>
+</html>
