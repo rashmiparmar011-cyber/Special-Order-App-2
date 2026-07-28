@@ -753,9 +753,9 @@ function addFromSearch(medId) {
   if (existing) {
     existing.qty++;
   } else {
-    cart.push({ 
-      ...med, 
-      qty: 1, 
+    cart.push({
+      ...med,
+      qty: 1,
       notes: '',
       flavorFree: false,
       sugarFree: false,
@@ -882,9 +882,9 @@ function addToCart(medId) {
   if (existing) {
     existing.qty++;
   } else {
-    cart.push({ 
-      ...med, 
-      qty: 1, 
+    cart.push({
+      ...med,
+      qty: 1,
       notes: '',
       flavorFree: false,
       sugarFree: false,
@@ -912,7 +912,7 @@ function updateCartQty(medId, delta) {
 }
 
 function updateCartBadge() {
-  const count = cart.reduce((sum, c) => sum + c.qty, 0);
+  const count = cart.length;
   const badge = document.getElementById('cart-badge');
   const headerCount = document.getElementById('cart-header-count');
   if (badge) {
@@ -974,7 +974,7 @@ function renderCart() {
 
         <!-- Options Container -->
         <div class="product-cart-options" style="display: flex; flex-direction: column; gap: 4px; border-top: 1px solid var(--border-light); margin-top: 6px; padding-top: 6px;">
-          <div style="font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 2px;">Product Specifications</div>
+          <div style="font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 2px;">Product Specifications (If Required)</div>
           <!-- Other Specs Checkboxes -->
           <div style="display: flex; gap: 14px; margin-top: 0;">
             <label class="checkbox-label" style="margin: 0; font-size: 11px; display: flex; align-items: center; gap: 5px; cursor: pointer;">
@@ -998,7 +998,7 @@ function renderCart() {
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-size: 11px; font-weight: 600; color: var(--text-secondary); display: flex; align-items: center; gap: 4px;">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="color: var(--primary);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                  Prescription Upload
+                  Prescription Upload (Optional)
                 </span>
                 <input type="file" id="rx-file-input-${item.id}" style="display:none" onchange="handleProductFileSelect('${item.id}', this)" accept=".pdf,.png,.jpg,.jpeg" />
                 <button class="btn btn-outline" onclick="document.getElementById('rx-file-input-${item.id}').click()" style="padding: 3px 8px; font-size: 11px; font-weight: 700; border-radius: 6px; border: ${item.rxUploaded ? '1px solid var(--success)' : '1px solid var(--primary)'}; color: ${item.rxUploaded ? 'var(--success)' : 'var(--primary)'}; background: transparent; transition: var(--transition); height: auto; min-height: 0; line-height: 1;">
@@ -1103,13 +1103,13 @@ function simulateProductUpload(medId) {
   setTimeout(() => {
     hideLoading();
     item.rxUploaded = true;
-    
+
     // Create a formatted file name based on the medicine's name
     const sanitizedName = item.name.toLowerCase()
       .replace(/\s+/g, '_')
       .replace(/[^a-z0-9_]/g, '');
     item.rxFileName = `prescription_${sanitizedName}.pdf`;
-    
+
     renderCart();
     showToast(`Prescription for ${item.name.substring(0, 20)}... uploaded successfully`, 'success');
   }, 1500);
@@ -1127,7 +1127,7 @@ function handleProductFileSelect(medId, input) {
     hideLoading();
     item.rxUploaded = true;
     item.rxFileName = file.name;
-    
+
     renderCart();
     showToast(`Prescription for ${item.name.substring(0, 20)}... uploaded successfully`, 'success');
   }, 1200);
@@ -1196,9 +1196,9 @@ function placeOrder() {
       date: formatDate(now),
       dateShort: formatDateShort(now),
       pharmacy: selectedPharmacy.name,
-      items: cart.map(c => ({ 
-        name: c.name, 
-        qty: c.qty, 
+      items: cart.map(c => ({
+        name: c.name,
+        qty: c.qty,
         packSize: c.packSize,
         flavorFree: c.flavorFree,
         sugarFree: c.sugarFree,
@@ -1561,8 +1561,8 @@ function viewOrderTracking(orderId) {
     if (item.alcoholFree) specsStr.push('Alcohol Free');
     if (item.rxUploaded) specsStr.push('Rx Uploaded');
 
-    const specsBadge = specsStr.length > 0 
-      ? `<div style="font-size:11px; color:var(--text-muted); margin-top:2px;">${specsStr.join(', ')}</div>` 
+    const specsBadge = specsStr.length > 0
+      ? `<div style="font-size:11px; color:var(--text-muted); margin-top:2px;">${specsStr.join(', ')}</div>`
       : '';
 
     html += `
@@ -1730,9 +1730,9 @@ function addReorderSelectedToCart(ctx, orderId, btnElement) {
         if (existing) {
           existing.qty += qty;
         } else {
-          cart.push({ 
-            ...med, 
-            qty: qty, 
+          cart.push({
+            ...med,
+            qty: qty,
             notes: '',
             flavorFree: false,
             sugarFree: false,
