@@ -1,1007 +1,3624 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="description"
-    content="SpecialRx – UK Pharmaceutical Special Order Application for pharmacies to order unlicensed, imported, tariff and non-tariff medicines." />
-  <title>SpecialRx – Pharmaceutical Special Orders</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-    rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link rel="stylesheet" href="css/styles.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Special Order Confirmation System - Interactive Prototype</title>
+  <style>
+    /* ==========================================================================
+       RESET & BASE STYLING (Faithful to Enterprise ERP Theme)
+       ========================================================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 11px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: #dbeaf2;
+      color: #333333;
+      padding: 6px 10px 40px 10px;
+      min-width: 1200px;
+      overflow-x: auto;
+    }
+
+    /* ==========================================================================
+       TOP STAKEHOLDER DEMO TOOLBAR (Quick showcase of updated screens)
+       ========================================================================== */
+    .demo-showcase-bar {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      color: #f8fafc;
+      padding: 8px 16px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      border: 1px solid #334155;
+      font-size: 12px;
+    }
+
+    .demo-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .demo-badge {
+      background: #0ea5e9;
+      color: #ffffff;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .demo-title {
+      font-weight: 600;
+      font-size: 12px;
+      color: #e2e8f0;
+    }
+
+    .demo-bar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .demo-btn {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #f1f5f9;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s ease;
+    }
+
+    .demo-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .demo-btn.highlight-pulse {
+      background: #2563eb;
+      border-color: #60a5fa;
+      color: white;
+      box-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
+    }
+
+    /* ==========================================================================
+       MAIN APPLICATION SHELL & TABS NAVIGATION
+       ========================================================================== */
+    .app-container {
+      background: #ffffff;
+      border: 1.5px solid #579db9;
+      border-radius: 8px;
+      padding: 6px;
+      box-shadow: 0 4px 15px rgba(23, 122, 158, 0.15);
+      position: relative;
+    }
+
+    /* Navigation Tabs Container */
+    .tabs-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      margin-bottom: 6px;
+      background: #cbe3ee;
+      padding: 5px 6px;
+      border-radius: 6px 6px 0 0;
+      border: 1px solid #9dc7db;
+    }
+
+    .tabs-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      align-items: center;
+    }
+
+    /* Individual Glossy Tabs */
+    .nav-tab {
+      background: linear-gradient(to bottom, #49b5d8 0%, #2087ac 50%, #156d8e 100%);
+      color: #ffffff;
+      padding: 3px 9px;
+      border-radius: 4px;
+      border: 1px solid #145e7c;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      cursor: pointer;
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6), 0 1px 2px rgba(0, 0, 0, 0.2);
+      transition: all 0.12s ease;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .nav-tab:hover {
+      background: linear-gradient(to bottom, #60c3e4 0%, #2b98c0 50%, #177699 100%);
+    }
+
+    /* Active Tab: Pure white button connected to the content */
+    .nav-tab.active {
+      background: #ffffff !important;
+      color: #0b3c53 !important;
+      border: 1px solid #0f526d !important;
+      text-shadow: none !important;
+      box-shadow: 0 -2px 0 0 #0f526d, 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+      font-weight: 800 !important;
+    }
+
+    /* Disabled Tabs Styling (Only 4 requested tabs are active) */
+    .nav-tab.tab-disabled {
+      opacity: 0.45;
+      cursor: not-allowed !important;
+      filter: grayscale(60%);
+      background: linear-gradient(to bottom, #6c98aa 0%, #466876 50%, #2f4954 100%) !important;
+      border-color: #243942 !important;
+      box-shadow: none !important;
+      text-shadow: none !important;
+    }
+    .nav-tab.tab-disabled:hover {
+      background: linear-gradient(to bottom, #6c98aa 0%, #466876 50%, #2f4954 100%) !important;
+      transform: none !important;
+    }
+    .nav-tab.tab-red.tab-disabled {
+      opacity: 0.45;
+      cursor: not-allowed !important;
+      filter: grayscale(60%);
+      background: linear-gradient(to bottom, #8a4e4d 0%, #6d3332 50%, #4e1f1e 100%) !important;
+      border-color: #3b1413 !important;
+    }
+
+    /* Red Accent Tab (BNSSOP4 / BMSOP4) */
+    .nav-tab.tab-red {
+      background: linear-gradient(to bottom, #d9534f 0%, #b52c28 50%, #871a17 100%);
+      border-color: #6a1310;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+    .nav-tab.tab-red:hover {
+      background: linear-gradient(to bottom, #e46662 0%, #c4332e 50%, #9a1e1b 100%);
+    }
+    .nav-tab.tab-red.active {
+      background: #ffffff !important;
+      color: #b52c28 !important;
+      border-color: #b52c28 !important;
+      text-shadow: none !important;
+    }
+
+    /* Notification indicator on tab */
+    .tab-badge {
+      display: inline-block;
+      background: #ffcc00;
+      color: #000;
+      padding: 0 4px;
+      border-radius: 8px;
+      font-size: 9px;
+      margin-left: 4px;
+      font-weight: bold;
+      vertical-align: middle;
+    }
+
+    /* ==========================================================================
+       TAB SCREENS & PANELS
+       ========================================================================== */
+    .tab-content-panel {
+      display: none;
+      animation: fadeIn 0.15s ease-in-out;
+    }
+
+    .tab-content-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0.6; }
+      to { opacity: 1; }
+    }
+
+    /* ==========================================================================
+       STANDARD FORM CONTROLS & RETRO/ENTERPRISE BUTTONS
+       ========================================================================== */
+    .app-input {
+      background: #eef2f5;
+      border: 1px solid #b5c7d3;
+      border-radius: 3px;
+      padding: 2px 6px;
+      font-size: 11px;
+      color: #1a202c;
+      height: 22px;
+      outline: none;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
+      width: 100%;
+    }
+
+    .app-input:focus {
+      background: #ffffff;
+      border-color: #1d7294;
+      box-shadow: 0 0 3px rgba(29, 114, 148, 0.4);
+    }
+
+    .app-select {
+      background: #eef2f5;
+      border: 1px solid #b5c7d3;
+      border-radius: 3px;
+      padding: 2px 4px;
+      font-size: 11px;
+      height: 22px;
+      outline: none;
+      width: 100%;
+    }
+
+    .app-textarea {
+      background: #ffffff;
+      border: 1px solid #9dc7db;
+      border-radius: 3px;
+      padding: 6px;
+      font-size: 11px;
+      outline: none;
+      resize: vertical;
+      width: 100%;
+    }
+
+    /* Classic Beveled Gradient Buttons */
+    .btn-glossy {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #ffffff;
+      border-radius: 4px;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+      height: 24px;
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6), 0 1px 2px rgba(0, 0, 0, 0.2);
+      transition: all 0.1s ease;
+      border: 1px solid transparent;
+    }
+
+    .btn-glossy:active {
+      transform: translateY(1px);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .btn-green {
+      background: linear-gradient(to bottom, #5cb85c 0%, #449d44 50%, #347a34 100%);
+      border-color: #2b662b;
+    }
+    .btn-green:hover {
+      background: linear-gradient(to bottom, #6ec06e 0%, #4cae4c 50%, #3b8b3b 100%);
+    }
+
+    .btn-red {
+      background: linear-gradient(to bottom, #d9534f 0%, #c9302c 50%, #a0201d 100%);
+      border-color: #841b18;
+    }
+    .btn-red:hover {
+      background: linear-gradient(to bottom, #e26763 0%, #d43f3a 50%, #b12521 100%);
+    }
+
+    .btn-orange {
+      background: linear-gradient(to bottom, #f0ad4e 0%, #ec971f 50%, #c9790b 100%);
+      border-color: #a86408;
+    }
+    .btn-orange:hover {
+      background: linear-gradient(to bottom, #f3b967 0%, #efa233 50%, #da840e 100%);
+    }
+
+    .btn-blue {
+      background: linear-gradient(to bottom, #337ab7 0%, #286090 50%, #1d4b73 100%);
+      border-color: #173b5a;
+    }
+    .btn-blue:hover {
+      background: linear-gradient(to bottom, #468cc8 0%, #3174ae 50%, #235b8c 100%);
+    }
+
+    .btn-cyan {
+      background: linear-gradient(to bottom, #49b4d8 0%, #2087ac 50%, #156d8e 100%);
+      border-color: #135874;
+    }
+
+    /* Section Accordion / Header Bars */
+    .section-header-bar {
+      background: linear-gradient(to bottom, #2ca0c9 0%, #1b7a9f 50%, #135f7c 100%);
+      color: #ffffff;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #0f4e66;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5), 0 1px 2px rgba(0, 0, 0, 0.15);
+      cursor: pointer;
+    }
+
+    /* ==========================================================================
+       SCREEN 1: EMAIL ORDER TAB (Faithful to Email order -details.jpg)
+       ========================================================================== */
+    .email-order-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 8px;
+    }
+
+    .left-work-area {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .email-content-box {
+      border: 1px solid #7cb5cc;
+      border-radius: 4px;
+      background: #ffffff;
+      padding: 6px;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    .email-content-textarea {
+      width: 100%;
+      height: 250px;
+      border: none;
+      outline: none;
+      font-size: 12px;
+      resize: vertical;
+      font-family: inherit;
+    }
+
+    .email-actions-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      background: #eef5f8;
+      padding: 6px 8px;
+      border: 1px solid #bcd8e4;
+      border-radius: 4px;
+    }
+
+    /* Product Search Table */
+    .product-search-panel {
+      border: 1px solid #579db9;
+      border-radius: 4px;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    .product-search-title {
+      background: #ffffff;
+      text-align: center;
+      font-weight: 800;
+      color: #0b3c53;
+      padding: 3px;
+      font-size: 11px;
+      border-bottom: 1px solid #579db9;
+    }
+
+    .app-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .app-table th {
+      background: linear-gradient(to bottom, #2da1ca 0%, #177194 100%);
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 6px;
+      text-align: center;
+      border-right: 1px solid #56a5c2;
+      text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+    }
+
+    .app-table th:last-child {
+      border-right: none;
+    }
+
+    .app-table td {
+      padding: 3px 6px;
+      border-bottom: 1px solid #d1e2ec;
+      border-right: 1px solid #e2edf3;
+      text-align: center;
+      font-size: 11px;
+    }
+
+    .app-table td:last-child {
+      border-right: none;
+    }
+
+    .app-table tr:nth-child(even) td {
+      background: #f7fafc;
+    }
+
+    .table-input {
+      background: #ffffff;
+      border: 1px solid #99b8ca;
+      border-radius: 2px;
+      padding: 2px 4px;
+      font-size: 11px;
+      width: 100%;
+      text-align: inherit;
+    }
+
+    .broom-icon {
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-block;
+    }
+
+    /* Right Details Panel */
+    .right-details-sidebar {
+      border: 1px solid #7cb5cc;
+      background: #f4f8fb;
+      border-radius: 4px;
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .form-row-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .form-row-label-input {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .form-row-label-input label {
+      font-weight: 700;
+      min-width: 65px;
+      color: #1a202c;
+      font-size: 10.5px;
+    }
+
+    .label-blue {
+      color: #0d4a75 !important;
+      font-weight: 800 !important;
+    }
+
+    .address-preview-box {
+      background: #e9eff3;
+      border: 1px solid #bcd2df;
+      border-radius: 3px;
+      padding: 4px 6px;
+      min-height: 28px;
+      font-size: 10px;
+      color: #4a5568;
+    }
+
+    .icon-btn {
+      cursor: pointer;
+      font-size: 12px;
+      padding: 1px 3px;
+      color: #177194;
+    }
+
+    /* ==========================================================================
+       SCREEN 2: WEB ORDER TAB (Faithful to Web order-details.png)
+       ========================================================================== */
+    .web-order-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 8px;
+    }
+
+    .panel-box {
+      border: 1px solid #579db9;
+      border-radius: 4px;
+      background: #ffffff;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+
+    .panel-box-header {
+      background: linear-gradient(to bottom, #2da1ca 0%, #177194 100%);
+      color: #ffffff;
+      padding: 4px 8px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .table-container-scroll {
+      max-height: 380px;
+      min-height: 240px;
+      overflow-y: auto;
+      background: #ffffff;
+    }
+
+    .web-order-table th {
+      background: #e8f2f7;
+      color: #0e4c6b;
+      font-weight: 700;
+      border-bottom: 2px solid #579db9;
+      text-align: left;
+      padding: 5px 8px;
+    }
+
+    .web-order-table td {
+      padding: 5px 8px;
+      text-align: left;
+      border-bottom: 1px solid #e1ecf2;
+    }
+
+    .web-order-table tr.selected td {
+      background: #d4eaf7 !important;
+      font-weight: 600;
+    }
+
+    .table-pagination-footer {
+      background: #eef5f8;
+      border-top: 1px solid #bcd8e4;
+      padding: 4px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+    }
+
+    .pagination-actions-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .action-link {
+      color: #0e648c;
+      text-decoration: underline;
+      cursor: pointer;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .action-link:hover {
+      color: #063952;
+    }
+
+    .action-link.danger {
+      color: #c9302c;
+    }
+
+    .pagination-controls {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .page-arrow-btn {
+      background: #e2edf3;
+      border: 1px solid #a3c4d5;
+      padding: 1px 5px;
+      cursor: pointer;
+      border-radius: 2px;
+      font-size: 10px;
+      font-weight: bold;
+    }
+
+    /* ==========================================================================
+       SCREEN 3: ORDER WITHOUT CONFIRMATION (Order without confirmarion- details.png)
+       ========================================================================== */
+    .filter-card {
+      background: #ffffff;
+      border: 1px solid #579db9;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .filter-card-header {
+      background: linear-gradient(to bottom, #2da1ca 0%, #177194 100%);
+      color: #ffffff;
+      padding: 4px 8px;
+      font-weight: 700;
+    }
+
+    .filter-card-body {
+      padding: 8px 12px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px 14px;
+      align-items: center;
+    }
+
+    .filter-field {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .filter-field label {
+      font-weight: 700;
+      min-width: 60px;
+      color: #2d3748;
+    }
+
+    .filter-actions-row {
+      grid-column: span 3;
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    /* Status Badges */
+    .status-badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .status-badge.confirmed {
+      background: #def7ec;
+      color: #03543f;
+      border: 1px solid #31c48d;
+    }
+
+    .status-badge.mismatch {
+      background: #fde8e8;
+      color: #9b1c1c;
+      border: 1px solid #f98080;
+    }
+
+    .status-badge.pending {
+      background: #fef08a;
+      color: #713f12;
+      border: 1px solid #eab308;
+    }
+
+    .status-badge.override {
+      background: #e0e7ff;
+      color: #3730a3;
+      border: 1px solid #818cf8;
+    }
+
+    /* ==========================================================================
+       SCREEN 4: PHONE ORDER TAB (Caller Entry & Confirmation Trigger)
+       ========================================================================== */
+    .phone-order-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 8px;
+    }
+
+    .phone-hero-card {
+      background: #ffffff;
+      border: 1px solid #579db9;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .phone-hero-header {
+      background: linear-gradient(to bottom, #2da1ca 0%, #177194 100%);
+      color: #ffffff;
+      padding: 5px 10px;
+      font-weight: 700;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .phone-hero-body {
+      padding: 10px;
+    }
+
+    .call-meta-box {
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      border-radius: 4px;
+      padding: 6px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 11px;
+    }
+
+    /* ==========================================================================
+       GENERIC OTHER TABS (Screening, Purchase, PO Auth, BNSSOP4, etc.)
+       ========================================================================== */
+    .generic-tab-view {
+      background: #ffffff;
+      border: 1px solid #579db9;
+      border-radius: 4px;
+      padding: 16px;
+      min-height: 400px;
+    }
+
+    .generic-title-bar {
+      border-bottom: 2px solid #177194;
+      padding-bottom: 6px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .generic-title-bar h2 {
+      font-size: 14px;
+      color: #0b3c53;
+      font-weight: 700;
+    }
+
+    /* ==========================================================================
+       MODALS: CORE UPDATED FLOW (Step 1 -> Step 5, Mismatch Override, File List)
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(2px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-backdrop.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.3), 0 0 1px 1px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      transform: scale(0.95);
+      transition: transform 0.2s ease;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-backdrop.show .modal-card {
+      transform: scale(1);
+    }
+
+    /* Modal Sizing */
+    .modal-width-md { max-width: 600px; }
+    .modal-width-lg { max-width: 720px; }
+    .modal-width-xl { max-width: 880px; }
+
+    /* Modal Step 1: Order Confirmation Validation Failed */
+    .validation-modal-header {
+      padding: 16px 20px 10px 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .alert-icon-square {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      background: #fde8e8;
+      color: #e02424;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+
+    .alert-icon-square.success {
+      background: #def7ec;
+      color: #0e9f6e;
+    }
+
+    .validation-modal-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 2px;
+    }
+
+    .validation-modal-subtitle {
+      font-size: 11.5px;
+      color: #4b5563;
+      line-height: 1.4;
+    }
+
+    .validation-table-wrapper {
+      padding: 10px 20px;
+    }
+
+    .val-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .val-table th {
+      background: #f9fafb;
+      padding: 7px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #4b5563;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .val-table td {
+      padding: 7px 12px;
+      font-size: 11.5px;
+      border-bottom: 1px solid #f3f4f6;
+      color: #1f2937;
+    }
+
+    .val-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .val-table td.mismatch-val {
+      color: #e02424;
+      font-weight: 700;
+    }
+
+    .badge-pill-match {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #def7ec;
+      color: #03543f;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 11px;
+    }
+
+    .badge-pill-mismatch {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #fde8e8;
+      color: #9b1c1c;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 11px;
+    }
+
+    .validation-bottom-warning {
+      margin: 8px 20px;
+      background: #fdf2f2;
+      border: 1px solid #f8b4b4;
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: #9b1c1c;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+    }
+
+    .modal-actions-footer {
+      padding: 12px 20px 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      border-top: 1px solid #f3f4f6;
+      background: #fafafa;
+    }
+
+    .btn-modal-cancel {
+      background: #ffffff;
+      border: 1px solid #e02424;
+      color: #e02424;
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-modal-cancel:hover {
+      background: #fdf2f2;
+    }
+
+    .btn-modal-reupload {
+      background: #ffffff;
+      border: 1.5px solid #1a56db;
+      color: #1a56db;
+      padding: 6px 18px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-modal-reupload:hover {
+      background: #1a56db;
+      color: #ffffff;
+    }
+
+    .btn-modal-primary {
+      background: #1a56db;
+      border: 1px solid #1a56db;
+      color: #ffffff;
+      padding: 6px 20px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-modal-primary:hover {
+      background: #1e429f;
+    }
+
+    .btn-modal-override {
+      background: #fef2f2;
+      border: 1px solid #f87171;
+      color: #991b1b;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 11.5px;
+      cursor: pointer;
+      margin-right: auto;
+    }
+
+    .btn-modal-override:hover {
+      background: #fee2e2;
+    }
+
+    /* Modal Step 2 & 3: Re-upload Confirmation File */
+    .reupload-header {
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .reupload-header-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .modal-close-x {
+      background: transparent;
+      border: none;
+      font-size: 16px;
+      color: #6b7280;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .reupload-body {
+      padding: 20px;
+    }
+
+    .dropzone-box {
+      border: 2px dashed #3b82f6;
+      border-radius: 8px;
+      background: #f8fafc;
+      padding: 30px 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .dropzone-box:hover, .dropzone-box.dragover {
+      background: #eff6ff;
+      border-color: #1d4ed8;
+    }
+
+    .cloud-icon {
+      width: 44px;
+      height: 44px;
+      color: #3b82f6;
+    }
+
+    .dropzone-text-main {
+      font-size: 13px;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .dropzone-text-or {
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    .btn-browse {
+      background: #1a56db;
+      color: #ffffff;
+      border: none;
+      padding: 6px 18px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 2px;
+    }
+
+    .dropzone-hint {
+      font-size: 10px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    /* Selected File State (Step 3) */
+    .file-selected-card {
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .file-info-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .file-icon-pdf {
+      width: 32px;
+      height: 38px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #1d4ed8;
+      font-weight: bold;
+      font-size: 10px;
+    }
+
+    .file-name-text {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .file-size-text {
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    .file-remove-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .file-success-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: #0e9f6e;
+      font-weight: 600;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+
+    /* Step 4: Processing Uploaded File Modal */
+    .processing-content {
+      padding: 35px 25px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .spinner-processing {
+      width: 52px;
+      height: 52px;
+      border: 4px solid #e2e8f0;
+      border-top-color: #2563eb;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .processing-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .processing-sub {
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      max-width: 380px;
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+      border-radius: 10px;
+      transition: width 0.3s ease;
+    }
+
+    .progress-percentage {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #2563eb;
+    }
+
+    .processing-step-msg {
+      font-size: 11px;
+      color: #64748b;
+      min-height: 16px;
+    }
+
+    /* Mismatch Override Reason Modal (Email order.png / Web order.png) */
+    .override-modal-body {
+      padding: 24px;
+    }
+
+    .override-warning-box {
+      background: #fdf2f2;
+      border-radius: 8px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 20px;
+      border: 1px solid #fde8e8;
+    }
+
+    .override-warning-text p:first-child {
+      font-size: 13px;
+      color: #1f2937;
+      margin-bottom: 4px;
+    }
+
+    .override-warning-text p:last-child {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #9b1c1c;
+    }
+
+    .comment-label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 6px;
+    }
+
+    .comment-label span {
+      color: #e02424;
+    }
+
+    .override-textarea {
+      width: 100%;
+      height: 110px;
+      border: 1.5px solid #d1d5db;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 12px;
+      font-family: inherit;
+      outline: none;
+      resize: vertical;
+      color: #1f2937;
+    }
+
+    .override-textarea:focus {
+      border-color: #0b2559;
+      box-shadow: 0 0 0 3px rgba(11, 37, 89, 0.1);
+    }
+
+    .char-counter {
+      text-align: right;
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
+    .btn-reconfirm-navy {
+      background: #0b2559;
+      color: #ffffff;
+      border: none;
+      padding: 10px 36px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: block;
+      margin: 20px auto 0 auto;
+      transition: background 0.15s;
+    }
+
+    .btn-reconfirm-navy:hover {
+      background: #061638;
+    }
+
+    /* File List Modal (test.jpg) */
+    .file-list-header {
+      background: linear-gradient(to bottom, #2da1ca 0%, #177194 100%);
+      color: #ffffff;
+      padding: 7px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .file-list-beveled-container {
+      margin: 14px;
+      border: 3px solid #333333;
+      border-top-color: #111111;
+      border-left-color: #111111;
+      border-right-color: #888888;
+      border-bottom-color: #888888;
+      background: #ffffff;
+      padding: 2px;
+      min-height: 140px;
+    }
+
+    .file-list-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .file-list-table th {
+      background: #f0f0f0;
+      border: 1px solid #777777;
+      padding: 5px 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #111;
+      text-align: left;
+    }
+
+    .file-list-table td {
+      border: 1px solid #777777;
+      padding: 6px 8px;
+      font-size: 12px;
+      color: #111;
+    }
+
+    .file-list-footer-actions {
+      padding: 10px 14px 14px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-file-list-action {
+      background: #ffffff;
+      border: 1px solid #0e648c;
+      color: #0e648c;
+      padding: 5px 12px;
+      border-radius: 4px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.1s ease;
+    }
+
+    .btn-file-list-action:hover {
+      background: #e6f3f8;
+      border-color: #08405a;
+    }
+
+    /* Integrated Document Viewer Modal */
+    .doc-viewer-modal-body {
+      padding: 16px;
+      background: #f1f5f9;
+    }
+
+    .mock-pdf-page {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      padding: 28px 32px;
+      max-width: 680px;
+      margin: 0 auto;
+      font-family: Arial, sans-serif;
+    }
+
+    .doc-header-top {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+
+    .doc-title-h1 {
+      font-size: 18px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .doc-meta-table {
+      width: 100%;
+      margin-bottom: 16px;
+      font-size: 11px;
+    }
+
+    .doc-meta-table td {
+      padding: 3px 0;
+    }
+
+    .doc-items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    .doc-items-table th {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      padding: 6px 8px;
+      text-align: left;
+      font-size: 11px;
+    }
+
+    .doc-items-table td {
+      border: 1px solid #cbd5e1;
+      padding: 6px 8px;
+      font-size: 11px;
+    }
+
+    .highlight-mismatch-box {
+      background: #fee2e2;
+      border: 1px dashed #ef4444;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-weight: bold;
+      color: #991b1b;
+    }
+
+    .highlight-match-box {
+      background: #dcfce7;
+      border: 1px dashed #22c55e;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-weight: bold;
+      color: #166534;
+    }
+
+    /* Toast Notification */
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast-item {
+      background: #1e293b;
+      color: #ffffff;
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-size: 12px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-left: 4px solid #3b82f6;
+      animation: slideInRight 0.25s ease;
+    }
+
+    .toast-item.success { border-left-color: #10b981; }
+    .toast-item.error { border-left-color: #ef4444; }
+    .toast-item.warning { border-left-color: #f59e0b; }
+
+    @keyframes slideInRight {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  </style>
 </head>
-
 <body>
-  <div id="app" class="app-container">
 
-    <!-- ========== SPLASH SCREEN ========== -->
-    <div id="screen-splash" class="screen active">
-      <div class="splash-content">
-        <div class="splash-logo-container">
-          <div class="splash-logo"
-            style="width: 130px; height: 130px; border-radius: 50%; box-shadow: var(--shadow-lg); background: white; border: none; display: flex; align-items: center; justify-content: center; padding: 3px;">
-            <img src="images/bs-logo.png" alt="B&S Logo"
-              style="width: 100%; height: 100%; object-fit: contain; border-radius: 50%;" />
-          </div>
-          <h1 class="splash-title">B&S<span class="brand-divider" aria-hidden="true"></span><span>SPECIALS</span></h1>
-          <p class="splash-subtitle">LEADING SPECIAL'S SERVICE PROVIDER</p>
-        </div>
-        <div class="splash-loader">
-          <div class="loader-bar">
-            <div class="loader-fill"></div>
-          </div>
-          <p class="splash-loading-text">Loading secure environment...</p>
-        </div>
-        <div class="splash-footer">
-          <p class="splash-version">V.2.1.0</p>
-        </div>
+  <!-- ========================================================================
+       TOP STAKEHOLDER DEMO TOOLBAR
+       ======================================================================== -->
+  <div class="demo-showcase-bar">
+    <div class="demo-bar-left">
+      <span class="demo-badge">Updated Prototype</span>
+      <span class="demo-title">Special Order Confirmation System &amp; Validation Flow</span>
+    </div>
+    <div class="demo-bar-actions">
+      <button class="demo-btn highlight-pulse" onclick="startValidationMismatchFlow()">
+        <span>▶</span> 1. Run Re-upload Flow (Step 1-5)
+      </button>
+      <button class="demo-btn" onclick="openMismatchOverrideModal()">
+        <span>⚠</span> 2. Override &amp; Re-confirm
+      </button>
+      <button class="demo-btn" onclick="openFileListModal()">
+        <span>📄</span> 3. File List &amp; Document
+      </button>
+      <button class="demo-btn" onclick="openAuditTrailModal()">
+        <span>📋</span> 4. Audit Trail
+      </button>
+      <button class="demo-btn" onclick="switchOrderState()">
+        <span>🔄</span> Toggle Order State: <b id="currentOrderBadge" style="margin-left:4px; color:#38bdf8;">SO-100245 (Mismatch)</b>
+      </button>
+      <button class="demo-btn" onclick="resetPrototypeData()" title="Reset all demo changes">
+        <span>↺</span> Reset
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MAIN APPLICATION CONTAINER & 19-TAB NAVIGATION
+       ======================================================================== -->
+  <div class="app-container">
+
+    <!-- Tabs Header with 2 Rows (Replicating exact layout from reference screenshots) -->
+    <div class="tabs-wrapper">
+      <!-- ROW 1 -->
+      <div class="tabs-row">
+        <button class="nav-tab tab-disabled" data-tab="tab-screening" onclick="handleDisabledTabClick('SCREENING')" title="Disabled (Out of scope)">SCREENING</button>
+        <button class="nav-tab" data-tab="tab-web-order" onclick="switchTab('tab-web-order', this)" title="Active: Web Order Processing">WEB ORDER</button>
+        <button class="nav-tab tab-disabled" data-tab="tab-fax-order" onclick="handleDisabledTabClick('FAX ORDER')" title="Disabled (Out of scope)">FAX ORDER</button>
+        <button class="nav-tab active" data-tab="tab-email-order" onclick="switchTab('tab-email-order', this)" title="Active: Email Order Intake">EMAIL ORDER</button>
+        <button class="nav-tab" data-tab="tab-phone-order" onclick="switchTab('tab-phone-order', this)" title="Active: Phone Order Entry & Validation">PHONE ORDER</button>
+        <button class="nav-tab tab-disabled" data-tab="tab-search" onclick="handleDisabledTabClick('SEARCH')" title="Disabled (Out of scope)">SEARCH</button>
+        <button class="nav-tab tab-disabled" data-tab="tab-request" onclick="handleDisabledTabClick('REQUEST')" title="Disabled (Out of scope)">REQUEST</button>
+        <button class="nav-tab tab-disabled" data-tab="tab-purchase" onclick="handleDisabledTabClick('PURCHASE')" title="Disabled (Out of scope)">PURCHASE</button>
+        <button class="nav-tab tab-disabled" data-tab="tab-po-auth" onclick="handleDisabledTabClick('PO AUTHORIZATION')" title="Disabled (Out of scope)">PO AUTHORIZATION</button>
+        <button class="nav-tab tab-disabled" data-tab="tab-search-po" onclick="handleDisabledTabClick('SEARCH PO')" title="Disabled (Out of scope)">SEARCH PO</button>
+        <button class="nav-tab tab-disabled" data-tab="tab-new-part" onclick="handleDisabledTabClick('NEW PART CREATION FORM')" title="Disabled (Out of scope)">NEW PART CREATION FORM</button>
+      </div>
+      <!-- ROW 2 -->
+      <div class="tabs-row">
+        <button class="nav-tab tab-disabled" data-tab="tab-shop-order" onclick="handleDisabledTabClick('SHOP ORDER')" title="Disabled (Out of scope)">SHOP ORDER</button>
+        <button class="nav-tab tab-disabled" data-tab="tab-lab-order" onclick="handleDisabledTabClick('LAB ORDER')" title="Disabled (Out of scope)">LAB ORDER</button>
+        <button class="nav-tab tab-disabled" data-tab="tab-installment" onclick="handleDisabledTabClick('INSTALLMENT')" title="Disabled (Out of scope)">INSTALLMENT</button>
+        <button class="nav-tab tab-disabled" data-tab="tab-rma" onclick="handleDisabledTabClick('RMA')" title="Disabled (Out of scope)">RMA</button>
+        <button class="nav-tab tab-disabled" data-tab="tab-cr-search" onclick="handleDisabledTabClick('CR SEARCH')" title="Disabled (Out of scope)">CR SEARCH</button>
+        <button class="nav-tab tab-disabled" data-tab="tab-make-to-stock" onclick="handleDisabledTabClick('MAKE TO STOCK')" title="Disabled (Out of scope)">MAKE TO STOCK</button>
+        <button class="nav-tab" data-tab="tab-without-conf" onclick="switchTab('tab-without-conf', this)" title="Active: Order Released Without Order Confirmation">
+          ORDER WITHOUT CONFIRMATION <span class="tab-badge" id="withoutConfCount">3</span>
+        </button>
+        <button class="nav-tab tab-red tab-disabled" data-tab="tab-bnssop4" onclick="handleDisabledTabClick('BNSSOP4')" title="Disabled (Out of scope)">BNSSOP4</button>
       </div>
     </div>
 
-    <!-- ========== LOGIN SCREEN ========== -->
-    <div id="screen-login" class="screen">
-      <div class="auth-screen">
-        <div class="auth-header-clean">
-          <div class="auth-logo-centered">
-            <img src="images/bs-logo.png" alt="B&S Logo" style="mix-blend-mode: multiply;" />
+    <!-- ======================================================================
+         TAB SCREEN 1: EMAIL ORDER (From Email order -details.jpg)
+         ====================================================================== -->
+    <div id="tab-email-order" class="tab-content-panel active">
+      <div class="email-order-grid">
+
+        <!-- Left Work Area -->
+        <div class="left-work-area">
+          <!-- Big Mail Content Textarea -->
+          <div class="email-content-box">
+            <textarea class="email-content-textarea" id="emailContentInput" placeholder="Enter Mail Content Here..">From: ordering@centralhospital.org
+Subject: Urgent Special Order Confirmation - SO-100245
+Date: 2026-09-21 18:45:12
+
+Hello Customer Care,
+Please confirm the special order SO-100245 for Product A.
+Account Number: ACC-45821
+Requested Strength: 500 mg
+Quantity: 100 packs (Pack Size: 10 x 10)
+Please find attached customer order confirmation document for verification.
+
+Thank you,
+Central Hospital Pharmacy Procurement Team</textarea>
           </div>
-          <h1 class="auth-title-centered">SPECIALS</h1>
+
+          <!-- Glossy Action Buttons Bar -->
+          <div class="email-actions-bar">
+            <button class="btn-glossy btn-green" onclick="handleCreateRequest()">Create Request</button>
+            <button class="btn-glossy btn-red" onclick="handleCancelEmail()">Cancel</button>
+            <button class="btn-glossy btn-orange" onclick="handleConfirmEmailOrder()" style="font-weight:800; min-width:90px;">Confirm</button>
+            <button class="btn-glossy btn-green" onclick="showToast('ReOrder processed for current account.', 'success')">ReOrder</button>
+            <button class="btn-glossy btn-red" onclick="showToast('Loading Sales History records...', 'info')">Sales History</button>
+            <button class="btn-glossy btn-red" onclick="showToast('Loading Product History records...', 'info')">Product History</button>
+            <button class="btn-glossy btn-green" onclick="showToast('Change Request initiated.', 'info')">Change Request</button>
+          </div>
+
+          <!-- Product Search Table -->
+          <div class="product-search-panel">
+            <div class="product-search-title">Product Search</div>
+            <table class="app-table">
+              <thead>
+                <tr>
+                  <th style="width:28px;"><span class="broom-icon" onclick="clearProductRow()" title="Clear Inputs">🧹</span></th>
+                  <th style="width:120px;">Code</th>
+                  <th>Description</th>
+                  <th style="width:40px;">P&amp;A</th>
+                  <th style="width:40px;">WHF</th>
+                  <th style="width:50px;">A.Qty</th>
+                  <th style="width:50px;">Qty</th>
+                  <th style="width:50px;">Disc</th>
+                  <th style="width:40px;">Pre.</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>🧹</td>
+                  <td><input type="text" class="table-input" id="prodCode" value="PRD-500-A" /></td>
+                  <td><input type="text" class="table-input" id="prodDesc" value="Product A 500mg Tablet (10x10)" /></td>
+                  <td><input type="checkbox" id="prodPA" checked /></td>
+                  <td><input type="checkbox" id="prodWHF" /></td>
+                  <td><input type="text" class="table-input" style="text-align:right;" id="prodAQty" value="500" /></td>
+                  <td><input type="text" class="table-input" style="text-align:right;" id="prodQty" value="100" /></td>
+                  <td><input type="text" class="table-input" style="text-align:right;" id="prodDisc" value="0.00" /></td>
+                  <td><input type="checkbox" id="prodPre" /></td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td><input type="text" class="table-input" placeholder="Enter code" /></td>
+                  <td><input type="text" class="table-input" placeholder="Enter description" /></td>
+                  <td><input type="checkbox" /></td>
+                  <td><input type="checkbox" /></td>
+                  <td><input type="text" class="table-input" style="text-align:right;" /></td>
+                  <td><input type="text" class="table-input" style="text-align:right;" /></td>
+                  <td><input type="text" class="table-input" style="text-align:right;" /></td>
+                  <td><input type="checkbox" /></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-        <div class="auth-body">
-          <form id="login-form" class="auth-form" novalidate>
-            <div id="login-email-fields">
-              <div class="form-group">
-                <label>Email Address</label>
-                <div class="input-wrapper">
-                  <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                    <polyline points="22,6 12,13 2,6" />
-                  </svg>
-                  <input type="email" id="login-email" placeholder="pharmacy@example.com"
-                    value="admin@greencross.co.uk" />
-                </div>
-                <span class="field-error" id="login-email-error"></span>
+
+        <!-- Right Details Sidebar -->
+        <div class="right-details-sidebar">
+          <div class="form-row-2col">
+            <div class="form-row-label-input">
+              <label class="label-blue">Route:</label>
+              <input type="text" class="app-input" id="emailRoute" value="R-902" />
+            </div>
+            <div class="form-row-label-input">
+              <label>PO:</label>
+              <input type="text" class="app-input" id="emailPO" value="PO-99412" />
+            </div>
+          </div>
+
+          <div class="form-row-label-input">
+            <label>Reference :</label>
+            <div style="display:flex; width:100%; gap:4px; align-items:center;">
+              <input type="text" class="app-input" id="emailRef" value="REF-SO-100245" />
+              <span class="icon-btn" onclick="showToast('Reference saved.', 'success')" title="Save Reference">💾</span>
+            </div>
+          </div>
+
+          <div class="form-row-label-input">
+            <label>Request No:</label>
+            <input type="text" class="app-input" id="emailReqNo" value="REQ-2026-098" />
+          </div>
+
+          <div class="form-row-label-input">
+            <label>Customer No:</label>
+            <div style="display:flex; width:100%; gap:4px; align-items:center;">
+              <input type="text" class="app-input" id="emailCustNo" value="ACC-45821" />
+              <span class="icon-btn" onclick="showToast('Customer Info: Central Hospital Pharmacy Group', 'info')" title="Customer Information">ℹ️</span>
+            </div>
+          </div>
+
+          <div class="form-row-label-input">
+            <label>Name:</label>
+            <input type="text" class="app-input" id="emailCustName" value="Central Hospital Pharmacy" />
+          </div>
+
+          <div class="form-row-label-input">
+            <label>Currency Code:</label>
+            <input type="text" class="app-input" value="GBP (£)" />
+          </div>
+
+          <div class="form-row-label-input">
+            <label>Site:</label>
+            <select class="app-select">
+              <option value="SPE-L" selected>SPE-L</option>
+              <option value="SPE-M">SPE-M</option>
+              <option value="SPE-N">SPE-N</option>
+            </select>
+          </div>
+
+          <!-- Collapsible / Header: Delivery Address -->
+          <div class="section-header-bar" onclick="toggleSection('emailDelivAddrBox')">
+            <span>Delivery Address</span>
+            <span id="emailDelivAddrBox-icon">▲</span>
+          </div>
+          <div class="address-preview-box" id="emailDelivAddrBox">
+            Suite 4B, Central Hospital Wing, Healthcare Boulevard, London SW1A 1AA
+          </div>
+
+          <!-- Collapsible / Header: Invoice Address -->
+          <div class="section-header-bar" onclick="toggleSection('emailInvAddrBox')">
+            <span>Invoice Address</span>
+            <span id="emailInvAddrBox-icon">▲</span>
+          </div>
+          <div class="address-preview-box" id="emailInvAddrBox">
+            Finance &amp; Accounts Payable, Central Hospital Trust, London SW1A 1AA
+          </div>
+
+          <div class="form-row-2col">
+            <div class="form-row-label-input">
+              <label>Ph:</label>
+              <input type="text" class="app-input" value="+44 20 7946 0912" />
+            </div>
+            <div class="form-row-label-input">
+              <label>F:</label>
+              <input type="text" class="app-input" value="+44 20 7946 0913" />
+            </div>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:6px;">
+            <label style="font-weight:700; min-width:55px;">Delivery</label>
+            <input type="text" class="app-input" value="NXW" style="width:50px;" />
+            <select class="app-select" style="flex:1;">
+              <option selected>Next Day</option>
+              <option>Standard (3-5 Days)</option>
+              <option>Emergency Courier</option>
+            </select>
+            <button class="btn-glossy btn-green" style="height:22px; padding:0 8px;" onclick="showToast('Opening Delivery History...', 'info')">History</button>
+            <span class="icon-btn" title="Edit Delivery Notes" onclick="showToast('Delivery notes editor opened.', 'info')">📝</span>
+          </div>
+
+          <div class="form-row-2col">
+            <div class="form-row-label-input">
+              <label>Tariff:</label>
+              <input type="text" class="app-input" value="TRF-01" />
+            </div>
+            <div class="form-row-label-input">
+              <label>NonTariff:</label>
+              <input type="text" class="app-input" value="NT-00" />
+            </div>
+          </div>
+
+          <div class="form-row-2col">
+            <div class="form-row-label-input">
+              <label>Obtain:</label>
+              <input type="text" class="app-input" value="DIR" />
+            </div>
+            <div class="form-row-label-input">
+              <label>Cust Group:</label>
+              <input type="text" class="app-input" value="NHS-SEC" />
+            </div>
+          </div>
+
+          <div class="form-row-label-input">
+            <label>Requested By:</label>
+            <input type="text" class="app-input" value="John Doe" readonly style="background:#e2edf3; font-weight:600;" />
+          </div>
+
+          <div class="form-row-label-input">
+            <label>Date &amp; Time:</label>
+            <input type="text" class="app-input" value="2026-09-21 19:01" readonly style="background:#e2edf3;" />
+          </div>
+
+          <div>
+            <label style="font-weight:700; display:block; margin-bottom:2px;">Order Comments:</label>
+            <textarea class="app-textarea" rows="2" placeholder="Enter order comments / notes here..."></textarea>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ======================================================================
+         TAB SCREEN 2: WEB ORDER (From Web order-details.png)
+         ====================================================================== -->
+    <div id="tab-web-order" class="tab-content-panel">
+      <div class="web-order-grid">
+
+        <!-- Left Table Area: Order Header Result -->
+        <div>
+          <div class="panel-box">
+            <div class="panel-box-header">
+              <span>Order Header Result</span>
+              <span>▲</span>
+            </div>
+            <div class="table-container-scroll">
+              <table class="app-table web-order-table" id="webOrderTable">
+                <thead>
+                  <tr>
+                    <th style="width:24px;"><input type="checkbox" onchange="toggleSelectAllWebOrders(this)" /></th>
+                    <th>RequestNo</th>
+                    <th>AccountNO</th>
+                    <th>Product Type</th>
+                    <th>Route Id</th>
+                    <th>Pharmacy Name</th>
+                    <th>Created Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="selected" onclick="selectWebOrderRow(this, 'REQ-2026-098', 'ACC-45821', 'SO-100245', 'Central Hospital Pharmacy')">
+                    <td><input type="checkbox" checked /></td>
+                    <td>REQ-2026-098</td>
+                    <td>ACC-45821</td>
+                    <td>Special Order A</td>
+                    <td>R-902</td>
+                    <td>Central Hospital Pharmacy</td>
+                    <td>21-09-2026 18:45</td>
+                  </tr>
+                  <tr onclick="selectWebOrderRow(this, 'REQ-2026-099', 'B7493', 'SO-100246', 'St. Jude Community Pharmacy')">
+                    <td><input type="checkbox" /></td>
+                    <td>REQ-2026-099</td>
+                    <td>B7493</td>
+                    <td>Compounded Batch</td>
+                    <td>R-104</td>
+                    <td>St. Jude Community Pharmacy</td>
+                    <td>21-09-2026 19:00</td>
+                  </tr>
+                  <tr onclick="selectWebOrderRow(this, 'REQ-2026-100', 'B9820', 'SO-100247', 'Royal Care Dispensary')">
+                    <td><input type="checkbox" /></td>
+                    <td>REQ-2026-100</td>
+                    <td>B9820</td>
+                    <td>Cold Chain Special</td>
+                    <td>R-305</td>
+                    <td>Royal Care Dispensary</td>
+                    <td>21-09-2026 19:15</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Footer Toolbar with Edit, Release, Cancel and Pagination -->
+            <div class="table-pagination-footer">
+              <div class="pagination-actions-left">
+                <span class="action-link" onclick="handleEditWebOrder()">📝 Edit</span>
+                <span class="action-link" onclick="handleReleaseWebOrder()" style="color:#03543f; font-weight:700;">🚀 Release</span>
+                <span class="action-link danger" onclick="showToast('Order marked as Cancelled.', 'error')">✕ Cancel</span>
               </div>
-              <div class="form-group">
-                <label>Password</label>
-                <div class="input-wrapper">
-                  <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                  </svg>
-                  <input type="password" id="login-password" placeholder="Enter your password" value="password123" />
-                  <button type="button" class="toggle-password" onclick="togglePassword('login-password', this)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  </button>
-                </div>
-                <span class="field-error" id="login-password-error"></span>
+              <div class="pagination-controls">
+                <button class="page-arrow-btn">|&lt;</button>
+                <button class="page-arrow-btn">&lt;</button>
+                <span>Page <input type="text" value="1" style="width:24px; text-align:center; height:18px;" /> of 1</span>
+                <button class="page-arrow-btn">&gt;</button>
+                <button class="page-arrow-btn">&gt;|</button>
+                <select style="height:18px; font-size:10px;">
+                  <option>100</option>
+                  <option>50</option>
+                  <option>25</option>
+                </select>
               </div>
             </div>
-            <div class="form-options">
-              <label class="checkbox-label">
-                <input type="checkbox" checked /> <span class="checkmark"></span> Remember Email
-              </label>
-              <a href="#" onclick="navigateTo('screen-forgot-password');return false;">Forgot Password?</a>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; margin-top:6px;">
+            <button class="btn-glossy btn-green" onclick="showToast('Change Request modal opened.', 'info')">Change Request</button>
+            <button class="btn-glossy btn-green" onclick="showToast('Common Description updated.', 'success')">CommonDescription</button>
+          </div>
+        </div>
+
+        <!-- Right Side Attributes Panel -->
+        <div class="right-details-sidebar">
+          <div class="form-row-label-input">
+            <label>Order No:</label>
+            <input type="text" class="app-input" id="webOrderNo" value="SO-100245" />
+          </div>
+          <div class="form-row-label-input">
+            <label>Customer No:</label>
+            <input type="text" class="app-input" id="webCustNo" value="ACC-45821" />
+          </div>
+          <div class="form-row-label-input">
+            <label class="label-blue">Route No:</label>
+            <input type="text" class="app-input" id="webRouteNo" value="R-902" />
+          </div>
+          <div class="form-row-label-input">
+            <label>PO No:</label>
+            <input type="text" class="app-input" id="webPONo" value="PO-99412" />
+          </div>
+          <div class="form-row-label-input">
+            <label>Customer Name:</label>
+            <input type="text" class="app-input" id="webCustName" value="Central Hospital Pharmacy" />
+          </div>
+          <div class="form-row-label-input">
+            <label>Submitter Name:</label>
+            <input type="text" class="app-input" value="Dr. Emily Thorne" />
+          </div>
+
+          <!-- Order Confirmed Checkbox (Key update requirement) -->
+          <div style="background:#eaf4fb; padding:5px 8px; border:1px solid #9dc7db; border-radius:4px; display:flex; align-items:center; justify-content:space-between;">
+            <span style="font-weight:700; color:#0e4c6b;">Order Confirmed:</span>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <input type="checkbox" id="webOrderConfirmedCheckbox" onchange="handleOrderConfirmedToggle(this)" style="transform:scale(1.2); cursor:pointer;" />
+              <button class="btn-glossy btn-cyan" style="height:20px; font-size:10px; padding:0 6px;" onclick="openFileListModal()">View Docs</button>
             </div>
-            <button type="submit" class="btn btn-primary btn-full" id="login-btn">
-              <span>Sign In</span>
-            </button>
+          </div>
 
-            <!-- Alternative login options section -->
-            <div class="alt-login-container" style="display: none;">
-              <div class="alt-login-divider">
-                <!-- <span>Or Sign In With</span> -->
-              </div>
-              <div class="alt-login-tabs">
-                <!-- <button type="button" class="alt-login-tab" id="tab-otp" onclick="switchAltTab('otp')">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                    <path d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                  </svg>
-                  OTP
-                </button> -->
-                <!-- <button type="button" class="alt-login-tab" id="tab-biometric" onclick="switchAltTab('biometric')">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="M12 6a6 6 0 00-6 6c0 4.5 6 9 6 9s6-4.5 6-9a6 6 0 00-6-6z" />
-                  </svg>
-                  Biometric
-                </button> -->
-              </div>
+          <!-- Delivery Address Bar -->
+          <div class="section-header-bar" onclick="toggleSection('webDelivAddrBox')">
+            <span>Delivery Address</span>
+            <span id="webDelivAddrBox-icon">▲</span>
+          </div>
+          <div class="address-preview-box" id="webDelivAddrBox">
+            Central Receiving Ward 3, High Road, London NW3 2QG
+          </div>
 
-              <div class="alt-login-content">
-                <div id="alt-otp-section" class="alt-section hidden">
-                  <div class="form-group">
-                    <label>Mobile Number</label>
-                    <div class="input-wrapper">
-                      <span class="input-prefix">+44</span>
-                      <input type="tel" id="login-otp-mobile" placeholder="7700 900000" />
-                    </div>
-                  </div>
-                  <button type="button" class="btn btn-outline btn-full" onclick="sendLoginOTP()"
-                    style="margin-bottom: 12px; font-size:14px; padding:10px 16px;">Send OTP</button>
-                  <div id="login-otp-entry" class="hidden">
-                    <div class="otp-inputs" style="margin-bottom: 8px;">
-                      <input type="text" maxlength="1" class="otp-box" />
-                      <input type="text" maxlength="1" class="otp-box" />
-                      <input type="text" maxlength="1" class="otp-box" />
-                      <input type="text" maxlength="1" class="otp-box" />
-                      <input type="text" maxlength="1" class="otp-box" />
-                      <input type="text" maxlength="1" class="otp-box" />
-                    </div>
-                    <button type="button" class="btn btn-primary btn-full" onclick="verifyLoginOTP()"
-                      style="font-size:14px; padding:10px 16px;">Verify & Sign In</button>
-                  </div>
-                </div>
-                <div id="alt-biometric-section" class="alt-section hidden" style="text-align: center; padding: 20px 0;">
-                  <div class="biometric-icon-wrapper" style="margin: 0 auto 24px;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="fingerprint">
-                      <path d="M12 11a2 2 0 00-2 2" />
-                      <path d="M16 13a4 4 0 00-8 0" />
-                      <path d="M20 13a8 8 0 00-16 0" />
-                      <path d="M20 13v1" />
-                      <path d="M4 13v1" />
-                      <path d="M16 13v3" />
-                      <path d="M8 13v3" />
-                      <path d="M12 5v2" />
-                      <path d="M12 22v-4" />
-                    </svg>
-                    <div class="check-wrapper">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="check">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    </div>
-                  </div>
-                  <h3 style="font-size: 18px; font-weight: 700; color: #1A1D29; margin-bottom: 8px;">Biometric Sign-In
-                    Successful!</h3>
-                  <p style="font-size: 14px; color: #5A6178; margin-bottom: 24px;">Successfully signed in using
-                    Fingerprint.</p>
-                </div>
+          <!-- Document Address Bar -->
+          <div class="section-header-bar" onclick="toggleSection('webDocAddrBox')">
+            <span>Document Address</span>
+            <span id="webDocAddrBox-icon">▲</span>
+          </div>
+          <div class="address-preview-box" id="webDocAddrBox">
+            Procurement Division, Central Hospital Trust, London SW1A 1AA
+          </div>
+
+          <div class="form-row-2col">
+            <div class="form-row-label-input">
+              <label>Ph:</label>
+              <input type="text" class="app-input" value="+44 20 7946 0912" />
+            </div>
+            <div class="form-row-label-input">
+              <label>F:</label>
+              <input type="text" class="app-input" value="+44 20 7946 0913" />
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label style="font-weight:700;">Notes:</label>
+            <button class="btn-glossy btn-green" style="height:20px; font-size:10px; padding:0 8px;" onclick="showToast('Edit Notes dialog opened.', 'info')">Edit Notes</button>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+            <label style="font-weight:700;">Add/Update Patient Name:</label>
+            <button class="btn-glossy btn-green" style="height:20px; font-size:10px; padding:0 8px;" onclick="showToast('Edit Patient dialog opened.', 'info')">Edit Patient Name</button>
+          </div>
+          <input type="text" class="app-input" value="Jane Cooper (DOB: 1982-05-14)" />
+
+          <div style="display:flex; align-items:center; gap:6px;">
+            <label style="font-weight:700; min-width:55px;">Delivery:</label>
+            <input type="text" class="app-input" value="NXW" style="width:45px;" />
+            <select class="app-select">
+              <option selected>Next Day</option>
+              <option>Standard Delivery</option>
+            </select>
+          </div>
+
+          <div style="display:flex; gap:6px; margin-top:2px;">
+            <button class="btn-glossy btn-green" style="flex:1;" onclick="showToast('Delivery History opened.', 'info')">History</button>
+            <button class="btn-glossy btn-green" style="flex:1;" onclick="showToast('Full Order History opened.', 'info')">Order History</button>
+          </div>
+
+          <div class="form-row-label-input">
+            <label>Requested By:</label>
+            <input type="text" class="app-input" value="John Doe" readonly style="background:#e2edf3;" />
+          </div>
+
+          <div class="form-row-label-input">
+            <label>Date &amp; Time:</label>
+            <input type="text" class="app-input" value="2026-09-21 19:01" readonly style="background:#e2edf3;" />
+          </div>
+
+          <div>
+            <label style="font-weight:700; display:block; margin-bottom:2px;">Comments:</label>
+            <textarea class="app-textarea" rows="2" placeholder="Enter comments / notes here..."></textarea>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ======================================================================
+         TAB SCREEN 3: ORDER WITHOUT CONFIRMATION (Order without confirmarion- details.png)
+         ====================================================================== -->
+    <div id="tab-without-conf" class="tab-content-panel">
+
+      <!-- Filter Section -->
+      <div class="filter-card">
+        <div class="filter-card-header">Filter</div>
+        <div class="filter-card-body">
+          <div class="filter-field">
+            <label>From:</label>
+            <input type="text" class="app-input" id="filterFromDate" value="21-09-2026" />
+          </div>
+          <div class="filter-field">
+            <label>To:</label>
+            <input type="text" class="app-input" id="filterToDate" value="21-09-2026" />
+          </div>
+          <div class="filter-field">
+            <label>Order No:</label>
+            <input type="text" class="app-input" id="filterOrderNo" placeholder="e.g. J497554-S" />
+          </div>
+          <div class="filter-field">
+            <label>Account:</label>
+            <input type="text" class="app-input" id="filterAccount" placeholder="e.g. B7493" />
+          </div>
+          <div class="filter-field">
+            <label>Pharmacy:</label>
+            <input type="text" class="app-input" id="filterPharmacy" placeholder="Pharmacy Name" />
+          </div>
+          <div class="filter-field">
+            <label>Status:</label>
+            <select class="app-select" id="filterStatus" onchange="applyWithoutConfFilters()">
+              <option value="All" selected>All</option>
+              <option value="Mismatch">Validation Mismatch</option>
+              <option value="Override">Released with Override</option>
+              <option value="Pending">Pending Confirmation</option>
+              <option value="Confirmed">Confirmed</option>
+            </select>
+          </div>
+          <div class="filter-actions-row">
+            <button class="btn-glossy btn-blue" onclick="applyWithoutConfFilters()">Search</button>
+            <button class="btn-glossy btn-red" onclick="clearWithoutConfFilters()">Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Table: Order Released Without Order Confirmation -->
+      <div class="panel-box">
+        <div class="panel-box-header">
+          <span>Order Released Without Order Confirmation</span>
+          <span>▲</span>
+        </div>
+        <div class="table-container-scroll" style="min-height:160px; max-height:220px;">
+          <table class="app-table" id="withoutConfTable">
+            <thead>
+              <tr>
+                <th>Order No</th>
+                <th>Order Creation Date</th>
+                <th>Account No</th>
+                <th>Pharmacy Name</th>
+                <th>Order Confirmation Status</th>
+                <th>Requested By</th>
+                <th>Requested Date &amp; Time</th>
+                <th>Comment</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="withoutConfTableBody">
+              <!-- Dynamically populated or updated -->
+              <tr onclick="selectWithoutConfRow('SO-100245', this)">
+                <td><b>SO-100245</b></td>
+                <td>21-09-2026</td>
+                <td>ACC-45821</td>
+                <td>Central Hospital Pharmacy</td>
+                <td><span class="status-badge mismatch">Validation Mismatch</span></td>
+                <td>John Doe</td>
+                <td>21-09-2026 19:01</td>
+                <td style="color:#64748b; font-style:italic;">Awaiting corrected file re-upload</td>
+                <td>
+                  <button class="btn-glossy btn-blue" style="height:20px; font-size:10px; padding:0 6px;" onclick="event.stopPropagation(); startValidationMismatchFlow();">Validate</button>
+                  <button class="btn-glossy btn-orange" style="height:20px; font-size:10px; padding:0 6px;" onclick="event.stopPropagation(); openMismatchOverrideModal();">Override</button>
+                </td>
+              </tr>
+              <tr onclick="selectWithoutConfRow('SO-100242', this)">
+                <td><b>SO-100242</b></td>
+                <td>20-09-2026</td>
+                <td>B7493</td>
+                <td>St. Jude Community Pharmacy</td>
+                <td><span class="status-badge override">Override Approved</span></td>
+                <td>Dr. M. Vance</td>
+                <td>20-09-2026 14:20</td>
+                <td>Emergency hospital ICU requirement authorized by Lead Consultant</td>
+                <td>
+                  <button class="btn-glossy btn-cyan" style="height:20px; font-size:10px; padding:0 6px;" onclick="event.stopPropagation(); openFileListModal();">Files</button>
+                </td>
+              </tr>
+              <tr onclick="selectWithoutConfRow('SO-100240', this)">
+                <td><b>SO-100240</b></td>
+                <td>19-09-2026</td>
+                <td>ACC-39910</td>
+                <td>Kingsbury Health Clinic</td>
+                <td><span class="status-badge pending">Pending Doc</span></td>
+                <td>Sarah Miller</td>
+                <td>19-09-2026 11:05</td>
+                <td>Customer PO expected via email by 5pm</td>
+                <td>
+                  <button class="btn-glossy btn-green" style="height:20px; font-size:10px; padding:0 6px;" onclick="event.stopPropagation(); openReuploadModal();">Upload</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-pagination-footer">
+          <div class="pagination-controls">
+            <button class="page-arrow-btn">|&lt;</button>
+            <button class="page-arrow-btn">&lt;</button>
+            <span>Page <input type="text" value="1" style="width:24px; text-align:center; height:18px;" /> of 1</span>
+            <button class="page-arrow-btn">&gt;</button>
+            <button class="page-arrow-btn">&gt;|</button>
+            <select style="height:18px; font-size:10px;"><option>2000</option></select>
+          </div>
+          <span style="color:#64748b;" id="withoutConfTableCountText">Showing 3 records</span>
+        </div>
+      </div>
+
+      <!-- Bottom Table: Order Line Result -->
+      <div class="panel-box">
+        <div class="panel-box-header">
+          <span>Order Line Result (Selected: <span id="selectedOrderLineLabel">SO-100245</span>)</span>
+          <span>▲</span>
+        </div>
+        <div class="table-container-scroll" style="min-height:120px; max-height:180px;">
+          <table class="app-table" id="orderLineTable">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Qty</th>
+              </tr>
+            </thead>
+            <tbody id="orderLineTableBody">
+              <tr>
+                <td>PRD-500-A</td>
+                <td>Special Order</td>
+                <td>Product A 500mg Tablet (10x10)</td>
+                <td><b>100</b></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-pagination-footer">
+          <div class="pagination-controls">
+            <button class="page-arrow-btn">|&lt;</button>
+            <button class="page-arrow-btn">&lt;</button>
+            <span>Page <input type="text" value="1" style="width:24px; text-align:center; height:18px;" /> of 1</span>
+            <button class="page-arrow-btn">&gt;</button>
+            <button class="page-arrow-btn">&gt;|</button>
+            <select style="height:18px; font-size:10px;"><option>5</option></select>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ======================================================================
+         TAB SCREEN 4: PHONE ORDER (Incorporating Phone order.png origin)
+         ====================================================================== -->
+    <div id="tab-phone-order" class="tab-content-panel">
+      <div class="phone-order-grid">
+        <div class="phone-hero-card">
+          <div class="phone-hero-header">
+            <span>Telephone Order Entry &amp; Customer Verification</span>
+            <span style="font-weight:normal; font-size:11px;">Operator: Agent #4829</span>
+          </div>
+          <div class="phone-hero-body">
+            <div class="call-meta-box">
+              <div>
+                <b>📞 Active Inbound Call:</b> +44 20 7946 0912 (Central Hospital Pharmacy)
               </div>
+              <div>
+                <b>Call ID:</b> TEL-20260921-998 | <b>Duration:</b> 04:32 min
+              </div>
+              <button class="btn-glossy btn-blue" style="height:22px; font-size:10px;" onclick="showToast('Recording attached to order audit.', 'info')">Attach Recording</button>
             </div>
 
-            <div class="auth-footer">
-              <p>Don't have an account? <a href="#" onclick="navigateTo('screen-register');return false;">Register</a>
+            <!-- Validation Trigger Banner -->
+            <div style="background:#eff6ff; border:1.5px solid #93c5fd; border-radius:6px; padding:12px; margin-bottom:12px;">
+              <h3 style="font-size:13px; color:#1e40af; margin-bottom:4px; font-weight:700;">Special Order Confirmation &amp; Validation</h3>
+              <p style="font-size:11px; color:#334155; margin-bottom:8px;">
+                Customer has telephoned to confirm Order <b>SO-100245</b>. Validate the customer confirmation document against system values before releasing this order.
               </p>
-            </div>
-          </form>
-          <div class="auth-brand-footer-logos">
-            <div class="footer-powered-by"><strong>Powered by</strong></div>
-            <div class="footer-logos-row">
-              <div class="footer-logo bs">
-                <img src="images/bs-logo.png" alt="B&S Logo" style="mix-blend-mode: multiply;" />
-              </div>
-              <div class="footer-divider"></div>
-              <div class="footer-logo thame">
-                <img src="images/Thame Labs Logo_01-01.jpg" alt="Thame Logo" style="mix-blend-mode: multiply;" />
-              </div>
-            </div>
-            <p class="app-version-id">V2.1.0</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ========== REGISTRATION SCREEN ========== -->
-    <div id="screen-register" class="screen">
-      <div class="auth-screen">
-        <div class="screen-top-bar">
-          <button class="back-btn" onclick="navigateTo('screen-login')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-          </button>
-          <h2>Account Creating Request</h2>
-          <div style="width:40px"></div>
-        </div>
-        <div class="auth-body scrollable">
-
-          <form id="register-form" class="auth-form" novalidate>
-            <!-- SECTION 1: PHARMACY DETAILS -->
-            <div class="form-section-header" style="margin-top: 10px; margin-bottom: 8px;">
-              <h3
-                style="font-size: 15px; font-weight: 700; color: var(--primary); border-bottom: 2px solid var(--border-light); padding-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"
-                  style="color: var(--accent);">
-                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                  <polyline points="9 22 9 12 15 12 15 22" />
-                </svg>
-                Pharmacy Name & Personal Details
-              </h3>
-            </div>
-
-            <!-- Pharmacy Name -->
-            <div class="form-group compact">
-              <label>Pharmacy Name <span class="required">*</span></label>
-              <div class="input-wrapper compact">
-                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                  <polyline points="9 22 9 12 15 12 15 22" />
-                </svg>
-                <input type="text" id="reg-pharmacy-name" placeholder="Enter pharmacy store name" />
-              </div>
-              <span class="field-error" id="reg-pharmacy-name-error"></span>
-            </div>
-
-            <!-- Pharmacy Address & Post Code (side-by-side) -->
-            <div class="form-row-inline">
-              <div class="form-group compact" style="flex: 2;">
-                <label>Pharmacy Address <span class="required">*</span></label>
-                <div class="input-wrapper compact">
-                  <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                    <circle cx="12" cy="10" r="3" />
-                  </svg>
-                  <input type="text" id="reg-pharmacy-address" placeholder="Enter address" />
-                </div>
-                <span class="field-error" id="reg-pharmacy-address-error"></span>
-              </div>
-              <div class="form-group compact" style="flex: 1;">
-                <label>Post Code <span class="required">*</span></label>
-                <div class="input-wrapper compact">
-                  <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                    <circle cx="12" cy="10" r="3" />
-                  </svg>
-                  <input type="text" id="reg-postcode" placeholder="e.g. W8 4PT" />
-                </div>
-                <span class="field-error" id="reg-postcode-error"></span>
-              </div>
-            </div>
-
-            <!-- Pharmacy Email ID & Contact No (side-by-side) -->
-            <div class="form-row-inline">
-              <div class="form-group compact">
-                <label>Pharmacy Email ID <span class="required">*</span></label>
-                <div class="input-wrapper compact">
-                  <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                    <polyline points="22,6 12,13 2,6" />
-                  </svg>
-                  <input type="email" id="reg-pharmacy-email" placeholder="email@example.com" />
-                </div>
-                <span class="field-error" id="reg-pharmacy-email-error"></span>
-              </div>
-              <div class="form-group compact">
-                <label>Contact No <span class="required">*</span></label>
-                <div class="input-wrapper compact">
-                  <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path
-                      d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                  </svg>
-                  <input type="tel" id="reg-contact" placeholder="Contact number" />
-                </div>
-                <span class="field-error" id="reg-contact-error"></span>
-              </div>
-            </div>
-
-            <!-- Director Name -->
-            <div class="form-group compact">
-              <label>Director Name <span class="required">*</span></label>
-              <div class="input-wrapper compact">
-                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-                <input type="text" id="reg-director-name" placeholder="Enter director name" />
-              </div>
-              <span class="field-error" id="reg-director-name-error"></span>
-            </div>
-
-            <!-- GPhC Number -->
-            <div class="form-group compact">
-              <label>GPhC Number <span class="required">*</span></label>
-              <div class="input-wrapper compact">
-                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
-                <input type="text" id="reg-pharmacy-gphc" placeholder="GPhC-XXXXXXX" />
-              </div>
-              <span class="field-error" id="reg-pharmacy-gphc-error"></span>
-            </div>
-
-            <!-- Organization Code -->
-            <div class="form-group compact">
-              <label>Organization Code <span class="required">*</span></label>
-              <div class="input-wrapper compact">
-                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                  <line x1="9" y1="3" x2="9" y2="21" />
-                  <line x1="15" y1="3" x2="15" y2="21" />
-                  <line x1="3" y1="9" x2="21" y2="9" />
-                  <line x1="3" y1="15" x2="21" y2="15" />
-                </svg>
-                <input type="text" id="reg-org-code" placeholder="Enter organization code" />
-              </div>
-              <span class="field-error" id="reg-org-code-error"></span>
-            </div>
-
-            <!-- Company Registration Number -->
-            <div class="form-group compact">
-              <label>Company Registration Number <span class="required">*</span></label>
-              <div class="input-wrapper compact">
-                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="4" width="18" height="16" rx="2" ry="2" />
-                  <line x1="16" y1="2" x2="16" y2="4" />
-                  <line x1="8" y1="2" x2="8" y2="4" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
-                </svg>
-                <input type="text" id="reg-company-reg" placeholder="Enter company reg number" />
-              </div>
-              <span class="field-error" id="reg-company-reg-error"></span>
-            </div>
-
-
-            <label class="checkbox-label" style="margin-bottom:20px;">
-              <input type="checkbox" id="reg-terms" /> <span class="checkmark"></span>
-              I agree<a href="#" onclick="event.stopPropagation();">Terms & Conditions</a>and<a href="#"
-                onclick="event.stopPropagation();">Privacy Policy</a>
-            </label>
-            <span class="field-error" id="reg-terms-error"></span>
-            <button type="submit" class="btn btn-primary btn-full">Submit Request</button>
-          </form>
-          <div class="auth-footer">
-            <p>Already have an account? <a href="#" onclick="navigateTo('screen-login');return false;">Sign In</a></p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ========== OTP VERIFICATION ========== -->
-    <div id="screen-otp" class="screen">
-      <div class="auth-screen">
-        <div class="screen-top-bar">
-          <button class="back-btn" onclick="navigateTo('screen-register')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-          </button>
-          <h2>Verify OTP</h2>
-          <div style="width:40px"></div>
-        </div>
-        <div class="auth-body" style="text-align:center;">
-          <div class="otp-illustration">
-            <svg viewBox="0 0 120 120" width="120" height="120">
-              <circle cx="60" cy="60" r="55" fill="var(--primary-light)" opacity="0.2" />
-              <circle cx="60" cy="60" r="40" fill="var(--primary-light)" opacity="0.3" />
-              <rect x="35" y="30" width="50" height="60" rx="8" fill="var(--primary)" opacity="0.9" />
-              <rect x="42" y="50" width="36" height="8" rx="4" fill="white" opacity="0.8" />
-              <rect x="42" y="62" width="24" height="8" rx="4" fill="white" opacity="0.5" />
-              <circle cx="60" cy="40" r="5" fill="white" opacity="0.7" />
-            </svg>
-          </div>
-          <h3 style="margin:20px 0 8px;">Verification Code</h3>
-          <p class="form-section-desc">We've sent a 6-digit code to your registered mobile number</p>
-          <p class="otp-phone-display">+44 •••• ••• 000</p>
-          <div class="otp-inputs" style="margin:24px 0;">
-            <input type="text" maxlength="1" class="otp-box" data-otp-reg="1" />
-            <input type="text" maxlength="1" class="otp-box" data-otp-reg="2" />
-            <input type="text" maxlength="1" class="otp-box" data-otp-reg="3" />
-            <input type="text" maxlength="1" class="otp-box" data-otp-reg="4" />
-            <input type="text" maxlength="1" class="otp-box" data-otp-reg="5" />
-            <input type="text" maxlength="1" class="otp-box" data-otp-reg="6" />
-          </div>
-          <div class="otp-timer">
-            <span id="otp-timer-text">Resend OTP in <strong id="otp-countdown">30</strong>s</span>
-            <button class="btn-link hidden" id="resend-otp-btn" onclick="resendOTP()">Resend OTP</button>
-          </div>
-          <button class="btn btn-primary btn-full" style="margin-top:24px;" onclick="verifyOTP()">Verify &
-            Continue</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ========== FORGOT PASSWORD ========== -->
-    <div id="screen-forgot-password" class="screen">
-      <div class="auth-screen">
-        <div class="screen-top-bar">
-          <button class="back-btn" onclick="navigateTo('screen-login')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-          </button>
-          <h2>Reset Password</h2>
-          <div style="width:40px"></div>
-        </div>
-        <div class="auth-body" style="text-align:center;">
-          <div class="otp-illustration">
-            <svg viewBox="0 0 120 120" width="120" height="120">
-              <circle cx="60" cy="60" r="55" fill="#FFF3E0" opacity="0.5" />
-              <circle cx="60" cy="60" r="40" fill="#FFB74D" opacity="0.2" />
-              <rect x="35" y="35" width="50" height="50" rx="12" fill="var(--primary)" />
-              <path d="M60 50 L60 65" stroke="white" stroke-width="3" stroke-linecap="round" />
-              <circle cx="60" cy="72" r="2.5" fill="white" />
-            </svg>
-          </div>
-          <h3 style="margin:20px 0 8px;">Forgot Your Password?</h3>
-          <p class="form-section-desc">Enter your email to receive a reset link</p>
-          <form id="forgot-form" class="auth-form" style="text-align:left;margin-top:24px;" novalidate>
-            <div class="form-group">
-              <label>Email Address</label>
-              <div class="input-wrapper">
-                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                  <polyline points="22,6 12,13 2,6" />
-                </svg>
-                <input type="email" id="forgot-email" placeholder="pharmacy@example.com" />
-              </div>
-            </div>
-            <button type="submit" class="btn btn-primary btn-full">Send Reset Link</button>
-          </form>
-          <div id="forgot-success" class="hidden" style="margin-top:24px;">
-            <div class="success-badge">
-              <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" width="48" height="48">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                <polyline points="22 4 12 14.01 9 11.01" />
-              </svg>
-            </div>
-            <h3 style="margin:16px 0 8px;color:var(--success);">Email Sent!</h3>
-            <p class="form-section-desc">Check your inbox for password reset instructions</p>
-            <button class="btn btn-primary btn-full" style="margin-top:20px;" onclick="navigateTo('screen-login')">Back
-              to Login</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ========== SELECT PHARMACY ========== -->
-    <div id="screen-select-pharmacy" class="screen">
-      <div class="full-screen-page">
-        <div class="screen-top-bar">
-          <div style="width:40px"></div>
-          <h2>Select Pharmacy</h2>
-          <div style="width:40px"></div>
-        </div>
-        <div class="page-body scrollable">
-          <!-- <p class="form-section-desc" style="text-align:center; margin-top:0; margin-bottom:12px;">Choose the pharmacy
-            you're ordering for today</p> -->
-          <div class="search-bar-mini">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-            <input type="text" id="pharmacy-search" placeholder="Search Pharmacy, Ac No, Postcode..."
-              oninput="filterPharmacies(this.value)" />
-          </div>
-          <div id="pharmacy-list" class="pharmacy-list">
-            <!-- Populated by JS -->
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ========== MAIN APP (with bottom nav) ========== -->
-    <div id="screen-main" class="screen">
-      <div class="main-app">
-        <!-- TOP STATUS BAR -->
-        <div class="app-status-bar">
-          <span class="status-time" id="status-time">13:36</span>
-          <div class="status-icons">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-              <path
-                d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z" />
-            </svg>
-            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-              <rect x="17" y="4" width="4" height="16" rx="1" />
-              <rect x="11" y="8" width="4" height="12" rx="1" />
-              <rect x="5" y="12" width="4" height="8" rx="1" />
-            </svg>
-            <span class="battery-icon">87%</span>
-          </div>
-        </div>
-
-        <!-- GLOBAL APP HEADER -->
-        <div class="page-header-dashboard" style="z-index: 50; position: relative; padding-top: 10px;">
-          <div class="header-top">
-            <div class="header-left">
-              <div class="pharmacy-smart-dropdown" id="pharmacy-smart-dropdown">
-                <button class="pharmacy-trigger" onclick="togglePharmacyDropdown(event)">
-                  <div class="pharmacy-header-info">
-                    <div class="pharmacy-name-row">
-                      <h2 class="pharmacy-name" id="selected-pharmacy-name"></h2>
-                      <svg class="dropdown-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2.5">
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                      </svg>
-                    </div>
-                  </div>
+              <div style="display:flex; gap:8px;">
+                <button class="btn-glossy btn-orange" style="font-weight:800; padding:4px 14px;" onclick="startValidationMismatchFlow()">
+                  🔍 Validate Order Confirmation File
                 </button>
-                <div class="pharmacy-menu" id="pharmacy-menu"
-                  style="padding: 0; overflow: hidden; display: flex; flex-direction: column;">
-                  <div
-                    style="padding: 6px; border-bottom: 1px solid var(--border-light); background: white; z-index: 10;">
-                    <div class="search-bar-mini"
-                      style="margin: 0; padding: 6px 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center;">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"
-                        style="color: var(--text-muted); flex-shrink: 0;">
-                        <circle cx="11" cy="11" r="8" />
-                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                      </svg>
-                      <input type="text" id="pharmacy-menu-search" placeholder="Search pharmacy..."
-                        oninput="filterPharmacySmartMenu(this.value)" onclick="event.stopPropagation()"
-                        style="font-size: 11px; width: 100%; border: none; background: transparent; outline: none; margin-left: 6px; color: var(--text-primary);"
-                        autocomplete="off" />
-                    </div>
-                  </div>
-                  <div id="pharmacy-menu-list" style="overflow-y: auto; max-height: 250px; padding: 4px;">
-                    <!-- Dynamically populated by JS -->
-                  </div>
-                </div>
+                <button class="btn-glossy btn-cyan" onclick="openFileListModal()">
+                  📄 View Existing Files
+                </button>
               </div>
             </div>
-            <div class="header-right">
+
+            <!-- Product Entry Table -->
+            <div class="product-search-panel">
+              <div class="product-search-title">Phone Order Line Items</div>
+              <table class="app-table">
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Code</th>
+                    <th>Description</th>
+                    <th>System Qty</th>
+                    <th>Confirmed Qty</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1</td>
+                    <td>PRD-500-A</td>
+                    <td>Product A 500mg Tablet (10x10)</td>
+                    <td>100</td>
+                    <td><input type="text" class="table-input" value="100" style="width:60px; text-align:center;" /></td>
+                    <td><span class="status-badge mismatch" id="phoneLineStatus">Mismatch</span></td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
+
           </div>
         </div>
 
-        <!-- PAGE CONTAINER -->
-        <div class="page-container">
-
-          <!-- ===== HOME / DASHBOARD ===== -->
-          <div id="page-home" class="page active">
-            <div class="page-scroll">
-
-              <!-- Dashboard Order Search Bar -->
-              <div class="search-bar-mini" style="margin: 10px 15px 0 15px; padding: 10px 12px; position: relative;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  style="width: 16px; height: 16px;">
-                  <circle cx="11" cy="11" r="8" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-                <input type="text" id="home-order-search" placeholder="Search order"
-                  oninput="searchHomeOrders(this.value)"
-                  style="font-size: 13px; padding-right: 30px; width: 100%; border: none; outline: none; background: transparent;" />
-                <div
-                  style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; justify-content: center;">
-                  <input type="text" id="home-date-search"
-                    style="position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; right: 0; top: 0; z-index: 2;" />
-                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary, #1e40af)" stroke-width="1.8"
-                    stroke-linecap="round" stroke-linejoin="round"
-                    style="width: 18px; height: 18px; position: relative; z-index: 1; opacity: 0.9;">
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                    <path d="M16 2v4" />
-                    <path d="M8 2v4" />
-                    <path d="M3 10h18" />
-                    <path d="M8 14h.01" />
-                    <path d="M12 14h.01" />
-                    <path d="M16 14h.01" />
-                    <path d="M8 18h.01" />
-                    <path d="M12 18h.01" />
-                    <path d="M16 18h.01" />
-                  </svg>
-                </div>
-              </div>
-
-              <!-- Recent Orders Section -->
-              <div class="section-header">
-                <h3>Recent Orders</h3>
-                <a href="#" class="see-all" onclick="switchTab('orders'); return false;">See All</a>
-              </div>
-              <div id="recent-orders-list" class="orders-list">
-                <!-- Dynamic cards populated by JS -->
-              </div>
-
-            </div>
+        <!-- Right Side Panel -->
+        <div class="right-details-sidebar">
+          <div class="form-row-label-input">
+            <label>Order No:</label>
+            <input type="text" class="app-input" value="SO-100245" />
+          </div>
+          <div class="form-row-label-input">
+            <label>Customer No:</label>
+            <input type="text" class="app-input" value="ACC-45821" />
+          </div>
+          <div class="form-row-label-input">
+            <label>Caller Name:</label>
+            <input type="text" class="app-input" value="Pharmacist David Wilson" />
+          </div>
+          <div class="form-row-label-input">
+            <label>Confirmation:</label>
+            <input type="text" class="app-input" id="phoneConfirmationStatus" value="Failed Validation" style="background:#fee2e2; color:#991b1b; font-weight:700;" readonly />
           </div>
 
-
-          <!-- ===== SEARCH / MEDICINES ===== -->
-          <div id="page-search" class="page">
-            <div class="page-header-simple">
-              <h2>New Order</h2>
-            </div>
-            <div class="page-scroll" style="display: flex; flex-direction: column; overflow: hidden;">
-              <div class="search-sticky-header">
-                <div class="search-bar">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                  </svg>
-                  <input type="text" id="medicine-search" placeholder="Search by name"
-                    oninput="searchMedicines(this.value)" />
-                </div>
-                <!-- Category Tabs -->
-                <div class="category-tabs">
-                  <button class="cat-tab active" data-cat="all" onclick="filterByCategory('all', this)">All</button>
-                  <button class="cat-tab" data-cat="tariff" onclick="filterByCategory('tariff', this)">Tariff</button>
-                  <button class="cat-tab" data-cat="non-tariff"
-                    onclick="filterByCategory('non-tariff', this)">Non-Tariff</button>
-                  <button class="cat-tab" data-cat="obtain" onclick="filterByCategory('obtain', this)">Obtain</button>
-                </div>
-              </div>
-              <!-- Filter Panel -->
-              <div id="filter-panel" class="filter-panel hidden">
-                <div class="filter-section">
-                  <h4>Availability</h4>
-                  <div class="filter-chips">
-                    <button class="chip active" onclick="toggleChip(this)">All</button>
-                    <button class="chip" onclick="toggleChip(this)">Available</button>
-                    <button class="chip" onclick="toggleChip(this)">Out of Stock</button>
-                  </div>
-                </div>
-                <div class="filter-section">
-                  <h4>Prescription</h4>
-                  <div class="filter-chips">
-                    <button class="chip active" onclick="toggleChip(this)">All</button>
-                    <button class="chip" onclick="toggleChip(this)">Prescription Required</button>
-                    <button class="chip" onclick="toggleChip(this)">Non-Prescription</button>
-                  </div>
-                </div>
-              </div>
-              <!-- Products Grid -->
-              <div style="flex: 1; overflow-y: auto;">
-                <div id="products-grid" class="products-grid">
-                  <!-- Populated by JS -->
-                </div>
-              </div>
-            </div>
+          <div style="margin-top:10px;">
+            <button class="btn-glossy btn-green" style="width:100%; height:28px; font-size:12px; margin-bottom:6px;" onclick="handleReleasePhoneOrder()">
+              🚀 Proceed &amp; Release Order
+            </button>
+            <button class="btn-glossy btn-red" style="width:100%; height:26px;" onclick="openMismatchOverrideModal()">
+              ⚠ Override with Manager Comment
+            </button>
           </div>
-
-
-          <!-- ===== CART ===== -->
-          <div id="page-cart" class="page">
-            <div class="page-header-simple">
-              <h2>Order Cart</h2>
-              <span class="cart-count-badge" id="cart-header-count">0</span>
-            </div>
-            <div class="page-scroll" id="cart-content">
-              <!-- Populated by JS -->
-            </div>
-          </div>
-
-          <!-- ===== ORDER SUCCESS ===== -->
-          <div id="page-order-success" class="page">
-            <div class="page-scroll"
-              style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;padding:40px 24px;text-align:center;">
-              <div class="success-animation">
-                <div class="success-circle">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" width="48" height="48">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                </div>
-              </div>
-              <h2 style="margin:24px 0 8px;color:var(--text-primary);">Order Placed Successfully!</h2>
-              <p class="form-section-desc">Your order has been submitted and is being processed</p>
-              <button class="btn btn-outline btn-full" style="margin-top:12px;"
-                onclick="showPage('page-home');switchTab('home');">Back to Home</button>
-            </div>
-          </div>
-
-          <!-- ===== ORDERS ===== -->
-          <div id="page-orders" class="page">
-            <div class="page-header-simple">
-              <h2>Order History</h2>
-            </div>
-            <div class="page-scroll">
-              <div class="order-tabs" id="order-tabs">
-                <button class="order-tab active" data-otab="active" onclick="setOrderTab('active', false)">Recent
-                  Orders</button>
-                <button class="order-tab" data-otab="previous" onclick="setOrderTab('previous', false)">Previous
-                  Orders</button>
-              </div>
-              <div id="orders-list-container" class="orders-list">
-                <!-- Populated by JS -->
-              </div>
-            </div>
-          </div>
-
-          <!-- ===== ORDER TRACKING ===== -->
-          <div id="page-order-tracking" class="page">
-            <div class="page-header-simple" style="position:relative;">
-              <button class="back-btn" onclick="showPage('page-orders')" style="position:absolute;left:16px;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="15 18 9 12 15 6" />
-                </svg>
-              </button>
-              <h2>Order Tracking</h2>
-            </div>
-            <div class="page-scroll" id="order-tracking-content">
-              <!-- Populated by JS -->
-            </div>
-          </div>
-
-          <!-- ===== NOTIFICATIONS ===== -->
-          <div id="page-notifications" class="page">
-            <div class="page-header-simple" style="position:relative;">
-              <h2>Notifications</h2>
-              <button onclick="markAllNotificationsAsRead()" style="position:absolute; right:16px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--primary); font-size:14px; font-weight:600; cursor:pointer; padding:0;">Read all</button>
-            </div>
-            <div class="page-scroll" id="notifications-content">
-              <!-- Populated by JS -->
-            </div>
-          </div>
-
-          <!-- ===== HELP & SUPPORT ===== -->
-          <div id="page-help" class="page">
-            <div class="page-header-simple">
-
-              <h2>Help & Support</h2>
-            </div>
-            <div class="page-scroll">
-              <div class="support-tabs">
-                <button class="order-tab active" data-stab="order-support" onclick="setSupportTab('order-support')"
-                  style="display: inline-flex; align-items: center; gap: 6px;">
-
-                  Order Support</button>
-                <button class="order-tab" data-stab="product-support" onclick="setSupportTab('product-support')"
-                  style="display: inline-flex; align-items: center; gap: 6px;">
-
-                  New Product Enquiry</button>
-                <!-- <button class="order-tab" data-stab="faq" onclick="setSupportTab('faq')"
-                  style="display: inline-flex; align-items: center; gap: 6px;">
-
-                  FAQ</button> -->
-              </div>
-              <div id="support-content">
-                <!-- Populated by JS -->
-              </div>
-            </div>
-          </div>
-
-          <!-- ===== ACCOUNT ===== -->
-          <div id="page-account" class="page">
-            <div class="page-scroll">
-              <div class="account-header">
-                <h3 id="account-name">Green Cross Pharmacy (B5010) W8 4PT</h3>
-                <p id="account-email">admin@greencross.co.uk</p>
-                <!-- <span class="verified-badge">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" width="14" height="14">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                    <polyline points="22 4 12 14.01 9 11.01" />
-                  </svg>
-                  GPhC Verified
-                </span> -->
-              </div>
-              <!-- Credit Account Card -->
-              <div class="credit-card-widget">
-                <div class="credit-card-inner">
-                  <div class="cc-top">
-                    <span class="cc-label">Credit Account</span>
-                  </div>
-                  <div class="cc-details">
-                    <div class="cc-detail"><span>Credit Limit</span><strong>£25,000</strong></div>
-                    <div class="cc-detail"><span>Available</span><strong>£18,450</strong></div>
-                    <div class="cc-detail"><span>Due Amount</span><strong>£6,550</strong></div>
-                  </div>
-                  <div class="cc-bottom">
-                    <div class="cc-detail"><span>Payment Terms</span><strong>Net 30</strong></div>
-                  </div>
-                </div>
-              </div>
-              <!-- Account Menu -->
-              <div class="account-menu">
-                <div class="menu-section">
-                  <h4>Orders & Activity</h4>
-                  <button class="menu-item" onclick="showPage('page-orders');switchTab('orders');">
-                    <div class="mi-left">
-                      <div class="mi-icon blue-bg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                          stroke-width="2">
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                          <polyline points="14 2 14 8 20 8" />
-                        </svg></div><span>My Order</span>
-                    </div>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-                      <polyline points="9 18 15 12 9 6" />
-                    </svg>
-                  </button>
-                  <button class="menu-item" onclick="showPage('page-help');switchTab('help');">
-                    <div class="mi-left">
-                      <div class="mi-icon orange-bg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                          stroke-width="2">
-                          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                        </svg></div><span>Service Requests</span>
-                    </div>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-                      <polyline points="9 18 15 12 9 6" />
-                    </svg>
-                  </button>
-
-                </div>
-                <div class="menu-section">
-                  <h4>Account Settings</h4>
-
-                  <button class="menu-item">
-                    <div class="mi-left">
-                      <div class="mi-icon green-bg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                          stroke-width="2">
-                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                        </svg></div><span>Privacy & Security</span>
-                    </div>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-                      <polyline points="9 18 15 12 9 6" />
-                    </svg>
-                  </button>
-
-                </div>
-                <div class="menu-section">
-                  <button class="menu-item logout-item" onclick="logout()">
-                    <div class="mi-left">
-                      <div class="mi-icon red-bg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                          stroke-width="2">
-                          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                          <polyline points="16 17 21 12 16 7" />
-                          <line x1="21" y1="12" x2="9" y2="12" />
-                        </svg></div><span>Logout</span>
-                    </div>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-                      <polyline points="9 18 15 12 9 6" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div><!-- end page-container -->
-
-        <!-- BOTTOM NAV -->
-        <nav class="bottom-nav" id="bottom-nav">
-          <button class="nav-item active" data-tab="home" onclick="switchTab('home')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-              <polyline points="9 22 9 12 15 12 15 22" />
-            </svg>
-            <span>Home</span>
-          </button>
-          <button class="nav-item" data-tab="search" onclick="switchTab('search')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-            <span>New Order</span>
-          </button>
-          <button class="nav-item cart-nav" data-tab="cart" onclick="switchTab('cart')">
-            <div class="cart-icon-wrap">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="9" cy="21" r="1" />
-                <circle cx="20" cy="21" r="1" />
-                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-              </svg>
-              <span class="cart-badge" id="cart-badge">0</span>
-            </div>
-            <span>Cart</span>
-          </button>
-
-          <button class="nav-item" data-tab="orders" onclick="switchTab('orders')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-              <polyline points="14 2 14 8 20 8" />
-            </svg>
-            <span>My Orders</span>
-          </button>
-
-          <button class="nav-item" data-tab="inbox" onclick="switchTab('inbox')">
-            <div style="position: relative; display: inline-block;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                <polyline points="22,6 12,13 2,6" />
-              </svg>
-              <span class="notification-badge" id="inbox-badge"
-                style="position: absolute; top: -6px; right: -6px; display: flex; align-items: center; justify-content: center; min-width: 16px; height: 16px; border-radius: 50%; background: var(--danger); color: white; font-size: 9px; font-weight: 800; border: 1.5px solid var(--white);">1</span>
-            </div>
-            <span>Inbox</span>
-          </button>
-          <button class="nav-item" data-tab="account" onclick="switchTab('account')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
-            <span>Account</span>
-          </button>
-        </nav>
-      </div>
-    </div>
-
-    <!-- ========== LOADING OVERLAY ========== -->
-    <div id="loading-overlay" class="loading-overlay hidden">
-      <div class="loading-spinner">
-        <div class="spinner"></div>
-        <p id="loading-text">Processing...</p>
-      </div>
-    </div>
-
-    <!-- ========== TOAST ========== -->
-    <div id="toast" class="toast hidden">
-      <div class="toast-content">
-        <span class="toast-icon" id="toast-icon"></span>
-        <span class="toast-message" id="toast-message"></span>
-      </div>
-    </div>
-
-
-
-    <!-- ========== MODAL / BOTTOM SHEET ========== -->
-    <div id="modal-overlay" class="modal-overlay hidden" onclick="closeModal()">
-      <div class="modal-sheet" onclick="event.stopPropagation()">
-        <div class="modal-handle"></div>
-        <div id="modal-content"></div>
-      </div>
-    </div>
-
-    <!-- ========== ACCOUNT SUBPAGES ========== -->
-    <div id="screen-account-subpage" class="screen">
-      <div class="full-screen-page">
-        <div class="screen-top-bar">
-          <button class="back-btn" onclick="navigateTo('screen-main');showPage('page-account');">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-          </button>
-          <h2 id="subpage-title">Profile</h2>
-          <div style="width:40px"></div>
-        </div>
-        <div class="page-body scrollable" id="subpage-content">
-          <!-- Dynamic content -->
         </div>
       </div>
     </div>
 
-  </div><!-- end #app -->
+    <!-- ======================================================================
+         OTHER TABS (Generic Enterprise Views)
+         ====================================================================== -->
+    <div id="tab-screening" class="tab-content-panel">
+      <div class="generic-tab-view">
+        <div class="generic-title-bar">
+          <h2>Order Screening &amp; Verification Queue</h2>
+          <span style="color:#64748b;">Showing active screening queue (4 pending orders)</span>
+        </div>
+        <p style="margin-bottom:12px;">This module screens all incoming orders for clinical checks, credit status, and customer confirmation documents.</p>
+        <button class="btn-glossy btn-blue" onclick="switchTab('tab-email-order', document.querySelector('[data-tab=\'tab-email-order\']'))">Go to Email Order</button>
+        <button class="btn-glossy btn-orange" onclick="startValidationMismatchFlow()">Launch Order Confirmation Modal</button>
+      </div>
+    </div>
 
-  <script src="js/data.js?v=12"></script>
-  <script src="js/app.js?v=12"></script>
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <div id="tab-fax-order" class="tab-content-panel">
+      <div class="generic-tab-view">
+        <div class="generic-title-bar">
+          <h2>Fax Order Intake &amp; OCR Engine</h2>
+        </div>
+        <p>Fax queue connected to RightFax server. Auto-extracted 1 inbound special order awaiting confirmation validation.</p>
+        <button class="btn-glossy btn-blue" onclick="startValidationMismatchFlow()">Review Fax Confirmation</button>
+      </div>
+    </div>
+
+    <div id="tab-search" class="tab-content-panel">
+      <div class="generic-tab-view">
+        <div class="generic-title-bar">
+          <h2>Global Order Search</h2>
+        </div>
+        <div style="display:flex; gap:8px; max-width:500px; margin-bottom:16px;">
+          <input type="text" class="app-input" placeholder="Search by Order No, PO No, Account, or Customer..." value="SO-100245" />
+          <button class="btn-glossy btn-blue">Search</button>
+        </div>
+        <p>Result: 1 order matched (SO-100245 - Central Hospital Pharmacy). Status: Validation Mismatch.</p>
+      </div>
+    </div>
+
+    <div id="tab-request" class="tab-content-panel">
+      <div class="generic-tab-view">
+        <div class="generic-title-bar">
+          <h2>Change Request Management</h2>
+        </div>
+        <p>Manage customer and internal change requests on special orders.</p>
+      </div>
+    </div>
+
+    <div id="tab-purchase" class="tab-content-panel">
+      <div class="generic-tab-view">
+        <div class="generic-title-bar">
+          <h2>Purchase Orders &amp; Procurement</h2>
+        </div>
+        <p>Supplier PO matching and fulfillment module.</p>
+      </div>
+    </div>
+
+    <div id="tab-po-auth" class="tab-content-panel">
+      <div class="generic-tab-view">
+        <div class="generic-title-bar">
+          <h2>Purchase Order Authorization</h2>
+        </div>
+        <p>Manager approvals for high-value orders and non-tariff special orders.</p>
+      </div>
+    </div>
+
+    <div id="tab-search-po" class="tab-content-panel">
+      <div class="generic-tab-view">
+        <div class="generic-title-bar">
+          <h2>Search Purchase Orders</h2>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-new-part" class="tab-content-panel">
+      <div class="generic-tab-view">
+        <div class="generic-title-bar">
+          <h2>New Part Creation Request Form</h2>
+        </div>
+        <p>Create new bespoke pharmaceutical formulations or part codes.</p>
+      </div>
+    </div>
+
+    <div id="tab-shop-order" class="tab-content-panel">
+      <div class="generic-tab-view">
+        <div class="generic-title-bar">
+          <h2>Shop Order / Manufacturing Work Orders</h2>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-lab-order" class="tab-content-panel">
+      <div class="generic-tab-view">
+        <div class="generic-title-bar">
+          <h2>Lab Order / Compounding Lab Schedule</h2>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-installment" class="tab-content-panel">
+      <div class="generic-tab-view">
+        <div class="generic-title-bar">
+          <h2>Installment &amp; Standing Delivery Schedules</h2>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-rma" class="tab-content-panel">
+      <div class="generic-tab-view">
+        <div class="generic-title-bar">
+          <h2>Return Merchandise Authorization (RMA)</h2>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-cr-search" class="tab-content-panel">
+      <div class="generic-tab-view">
+        <div class="generic-title-bar">
+          <h2>Change Request (CR) Search</h2>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-make-to-stock" class="tab-content-panel">
+      <div class="generic-tab-view">
+        <div class="generic-title-bar">
+          <h2>Make to Stock (MTS) Forecasts</h2>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-bnssop4" class="tab-content-panel">
+      <div class="generic-tab-view" style="border-color:#b52c28;">
+        <div class="generic-title-bar" style="border-bottom-color:#b52c28;">
+          <h2 style="color:#b52c28;">BNSSOP4 - Special Order Processing Monitor</h2>
+          <span class="status-badge" style="background:#fee2e2; color:#991b1b; font-weight:bold;">Active Process</span>
+        </div>
+        <p>Automated batch processing pipeline for Special Order validation, document matching, and dispatch authorization.</p>
+        <div style="background:#fff1f2; border:1px solid #fecdd3; padding:12px; border-radius:4px; margin-top:12px;">
+          <b>Current Batch Status:</b> 1 item flagged for manual review (SO-100245: Account Number, Strength, Quantity, Pack Size discrepancy).
+          <div style="margin-top:8px;">
+            <button class="btn-glossy btn-red" onclick="startValidationMismatchFlow()">Resolve Flagged Discrepancy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div> <!-- End .app-container -->
+
+
+  <!-- ========================================================================
+       MODAL 1: STEP 1 - ORDER CONFIRMATION VALIDATION FAILED (Phone order.png)
+       ======================================================================== -->
+  <div class="modal-backdrop" id="modalValidationFailed">
+    <div class="modal-card modal-width-lg">
+      <div class="validation-modal-header">
+        <div class="alert-icon-square">⚠</div>
+        <div>
+          <div class="validation-modal-title">Order Confirmation Validation Failed</div>
+          <div class="validation-modal-subtitle">
+            Order Details do not match the Uploaded Customer Order Confirmation.<br>
+            Please review the highlighted fields before proceeding.
+          </div>
+        </div>
+      </div>
+
+      <div class="validation-table-wrapper">
+        <table class="val-table">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>System Value</th>
+              <th>Uploaded Value</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Order Number</td>
+              <td>SO-100245</td>
+              <td>SO-100245</td>
+              <td><span class="badge-pill-match">✔ Match</span></td>
+            </tr>
+            <tr style="background:#fff8f8;">
+              <td>Account Number</td>
+              <td>ACC-45821</td>
+              <td class="mismatch-val">ACC-45829</td>
+              <td><span class="badge-pill-mismatch">⚠ Mismatch</span></td>
+            </tr>
+            <tr>
+              <td>Product Name</td>
+              <td>Product A</td>
+              <td>Product A</td>
+              <td><span class="badge-pill-match">✔ Match</span></td>
+            </tr>
+            <tr style="background:#fff8f8;">
+              <td>Strength</td>
+              <td>500 mg</td>
+              <td class="mismatch-val">250 mg</td>
+              <td><span class="badge-pill-mismatch">⚠ Mismatch</span></td>
+            </tr>
+            <tr style="background:#fff8f8;">
+              <td>Quantity</td>
+              <td>100</td>
+              <td class="mismatch-val">80</td>
+              <td><span class="badge-pill-mismatch">⚠ Mismatch</span></td>
+            </tr>
+            <tr style="background:#fff8f8;">
+              <td>Pack Size</td>
+              <td>10 x 10</td>
+              <td class="mismatch-val">5 x 10</td>
+              <td><span class="badge-pill-mismatch">⚠ Mismatch</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="validation-bottom-warning">
+        <span style="font-size:14px;">⚠</span>
+        <span>Please correct the mismatched details and re-upload the correct confirmation file.</span>
+      </div>
+
+      <div class="modal-actions-footer">
+        <!-- Optional Override Button directly from here -->
+        <button class="btn-modal-override" onclick="openMismatchOverrideModalFromFailed()">
+          ⚠ Override with Comment
+        </button>
+        <button class="btn-modal-cancel" onclick="closeAllModals()">Cancel</button>
+        <button class="btn-modal-reupload" onclick="openReuploadModal()">Re-upload</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================
+       MODAL 2: STEP 2 & 3 - RE-UPLOAD CONFIRMATION FILE (Phone order.png)
+       ======================================================================== -->
+  <div class="modal-backdrop" id="modalReupload">
+    <div class="modal-card modal-width-md">
+      <div class="reupload-header">
+        <div class="reupload-header-title">Re-upload Confirmation File</div>
+        <button class="modal-close-x" onclick="closeAllModals()">✕</button>
+      </div>
+
+      <div class="reupload-body">
+
+        <!-- Initial Dropzone State (Step 2) -->
+        <div id="reuploadDropzoneState">
+          <div class="dropzone-box" id="dropzoneContainer" onclick="triggerFileInput()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+            <svg class="cloud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
+              <path d="M12 12v9" />
+              <path d="m16 16-4-4-4 4" />
+            </svg>
+            <div class="dropzone-text-main">Drag and drop file here</div>
+            <div class="dropzone-text-or">or</div>
+            <button class="btn-browse" type="button" onclick="event.stopPropagation(); triggerFileInput();">Browse File</button>
+            <div class="dropzone-hint">
+              Supported formats: PDF, JPG, PNG<br>
+              Max file size: 10 MB
+            </div>
+          </div>
+          <!-- Hidden Native File Input -->
+          <input type="file" id="reuploadFileInput" style="display:none;" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFileSelected(this)" />
+
+          <!-- Quick Mock Selector for Instant Prototype Demonstration -->
+          <div style="margin-top:12px; text-align:center;">
+            <button type="button" style="background:#e0f2fe; border:1px solid #7dd3fc; color:#0369a1; padding:4px 10px; border-radius:4px; font-size:11px; cursor:pointer;" onclick="selectSampleCorrectedFile()">
+              ✨ Auto-select "Customer_Confirmation_Corrected.pdf" (1.2 MB)
+            </button>
+          </div>
+        </div>
+
+        <!-- File Selected State (Step 3) -->
+        <div id="reuploadSelectedState" style="display:none;">
+          <div class="file-selected-card">
+            <div class="file-info-group">
+              <div class="file-icon-pdf">PDF</div>
+              <div>
+                <div class="file-name-text" id="selectedFileName">Customer_Confirmation_Corrected.pdf</div>
+                <div class="file-size-text" id="selectedFileSize">1.2 MB</div>
+              </div>
+            </div>
+            <button class="file-remove-btn" onclick="clearSelectedFile()" title="Remove file">✕</button>
+          </div>
+
+          <div class="file-success-badge">
+            <span style="font-size:16px;">✔</span>
+            <span>File uploaded successfully</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-actions-footer">
+        <button class="btn-modal-cancel" style="border-color:#d1d5db; color:#4b5563;" onclick="closeAllModals()">Cancel</button>
+        <button class="btn-modal-primary" id="btnPerformUpload" disabled style="opacity:0.5; cursor:not-allowed;" onclick="startProcessingUploadedFile()">
+          Upload
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================
+       MODAL 3: STEP 4 - PROCESSING UPLOADED FILE... (Phone order.png)
+       ======================================================================== -->
+  <div class="modal-backdrop" id="modalProcessing">
+    <div class="modal-card modal-width-md">
+      <div class="processing-content">
+        <div class="spinner-processing"></div>
+        <div class="processing-title">Processing Uploaded File...</div>
+        <div class="processing-sub">Please wait while we validate the order details.</div>
+
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" id="processingProgressBar"></div>
+        </div>
+        <div class="progress-percentage" id="processingPercentage">0%</div>
+        <div class="processing-step-msg" id="processingStepMessage">Reading document text and OCR...</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================
+       MODAL 4: STEP 5 - ORDER CONFIRMATION VALIDATION SUCCESSFUL (Phone order.png)
+       ======================================================================== -->
+  <div class="modal-backdrop" id="modalValidationSuccess">
+    <div class="modal-card modal-width-lg">
+      <div class="validation-modal-header">
+        <div class="alert-icon-square success">✔</div>
+        <div>
+          <div class="validation-modal-title" style="color:#065f46;">Order Confirmation Validation Successful</div>
+          <div class="validation-modal-subtitle">
+            All order details match the uploaded Customer Order Confirmation.<br>
+            You can now proceed with the order.
+          </div>
+        </div>
+      </div>
+
+      <div class="validation-table-wrapper">
+        <table class="val-table">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>System Value</th>
+              <th>Uploaded Value</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Order Number</td>
+              <td>SO-100245</td>
+              <td>SO-100245</td>
+              <td><span class="badge-pill-match">✔ Match</span></td>
+            </tr>
+            <tr>
+              <td>Account Number</td>
+              <td>ACC-45821</td>
+              <td>ACC-45821</td>
+              <td><span class="badge-pill-match">✔ Match</span></td>
+            </tr>
+            <tr>
+              <td>Product Name</td>
+              <td>Product A</td>
+              <td>Product A</td>
+              <td><span class="badge-pill-match">✔ Match</span></td>
+            </tr>
+            <tr>
+              <td>Strength</td>
+              <td>500 mg</td>
+              <td>500 mg</td>
+              <td><span class="badge-pill-match">✔ Match</span></td>
+            </tr>
+            <tr>
+              <td>Quantity</td>
+              <td>100</td>
+              <td>100</td>
+              <td><span class="badge-pill-match">✔ Match</span></td>
+            </tr>
+            <tr>
+              <td>Pack Size</td>
+              <td>10 x 10</td>
+              <td>10 x 10</td>
+              <td><span class="badge-pill-match">✔ Match</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="modal-actions-footer">
+        <button class="btn-modal-primary" onclick="completeValidationSuccessFlow()">
+          Proceed
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================
+       MODAL 5: MISMATCH OVERRIDE / RE-CONFIRM MODAL (Email order.png / Web order.png)
+       ======================================================================== -->
+  <div class="modal-backdrop" id="modalMismatchOverride">
+    <div class="modal-card modal-width-md">
+      <div class="override-modal-body">
+        <!-- Red Alert Warning Box -->
+        <div class="override-warning-box">
+          <span style="font-size:20px; color:#e02424; margin-top:2px;">⚠</span>
+          <div class="override-warning-text">
+            <p>Please review the above mismatched request details.</p>
+            <p>Are you sure you want to proceed with updated request further?</p>
+          </div>
+        </div>
+
+        <!-- Comment Field with Validation and 0/200 Counter -->
+        <div>
+          <label class="comment-label">Comment <span>*</span></label>
+          <textarea
+            class="override-textarea"
+            id="overrideCommentTextarea"
+            maxlength="200"
+            placeholder="Explain why you are proceeding despite the mismatch"
+            oninput="handleCommentInput(this)"
+          ></textarea>
+          <div class="char-counter" id="commentCharCounter">0/200</div>
+          <div id="commentValidationError" style="display:none; color:#e02424; font-size:11px; margin-top:4px; font-weight:600;">
+            ⚠ Comment is required to proceed with mismatched request.
+          </div>
+        </div>
+
+        <!-- Navy Blue Re-confirm Button -->
+        <button class="btn-reconfirm-navy" onclick="submitMismatchOverride()">
+          Re-confirm
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================
+       MODAL 6: FILE LIST MODAL (test.jpg)
+       ======================================================================== -->
+  <div class="modal-backdrop" id="modalFileList">
+    <div class="modal-card modal-width-md" style="border-radius:6px;">
+      <div class="file-list-header">
+        <span>File List</span>
+        <button class="modal-close-x" style="color:#ffffff;" onclick="closeAllModals()">✕</button>
+      </div>
+
+      <!-- Recessed Frame Table -->
+      <div class="file-list-beveled-container">
+        <table class="file-list-table" id="fileListTable">
+          <thead>
+            <tr>
+              <th style="width:28px;"></th>
+              <th>File List</th>
+              <th>Uploaded Date</th>
+              <th>Uploaded By</th>
+            </tr>
+          </thead>
+          <tbody id="fileListTableBody">
+            <tr onclick="selectFileListItem(this, 'W129_R754914.pdf')">
+              <td style="text-align:center;"><input type="radio" name="fileListRadio" checked /></td>
+              <td><b>W129_R754914.pdf</b></td>
+              <td>2026-07-30-15:19:46</td>
+              <td>Bnssop</td>
+            </tr>
+            <tr onclick="selectFileListItem(this, 'Customer_Confirmation_Corrected.pdf')">
+              <td style="text-align:center;"><input type="radio" name="fileListRadio" /></td>
+              <td><b>Customer_Confirmation_Corrected.pdf</b></td>
+              <td>2026-09-22-09:15:00</td>
+              <td>John Doe</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Action Buttons matching test.jpg: View Document, Print, Download, Remove, Cancel -->
+      <div class="file-list-footer-actions">
+        <button class="btn-file-list-action" onclick="handleViewDocument()">View Document</button>
+        <button class="btn-file-list-action" onclick="handlePrintDocument()">Print</button>
+        <button class="btn-file-list-action" onclick="handleDownloadDocument()">Download</button>
+        <button class="btn-file-list-action" onclick="handleRemoveDocument()">Remove</button>
+        <button class="btn-file-list-action" onclick="closeAllModals()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================
+       MODAL 7: DOCUMENT VIEWER MODAL (Preview of Customer Confirmation Doc)
+       ======================================================================== -->
+  <div class="modal-backdrop" id="modalDocViewer">
+    <div class="modal-card modal-width-xl">
+      <div class="reupload-header">
+        <div class="reupload-header-title">
+          <span>Confirmation Document Preview: </span>
+          <span id="previewDocName" style="color:#1d4ed8; font-weight:700;">W129_R754914.pdf</span>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button class="demo-btn" style="background:#0284c7; color:#fff;" onclick="toggleDocMismatchVersion()">
+            Toggle Version: <span id="docVersionLabel" style="font-weight:bold; margin-left:4px;">Original (Mismatched)</span>
+          </button>
+          <button class="modal-close-x" onclick="closeDocViewer()">✕</button>
+        </div>
+      </div>
+
+      <div class="doc-viewer-modal-body">
+        <div class="mock-pdf-page" id="mockPdfContainer">
+          <!-- Document Content will be dynamically rendered -->
+        </div>
+      </div>
+
+      <div class="modal-actions-footer">
+        <button class="btn-file-list-action" onclick="handlePrintDocument()">🖨 Print</button>
+        <button class="btn-file-list-action" onclick="handleDownloadDocument()">⬇ Download PDF</button>
+        <button class="btn-modal-primary" onclick="closeDocViewer()">Close Preview</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================
+       MODAL 8: AUDIT TRAIL MODAL (Key Points Requirement in Phone order.png)
+       ======================================================================== -->
+  <div class="modal-backdrop" id="modalAuditTrail">
+    <div class="modal-card modal-width-lg">
+      <div class="reupload-header">
+        <div class="reupload-header-title">Order SO-100245 Confirmation Audit Trail</div>
+        <button class="modal-close-x" onclick="closeAllModals()">✕</button>
+      </div>
+      <div style="padding:16px;">
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:10px; margin-bottom:12px; font-size:11.5px;">
+          <b>Compliance Requirement:</b> Each re-upload replaces the previous file. System maintains an immutable audit trail of all re-upload attempts, OCR discrepancies, and manager overrides.
+        </div>
+        <table class="val-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Action</th>
+              <th>File Name</th>
+              <th>User</th>
+              <th>Result / Comment</th>
+            </tr>
+          </thead>
+          <tbody id="auditTrailTableBody">
+            <tr>
+              <td>2026-09-21 18:45</td>
+              <td>Initial Document Upload</td>
+              <td>W129_R754914.pdf</td>
+              <td>Bnssop</td>
+              <td><span class="badge-pill-mismatch">Validation Failed (4 Mismatches)</span></td>
+            </tr>
+            <tr>
+              <td>2026-09-21 19:05</td>
+              <td>Re-upload Attempt #1</td>
+              <td>Customer_Confirmation_Corrected.pdf</td>
+              <td>John Doe</td>
+              <td><span class="badge-pill-match">Validation Successful</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-actions-footer">
+        <button class="btn-modal-primary" onclick="closeAllModals()">Close</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================
+       TOAST NOTIFICATIONS CONTAINER
+       ======================================================================== -->
+  <div class="toast-container" id="toastContainer"></div>
+
+
+  <!-- ========================================================================
+       JAVASCRIPT LOGIC & WORKFLOW ENGINE
+       ======================================================================== -->
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      flatpickr("#home-date-search", {
-        dateFormat: "d/m/Y",
-        disableMobile: true,
-        position: "auto right",
-        onReady: function (selectedDates, dateStr, instance) {
-          const btnRow = document.createElement("div");
-          btnRow.style.padding = "10px 15px";
-          btnRow.style.borderTop = "1px solid #e2e8f0";
-          btnRow.style.display = "flex";
-          btnRow.style.justifyContent = "space-between";
+    /* --------------------------------------------------------------------------
+       GLOBAL APPLICATION STATE
+       -------------------------------------------------------------------------- */
+    const appState = {
+      currentOrder: "SO-100245",
+      orderStatus: "mismatch", // "mismatch" | "confirmed" | "override"
+      accountNumber: "ACC-45821",
+      uploadedAccount: "ACC-45829",
+      productName: "Product A",
+      systemStrength: "500 mg",
+      uploadedStrength: "250 mg",
+      systemQty: 100,
+      uploadedQty: 80,
+      systemPackSize: "10 x 10",
+      uploadedPackSize: "5 x 10",
+      selectedFileName: "Customer_Confirmation_Corrected.pdf",
+      selectedFileSize: "1.2 MB",
+      isFileReadyForUpload: false,
+      selectedFileListFile: "W129_R754914.pdf",
+      docViewerMismatchedMode: true,
+      auditHistory: [
+        {
+          timestamp: "2026-09-21 18:45:12",
+          action: "Initial File Ingestion",
+          file: "W129_R754914.pdf",
+          user: "Bnssop (Automated Intake)",
+          result: "Validation Failed: Account (ACC-45829 vs ACC-45821), Strength (250mg vs 500mg), Qty (80 vs 100), Pack (5x10 vs 10x10)"
+        }
+      ]
+    };
 
-          const clearBtn = document.createElement("button");
-          clearBtn.textContent = "Clear";
-          clearBtn.style.color = "var(--primary, #1d4ed8)";
-          clearBtn.style.background = "none";
-          clearBtn.style.border = "none";
-          clearBtn.style.fontWeight = "600";
-          clearBtn.style.cursor = "pointer";
-          clearBtn.onclick = function (e) {
-            e.preventDefault();
-            instance.clear();
-            instance.close();
-            document.getElementById('home-order-search').value = '';
-            searchHomeOrders('');
-          };
+    /* --------------------------------------------------------------------------
+       TAB NAVIGATION HANDLER (Only 4 tabs active: Email, Web, Phone, Without Conf)
+       -------------------------------------------------------------------------- */
+    function handleDisabledTabClick(tabName) {
+      showToast(`Tab "${tabName}" is currently disabled. Active tabs: WEB ORDER, EMAIL ORDER, PHONE ORDER, and ORDER WITHOUT CONFIRMATION.`, "warning");
+    }
 
-          const okBtn = document.createElement("button");
-          okBtn.textContent = "Ok";
-          okBtn.style.color = "var(--primary, #1d4ed8)";
-          okBtn.style.background = "none";
-          okBtn.style.border = "none";
-          okBtn.style.fontWeight = "600";
-          okBtn.style.cursor = "pointer";
-          okBtn.onclick = function (e) {
-            e.preventDefault();
-            if (!instance.selectedDates.length) {
-              instance.setDate(new Date(), true);
-            }
-            instance.close();
-          };
+    function switchTab(tabId, tabButtonElement) {
+      // Check if disabled
+      if (tabButtonElement && tabButtonElement.classList.contains("tab-disabled")) {
+        handleDisabledTabClick(tabButtonElement.innerText.trim());
+        return;
+      }
 
-          btnRow.appendChild(clearBtn);
-          btnRow.appendChild(okBtn);
-          instance.calendarContainer.appendChild(btnRow);
-        },
-        onChange: function (selectedDates, dateStr, instance) {
-          document.getElementById('home-order-search').value = dateStr;
-          searchHomeOrders(dateStr);
+      // Deactivate all tab buttons
+      document.querySelectorAll(".nav-tab").forEach(tab => tab.classList.remove("active"));
+      // Activate clicked tab
+      if (tabButtonElement) {
+        tabButtonElement.classList.add("active");
+      }
+
+      // Hide all panels
+      document.querySelectorAll(".tab-content-panel").forEach(panel => panel.classList.remove("active"));
+      // Show selected panel
+      const targetPanel = document.getElementById(tabId);
+      if (targetPanel) {
+        targetPanel.classList.add("active");
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+       COLLAPSIBLE SECTIONS
+       -------------------------------------------------------------------------- */
+    function toggleSection(boxId) {
+      const box = document.getElementById(boxId);
+      const icon = document.getElementById(boxId + "-icon");
+      if (box.style.display === "none") {
+        box.style.display = "block";
+        if (icon) icon.innerText = "▲";
+      } else {
+        box.style.display = "none";
+        if (icon) icon.innerText = "▼";
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+       TOAST SYSTEM
+       -------------------------------------------------------------------------- */
+    function showToast(message, type = "info") {
+      const container = document.getElementById("toastContainer");
+      const toast = document.createElement("div");
+      toast.className = `toast-item ${type}`;
+
+      let icon = "ℹ️";
+      if (type === "success") icon = "✔";
+      if (type === "error") icon = "✕";
+      if (type === "warning") icon = "⚠";
+
+      toast.innerHTML = `<span style="font-weight:bold;">${icon}</span> <span>${message}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateX(100%)";
+        toast.style.transition = "all 0.3s ease";
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    /* --------------------------------------------------------------------------
+       MODAL CONTROLLERS
+       -------------------------------------------------------------------------- */
+    function closeAllModals() {
+      document.querySelectorAll(".modal-backdrop").forEach(modal => {
+        modal.classList.remove("show");
+      });
+    }
+
+    function openModal(modalId) {
+      closeAllModals();
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.classList.add("show");
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+       WORKFLOW SCENARIO 1: STEP 1 - 5 VALIDATION & RE-UPLOAD FLOW
+       -------------------------------------------------------------------------- */
+    // Step 1: Open Mismatch Screen
+    function startValidationMismatchFlow() {
+      if (appState.orderStatus === "confirmed") {
+        openModal("modalValidationSuccess");
+        showToast("Order SO-100245 is already validated and confirmed.", "success");
+      } else {
+        openModal("modalValidationFailed");
+      }
+    }
+
+    // Step 2: Open Re-upload Dropzone Modal
+    function openReuploadModal() {
+      // Reset dropzone state
+      document.getElementById("reuploadDropzoneState").style.display = "block";
+      document.getElementById("reuploadSelectedState").style.display = "none";
+      const btn = document.getElementById("btnPerformUpload");
+      btn.disabled = true;
+      btn.style.opacity = "0.5";
+      btn.style.cursor = "not-allowed";
+      appState.isFileReadyForUpload = false;
+
+      openModal("modalReupload");
+    }
+
+    // Step 3: Trigger native file input
+    function triggerFileInput() {
+      document.getElementById("reuploadFileInput").click();
+    }
+
+    function handleFileSelected(input) {
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+        displaySelectedFile(file.name, (file.size / (1024 * 1024)).toFixed(1) + " MB");
+      }
+    }
+
+    function selectSampleCorrectedFile() {
+      displaySelectedFile("Customer_Confirmation_Corrected.pdf", "1.2 MB");
+    }
+
+    function displaySelectedFile(fileName, fileSize) {
+      appState.selectedFileName = fileName;
+      appState.selectedFileSize = fileSize;
+      appState.isFileReadyForUpload = true;
+
+      document.getElementById("selectedFileName").innerText = fileName;
+      document.getElementById("selectedFileSize").innerText = fileSize;
+
+      document.getElementById("reuploadDropzoneState").style.display = "none";
+      document.getElementById("reuploadSelectedState").style.display = "block";
+
+      const btn = document.getElementById("btnPerformUpload");
+      btn.disabled = false;
+      btn.style.opacity = "1";
+      btn.style.cursor = "pointer";
+
+      showToast(`File "${fileName}" ready for upload.`, "info");
+    }
+
+    function clearSelectedFile() {
+      appState.isFileReadyForUpload = false;
+      document.getElementById("reuploadDropzoneState").style.display = "block";
+      document.getElementById("reuploadSelectedState").style.display = "none";
+      const btn = document.getElementById("btnPerformUpload");
+      btn.disabled = true;
+      btn.style.opacity = "0.5";
+      btn.style.cursor = "not-allowed";
+    }
+
+    // Drag and Drop Handlers
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      document.getElementById("dropzoneContainer").classList.add("dragover");
+    }
+
+    function handleDragLeave(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      document.getElementById("dropzoneContainer").classList.remove("dragover");
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      document.getElementById("dropzoneContainer").classList.remove("dragover");
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        const file = e.dataTransfer.files[0];
+        displaySelectedFile(file.name, (file.size / (1024 * 1024)).toFixed(1) + " MB");
+      }
+    }
+
+    // Step 4: Start Processing Uploaded File Simulation
+    function startProcessingUploadedFile() {
+      if (!appState.isFileReadyForUpload) return;
+
+      openModal("modalProcessing");
+
+      const progressBar = document.getElementById("processingProgressBar");
+      const percentageText = document.getElementById("processingPercentage");
+      const stepMessage = document.getElementById("processingStepMessage");
+
+      progressBar.style.width = "0%";
+      percentageText.innerText = "0%";
+      stepMessage.innerText = "Reading uploaded document and OCR extraction...";
+
+      // Simulation steps
+      setTimeout(() => {
+        progressBar.style.width = "25%";
+        percentageText.innerText = "25%";
+        stepMessage.innerText = "Verifying Customer Account & PO Reference...";
+      }, 400);
+
+      setTimeout(() => {
+        progressBar.style.width = "50%";
+        percentageText.innerText = "50%";
+        stepMessage.innerText = "Comparing Line Items: Strength (500mg) and Quantity (100)...";
+      }, 900);
+
+      setTimeout(() => {
+        progressBar.style.width = "85%";
+        percentageText.innerText = "85%";
+        stepMessage.innerText = "Validating Pack Size (10x10) and Pharmacist authorization...";
+      }, 1400);
+
+      setTimeout(() => {
+        progressBar.style.width = "100%";
+        percentageText.innerText = "100%";
+        stepMessage.innerText = "Validation completed successfully! All items match.";
+
+        setTimeout(() => {
+          // Add to File List
+          addFileToFileList(appState.selectedFileName, "John Doe");
+
+          // Add to Audit Trail
+          appState.auditHistory.unshift({
+            timestamp: new Date().toISOString().replace("T", " ").substring(0, 19),
+            action: "Re-upload & Automated Validation",
+            file: appState.selectedFileName,
+            user: "John Doe",
+            result: "Validation Successful: All fields match system order"
+          });
+          renderAuditTrail();
+
+          // Step 5: Open Validation Successful Modal
+          openModal("modalValidationSuccess");
+        }, 500);
+      }, 1900);
+    }
+
+    // Step 5: Complete Validation Success
+    function completeValidationSuccessFlow() {
+      closeAllModals();
+
+      // Update state
+      appState.orderStatus = "confirmed";
+      updateUIForConfirmedState();
+
+      showToast("Order SO-100245 confirmation successfully validated! Ready for release.", "success");
+    }
+
+    function updateUIForConfirmedState() {
+      // Update Top Badge
+      document.getElementById("currentOrderBadge").innerText = "SO-100245 (Confirmed)";
+      document.getElementById("currentOrderBadge").style.color = "#4ade80";
+
+      // Update Web Order Checkbox
+      const chk = document.getElementById("webOrderConfirmedCheckbox");
+      if (chk) chk.checked = true;
+
+      // Update Phone Order Screen
+      const phoneStatus = document.getElementById("phoneConfirmationStatus");
+      if (phoneStatus) {
+        phoneStatus.value = "Validated & Confirmed";
+        phoneStatus.style.background = "#dcfce7";
+        phoneStatus.style.color = "#166534";
+      }
+      const phoneLineStatus = document.getElementById("phoneLineStatus");
+      if (phoneLineStatus) {
+        phoneLineStatus.className = "status-badge confirmed";
+        phoneLineStatus.innerText = "Match";
+      }
+
+      // Update Order Without Confirmation Screen
+      const rowStatus = document.querySelector("#withoutConfTableBody tr:first-child .status-badge");
+      if (rowStatus) {
+        rowStatus.className = "status-badge confirmed";
+        rowStatus.innerText = "Confirmed";
+      }
+      const commentCell = document.querySelector("#withoutConfTableBody tr:first-child td:nth-child(8)");
+      if (commentCell) {
+        commentCell.innerText = "Corrected confirmation file validated";
+        commentCell.style.color = "#047857";
+        commentCell.style.fontStyle = "normal";
+      }
+
+      // Update badge count
+      const badge = document.getElementById("withoutConfCount");
+      if (badge) badge.innerText = "2";
+    }
+
+    /* --------------------------------------------------------------------------
+       WORKFLOW SCENARIO 2: MISMATCH OVERRIDE / RE-CONFIRM MODAL
+       -------------------------------------------------------------------------- */
+    function openMismatchOverrideModal() {
+      const textarea = document.getElementById("overrideCommentTextarea");
+      textarea.value = "";
+      document.getElementById("commentCharCounter").innerText = "0/200";
+      document.getElementById("commentValidationError").style.display = "none";
+      openModal("modalMismatchOverride");
+    }
+
+    function openMismatchOverrideModalFromFailed() {
+      openMismatchOverrideModal();
+    }
+
+    function handleCommentInput(textarea) {
+      const len = textarea.value.length;
+      document.getElementById("commentCharCounter").innerText = `${len}/200`;
+      if (len > 0) {
+        document.getElementById("commentValidationError").style.display = "none";
+      }
+    }
+
+    function submitMismatchOverride() {
+      const textarea = document.getElementById("overrideCommentTextarea");
+      const comment = textarea.value.trim();
+
+      if (!comment) {
+        document.getElementById("commentValidationError").style.display = "block";
+        textarea.focus();
+        showToast("Please provide a reason to re-confirm despite mismatch.", "warning");
+        return;
+      }
+
+      // Process Override
+      closeAllModals();
+      appState.orderStatus = "override";
+
+      // Log to Audit Trail
+      appState.auditHistory.unshift({
+        timestamp: new Date().toISOString().replace("T", " ").substring(0, 19),
+        action: "Manager Override & Re-confirm",
+        file: "W129_R754914.pdf",
+        user: "John Doe (Authorized by Clinician)",
+        result: `Override Reason: ${comment}`
+      });
+      renderAuditTrail();
+
+      // Update UI
+      document.getElementById("currentOrderBadge").innerText = "SO-100245 (Override Approved)";
+      document.getElementById("currentOrderBadge").style.color = "#a78bfa";
+
+      const phoneStatus = document.getElementById("phoneConfirmationStatus");
+      if (phoneStatus) {
+        phoneStatus.value = "Override Approved";
+        phoneStatus.style.background = "#e0e7ff";
+        phoneStatus.style.color = "#3730a3";
+      }
+
+      const rowStatus = document.querySelector("#withoutConfTableBody tr:first-child .status-badge");
+      if (rowStatus) {
+        rowStatus.className = "status-badge override";
+        rowStatus.innerText = "Override Approved";
+      }
+      const commentCell = document.querySelector("#withoutConfTableBody tr:first-child td:nth-child(8)");
+      if (commentCell) {
+        commentCell.innerText = comment;
+        commentCell.style.color = "#3730a3";
+        commentCell.style.fontStyle = "italic";
+      }
+
+      showToast("Order SO-100245 successfully Re-confirmed with manager reason.", "success");
+    }
+
+    /* --------------------------------------------------------------------------
+       WORKFLOW SCENARIO 3: FILE LIST MODAL (test.jpg)
+       -------------------------------------------------------------------------- */
+    function openFileListModal() {
+      openModal("modalFileList");
+    }
+
+    function selectFileListItem(rowElement, fileName) {
+      document.querySelectorAll("#fileListTableBody tr").forEach(r => r.style.background = "");
+      rowElement.style.background = "#e0f2fe";
+      rowElement.querySelector("input[type='radio']").checked = true;
+      appState.selectedFileListFile = fileName;
+    }
+
+    function addFileToFileList(fileName, uploadedBy) {
+      const tbody = document.getElementById("fileListTableBody");
+      const now = new Date().toISOString().replace("T", "-").substring(0, 19);
+
+      // Check if file already in list
+      let exists = false;
+      document.querySelectorAll("#fileListTableBody tr").forEach(row => {
+        if (row.innerText.includes(fileName)) exists = true;
+      });
+
+      if (!exists) {
+        const tr = document.createElement("tr");
+        tr.onclick = function() { selectFileListItem(tr, fileName); };
+        tr.innerHTML = `
+          <td style="text-align:center;"><input type="radio" name="fileListRadio" /></td>
+          <td><b>${fileName}</b></td>
+          <td>${now}</td>
+          <td>${uploadedBy}</td>
+        `;
+        tbody.prepend(tr);
+      }
+    }
+
+    function handleViewDocument() {
+      openDocumentViewer(appState.selectedFileListFile);
+    }
+
+    function handlePrintDocument() {
+      showToast(`Sending ${appState.selectedFileListFile} to network printer (SPE-L Laser)...`, "info");
+      setTimeout(() => {
+        window.print();
+      }, 400);
+    }
+
+    function handleDownloadDocument() {
+      showToast(`Downloading file ${appState.selectedFileListFile}...`, "success");
+      // Simulated blob download
+      const element = document.createElement('a');
+      element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(`Mock Customer Order Confirmation Document\nOrder Number: SO-100245\nFile: ${appState.selectedFileListFile}`));
+      element.setAttribute('download', appState.selectedFileListFile);
+      element.style.display = 'none';
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+    }
+
+    function handleRemoveDocument() {
+      if (confirm(`Are you sure you want to remove ${appState.selectedFileListFile}?`)) {
+        const rows = document.querySelectorAll("#fileListTableBody tr");
+        if (rows.length > 1) {
+          rows.forEach(r => {
+            if (r.innerText.includes(appState.selectedFileListFile)) r.remove();
+          });
+          showToast(`File ${appState.selectedFileListFile} removed from order.`, "warning");
+        } else {
+          showToast("Cannot remove the only remaining confirmation file.", "error");
+        }
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+       DOCUMENT VIEWER MODAL CONTROLLER
+       -------------------------------------------------------------------------- */
+    function openDocumentViewer(fileName) {
+      document.getElementById("previewDocName").innerText = fileName;
+      if (fileName.includes("Corrected")) {
+        appState.docViewerMismatchedMode = false;
+        document.getElementById("docVersionLabel").innerText = "Corrected (Matched)";
+      } else {
+        appState.docViewerMismatchedMode = true;
+        document.getElementById("docVersionLabel").innerText = "Original (Mismatched)";
+      }
+      renderMockDocument();
+      openModal("modalDocViewer");
+    }
+
+    function closeDocViewer() {
+      openFileListModal();
+    }
+
+    function toggleDocMismatchVersion() {
+      appState.docViewerMismatchedMode = !appState.docViewerMismatchedMode;
+      document.getElementById("docVersionLabel").innerText = appState.docViewerMismatchedMode ? "Original (Mismatched)" : "Corrected (Matched)";
+      renderMockDocument();
+    }
+
+    function renderMockDocument() {
+      const container = document.getElementById("mockPdfContainer");
+      const isMismatch = appState.docViewerMismatchedMode;
+
+      container.innerHTML = `
+        <div class="doc-header-top">
+          <div>
+            <div class="doc-title-h1">CENTRAL HOSPITAL PHARMACY</div>
+            <div style="font-size:11px; color:#475569;">Procurement Division, Healthcare Boulevard, London SW1A 1AA</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:13px; font-weight:bold; color:#0f172a;">PURCHASE ORDER CONFIRMATION</div>
+            <div style="font-size:11px; color:#475569;">Date: 2026-09-21</div>
+          </div>
+        </div>
+
+        <table class="doc-meta-table">
+          <tr>
+            <td style="width:130px; font-weight:bold;">Order Number:</td>
+            <td>SO-100245</td>
+            <td style="width:130px; font-weight:bold;">Customer PO Ref:</td>
+            <td>PO-99412</td>
+          </tr>
+          <tr>
+            <td style="font-weight:bold;">Account Number:</td>
+            <td>
+              ${isMismatch 
+                ? '<span class="highlight-mismatch-box">ACC-45829 (MISMATCH with System ACC-45821)</span>' 
+                : '<span class="highlight-match-box">ACC-45821 (MATCH)</span>'}
+            </td>
+            <td style="font-weight:bold;">Site:</td>
+            <td>SPE-L</td>
+          </tr>
+        </table>
+
+        <div style="font-weight:bold; font-size:12px; margin-bottom:6px; color:#0f172a;">Order Line Specifications:</div>
+        <table class="doc-items-table">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Product Description</th>
+              <th>Strength</th>
+              <th>Quantity</th>
+              <th>Pack Size</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>Product A</td>
+              <td>
+                ${isMismatch 
+                  ? '<span class="highlight-mismatch-box">250 mg (Mismatch)</span>' 
+                  : '<span class="highlight-match-box">500 mg (Match)</span>'}
+              </td>
+              <td>
+                ${isMismatch 
+                  ? '<span class="highlight-mismatch-box">80 (Mismatch)</span>' 
+                  : '<span class="highlight-match-box">100 (Match)</span>'}
+              </td>
+              <td>
+                ${isMismatch 
+                  ? '<span class="highlight-mismatch-box">5 x 10 (Mismatch)</span>' 
+                  : '<span class="highlight-match-box">10 x 10 (Match)</span>'}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="margin-top:20px; border-top:1px solid #e2e8f0; padding-top:12px; display:flex; justify-content:space-between; font-size:11px;">
+          <div>
+            <b>Authorized Pharmacist:</b> David Wilson, BPharm<br>
+            <b>License:</b> GPhC-902418
+          </div>
+          <div style="text-align:right;">
+            <b>Verification Status:</b><br>
+            ${isMismatch 
+              ? '<span style="color:#b91c1c; font-weight:bold;">⚠ Discrepancies Flagged by OCR</span>' 
+              : '<span style="color:#15803d; font-weight:bold;">✔ 100% OCR Match Verified</span>'}
+          </div>
+        </div>
+      `;
+    }
+
+    /* --------------------------------------------------------------------------
+       AUDIT TRAIL CONTROLLER
+       -------------------------------------------------------------------------- */
+    function openAuditTrailModal() {
+      renderAuditTrail();
+      openModal("modalAuditTrail");
+    }
+
+    function renderAuditTrail() {
+      const tbody = document.getElementById("auditTrailTableBody");
+      tbody.innerHTML = "";
+      appState.auditHistory.forEach(item => {
+        const tr = document.createElement("tr");
+        let badgeClass = "badge-pill-match";
+        if (item.result.includes("Failed") || item.result.includes("Mismatch")) badgeClass = "badge-pill-mismatch";
+        if (item.action.includes("Override")) badgeClass = "badge-pill-match' style='background:#ede9fe; color:#5b21b6;'";
+
+        tr.innerHTML = `
+          <td>${item.timestamp}</td>
+          <td><b>${item.action}</b></td>
+          <td>${item.file}</td>
+          <td>${item.user}</td>
+          <td><span class="${badgeClass}">${item.result}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    /* --------------------------------------------------------------------------
+       PAGE ACTION HANDLERS (Email Order & Web Order & Phone Order)
+       -------------------------------------------------------------------------- */
+    function handleConfirmEmailOrder() {
+      startValidationMismatchFlow();
+    }
+
+    function handleCreateRequest() {
+      showToast("Creating Special Order Request...", "info");
+      setTimeout(() => {
+        showToast("Request REQ-2026-098 created. Please validate order confirmation document.", "warning");
+        startValidationMismatchFlow();
+      }, 500);
+    }
+
+    function handleCancelEmail() {
+      if (confirm("Are you sure you want to cancel the current email order entry?")) {
+        document.getElementById("emailContentInput").value = "";
+        showToast("Email order content cleared.", "info");
+      }
+    }
+
+    function clearProductRow() {
+      document.getElementById("prodCode").value = "";
+      document.getElementById("prodDesc").value = "";
+      document.getElementById("prodQty").value = "";
+      document.getElementById("prodAQty").value = "";
+      document.getElementById("prodPA").checked = false;
+      showToast("Product inputs reset.", "info");
+    }
+
+    function handleOrderConfirmedToggle(checkbox) {
+      if (checkbox.checked) {
+        if (appState.orderStatus === "mismatch") {
+          checkbox.checked = false;
+          showToast("Cannot confirm order: details do not match uploaded confirmation document. Please validate first.", "error");
+          startValidationMismatchFlow();
+        } else {
+          showToast("Order status marked as Confirmed.", "success");
+        }
+      } else {
+        appState.orderStatus = "mismatch";
+        document.getElementById("currentOrderBadge").innerText = "SO-100245 (Mismatch)";
+        document.getElementById("currentOrderBadge").style.color = "#38bdf8";
+        showToast("Order confirmation unchecked.", "info");
+      }
+    }
+
+    function handleReleaseWebOrder() {
+      if (appState.orderStatus === "mismatch") {
+        showToast("Cannot release order! Order confirmation validation failed. Review mismatches or upload corrected file.", "error");
+        startValidationMismatchFlow();
+      } else {
+        showToast("Order SO-100245 released successfully to dispatch warehouse!", "success");
+      }
+    }
+
+    function handleReleasePhoneOrder() {
+      if (appState.orderStatus === "mismatch") {
+        showToast("Validation discrepancy must be resolved before releasing phone order.", "warning");
+        startValidationMismatchFlow();
+      } else {
+        showToast("Phone order SO-100245 released to production!", "success");
+      }
+    }
+
+    function handleEditWebOrder() {
+      showToast("Editing order line parameters for SO-100245...", "info");
+    }
+
+    function selectWebOrderRow(row, reqNo, accNo, orderNo, custName) {
+      document.querySelectorAll("#webOrderTable tbody tr").forEach(r => r.classList.remove("selected"));
+      row.classList.add("selected");
+
+      document.getElementById("webOrderNo").value = orderNo;
+      document.getElementById("webCustNo").value = accNo;
+      document.getElementById("webCustName").value = custName;
+
+      showToast(`Selected ${orderNo} (${custName})`, "info");
+    }
+
+    function toggleSelectAllWebOrders(masterCheckbox) {
+      document.querySelectorAll("#webOrderTable tbody input[type='checkbox']").forEach(cb => {
+        cb.checked = masterCheckbox.checked;
+      });
+    }
+
+    /* --------------------------------------------------------------------------
+       ORDER WITHOUT CONFIRMATION TAB ACTIONS
+       -------------------------------------------------------------------------- */
+    function selectWithoutConfRow(orderNo, trElement) {
+      document.querySelectorAll("#withoutConfTableBody tr").forEach(r => r.style.background = "");
+      trElement.style.background = "#e0f2fe";
+      document.getElementById("selectedOrderLineLabel").innerText = orderNo;
+    }
+
+    function applyWithoutConfFilters() {
+      const status = document.getElementById("filterStatus").value;
+      const rows = document.querySelectorAll("#withoutConfTableBody tr");
+      let count = 0;
+
+      rows.forEach(row => {
+        if (status === "All") {
+          row.style.display = "";
+          count++;
+        } else if (status === "Mismatch" && row.innerHTML.includes("Validation Mismatch")) {
+          row.style.display = "";
+          count++;
+        } else if (status === "Override" && row.innerHTML.includes("Override")) {
+          row.style.display = "";
+          count++;
+        } else if (status === "Pending" && row.innerHTML.includes("Pending")) {
+          row.style.display = "";
+          count++;
+        } else if (status === "Confirmed" && row.innerHTML.includes("Confirmed")) {
+          row.style.display = "";
+          count++;
+        } else {
+          row.style.display = "none";
         }
       });
+
+      document.getElementById("withoutConfTableCountText").innerText = `Showing ${count} records`;
+      showToast(`Filter applied: ${status} (${count} matches)`, "info");
+    }
+
+    function clearWithoutConfFilters() {
+      document.getElementById("filterStatus").value = "All";
+      document.getElementById("filterOrderNo").value = "";
+      document.getElementById("filterAccount").value = "";
+      document.getElementById("filterPharmacy").value = "";
+      applyWithoutConfFilters();
+    }
+
+    /* --------------------------------------------------------------------------
+       DEMO CONTROLS: SWITCH ORDER STATE & RESET
+       -------------------------------------------------------------------------- */
+    function switchOrderState() {
+      if (appState.orderStatus === "mismatch") {
+        completeValidationSuccessFlow();
+      } else {
+        appState.orderStatus = "mismatch";
+        document.getElementById("currentOrderBadge").innerText = "SO-100245 (Mismatch)";
+        document.getElementById("currentOrderBadge").style.color = "#38bdf8";
+
+        const chk = document.getElementById("webOrderConfirmedCheckbox");
+        if (chk) chk.checked = false;
+
+        const phoneStatus = document.getElementById("phoneConfirmationStatus");
+        if (phoneStatus) {
+          phoneStatus.value = "Failed Validation";
+          phoneStatus.style.background = "#fee2e2";
+          phoneStatus.style.color = "#991b1b";
+        }
+
+        const phoneLineStatus = document.getElementById("phoneLineStatus");
+        if (phoneLineStatus) {
+          phoneLineStatus.className = "status-badge mismatch";
+          phoneLineStatus.innerText = "Mismatch";
+        }
+
+        const rowStatus = document.querySelector("#withoutConfTableBody tr:first-child .status-badge");
+        if (rowStatus) {
+          rowStatus.className = "status-badge mismatch";
+          rowStatus.innerText = "Validation Mismatch";
+        }
+        const commentCell = document.querySelector("#withoutConfTableBody tr:first-child td:nth-child(8)");
+        if (commentCell) {
+          commentCell.innerText = "Awaiting corrected file re-upload";
+          commentCell.style.color = "#64748b";
+          commentCell.style.fontStyle = "italic";
+        }
+
+        document.getElementById("withoutConfCount").innerText = "3";
+        showToast("Switched state to Mismatch: Account, Strength, Qty, Pack size discrepancy.", "warning");
+      }
+    }
+
+    function resetPrototypeData() {
+      appState.orderStatus = "mismatch";
+      appState.isFileReadyForUpload = false;
+      document.getElementById("currentOrderBadge").innerText = "SO-100245 (Mismatch)";
+      document.getElementById("currentOrderBadge").style.color = "#38bdf8";
+
+      const chk = document.getElementById("webOrderConfirmedCheckbox");
+      if (chk) chk.checked = false;
+
+      const phoneStatus = document.getElementById("phoneConfirmationStatus");
+      if (phoneStatus) {
+        phoneStatus.value = "Failed Validation";
+        phoneStatus.style.background = "#fee2e2";
+        phoneStatus.style.color = "#991b1b";
+      }
+
+      document.getElementById("withoutConfCount").innerText = "3";
+      closeAllModals();
+      showToast("Prototype demo data reset to initial state.", "info");
+    }
+
+    // Keyboard support: ESC closes modals
+    window.addEventListener("keydown", function(e) {
+      if (e.key === "Escape") {
+        closeAllModals();
+      }
     });
   </script>
 </body>
-
 </html>
